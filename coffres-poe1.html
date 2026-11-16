@@ -151,6 +151,8 @@
   .seg button{border:0;background:none;color:var(--muted);padding:6px 12px;cursor:pointer}
   .seg button.on{background:var(--panel3);color:var(--gold2)}
   .count{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;padding:7px 16px;border-bottom:1px solid var(--line)}
+  .count .rate{margin-left:auto;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .cur.xs{width:16px;height:16px}
   .count b{color:var(--gold2);font-weight:600}
   .view{flex:1;overflow:auto;min-height:0}
 
@@ -1457,9 +1459,9 @@
       recordValue(sum, sSafe, sTrade);
       drawValueChart();
       const big = money(sum, 'kTotal');
-      $('kTotalSub').textContent = `${big ? `${fmtC(sum)} chaos · ` : ''}${safe.length + traded.length} objets valorisés sur ${items.length}`;
+      $('kTotalSub').textContent = `${fmtC(sum)} chaos`;
       money(sSafe, 'kSafe');
-      if (P.divine) $('kTotalSub').textContent += ` · 1 div = ${nf(Math.round(P.divine), 0)} c`;
+
       processFarm();
       drawGain();
     } else {
@@ -1469,11 +1471,12 @@
     }
     $('kSafeSub').textContent = `${safe.length} objets cotés sur ${items.length}`;
     $('kPricedBar').style.width = items.length ? `${(safe.length / items.length) * 100}%` : '0';
+    const unvalued = items.length - safe.length - traded.length;
     if (traded.length) {
       $('kTrade').textContent = fmt(sTrade) || '0 c';
       const oldest = Math.min(...traded.map(i => i.trade.at));
-      $('kTradeSub').textContent = `${traded.length} objet${traded.length > 1 ? 's' : ''} · plus ancienne ${ago(oldest)}`;
-    } else { $('kTrade').textContent = '—'; $('kTradeSub').textContent = 'aucune estimation (fiche d\'un rare)'; }
+      $('kTradeSub').textContent = `${traded.length} estimé${traded.length > 1 ? 's' : ''} · ${unvalued} non valorisé${unvalued > 1 ? 's' : ''} · plus ancienne ${ago(oldest)}`;
+    } else { $('kTrade').textContent = '—'; $('kTradeSub').textContent = `aucune estimation · ${unvalued} objet${unvalued > 1 ? 's' : ''} non valorisé${unvalued > 1 ? 's' : ''}`; }
     renderFresh();
     // Les plus précieux
     const top = items.filter(i => val(i) > 0).sort((a, b) => val(b) - val(a)).slice(0, 12);
@@ -1551,7 +1554,8 @@
     const gridOk = view === 'grid' && tab && GRID_TYPES[tab.type];
     const tot = list.reduce((s, i) => s + val(i), 0);
     $('count').innerHTML = `<span><b>${list.length}</b> objet${list.length > 1 ? 's' : ''}</span>` + (tot ? `<span>·</span><span>valeur <b>${esc(fmt(tot))}</b></span>` : '') +
-      (view === 'grid' && !gridOk ? `<span>·</span><span>Grille disponible pour un onglet normal, premium ou quad</span>` : '');
+      (view === 'grid' && !gridOk ? `<span>·</span><span>Grille disponible pour un onglet normal, premium ou quad</span>` : '') +
+      (P && P.divine ? `<span class="rate" title="Cours poe.ninja (${esc(prices.league)})">${curImg('divine', 'cur xs')}1 div = <b>${nf(Math.round(P.divine), 0)} c</b></span>` : '');
     if (gridOk) renderGrid(list, GRID_TYPES[tab.type]); else renderList(list);
   }
 
