@@ -321,6 +321,14 @@
   .chg{font-size:11px;font-weight:600}
   .chg.up{color:var(--ok)} .chg.down{color:var(--err)}
   .follow-sect{margin-bottom:14px}
+  .fhead{display:flex;justify-content:space-between;align-items:center}
+  .linkbtn{background:none;border:0;color:var(--muted);font:500 11px/1 var(--body);letter-spacing:.04em;text-transform:none;cursor:pointer;padding:3px 4px;border-radius:4px}
+  .linkbtn:hover{color:var(--gold2)}
+  #followCount{color:var(--muted);font-weight:400;letter-spacing:0}
+  .flw{position:relative}
+  .flw .unf{position:absolute;top:3px;right:2px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;background:none;border:0;border-radius:4px;color:#6d6455;font-size:13px;line-height:1;cursor:pointer;opacity:0;transition:opacity .12s,color .12s}
+  .flw:hover .unf,.flw .unf:focus-visible{opacity:1}
+  .flw .unf:hover{color:var(--err);background:#ffffff0d}
   .fl{display:grid;grid-template-columns:30px 1fr 64px;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:5px 7px;cursor:pointer;color:var(--text)}
   .fl:hover{background:var(--panel2)}
   .fl img{width:28px;height:28px;object-fit:contain}
@@ -382,6 +390,7 @@
       <label title="Rescan automatique des coffres">Auto <select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
     </div>
     <span class="pill" title="Liaison avec le script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Recherche du script…</span></span>
+    <span class="pill relay" id="ovPill" hidden title="Ton overlay PoE tourne : la page lui confie les recherches trade (pas de vérification Cloudflare)."><span class="dot on"></span>Overlay</span>
     <a class="pill relay" id="relayPill" hidden href="https://www.pathofexile.com/trade" target="_blank" rel="noopener"><span class="dot" id="relayDot"></span><span id="relayTxt">Relais</span></a>
     <div class="actions">
       <button class="btn primary" id="scanBtn" hidden><svg><use href="#i-refresh"/></svg>Rescanner</button>
@@ -438,7 +447,7 @@
   <div class="main" id="mainView" hidden>
     <aside>
       <div class="follow-sect" id="followWrap" hidden>
-        <div class="sect">★ Suivis</div>
+        <div class="sect fhead"><span>★ Suivis <span id="followCount"></span></span><button class="linkbtn" id="followToggle" aria-expanded="true">Masquer</button></div>
         <div id="followList"></div>
       </div>
       <div class="sect">Onglets</div>
@@ -492,10 +501,11 @@
   let activeTab = null, view = 'list', sortKey = 'tab', sortDir = 1, shown = PAGE, selected = null;
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
-  let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
+  let localTrades = {}; try { localTrades = JSON.parse(localStorage.getItem('poeTrades') || '{}'); } catch {}
+  let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.1';
+  const REQ_SCRIPT = '2.6.2';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, hist = {}, histReq = {}, scriptVersion = '';
@@ -540,7 +550,7 @@
         $('auto').value = String(settings.autoMinutes || 0);
         break;
       case 'trades':
-        try { trades = JSON.parse(m.data) || {}; applyPrices(); } catch {}
+        try { trades = { ...localTrades, ...(JSON.parse(m.data) || {}) }; applyPrices(); } catch {}
         break;
       case 'trade-result':
         try {
@@ -626,6 +636,94 @@
   document.addEventListener('click', e => { if (!e.target.closest('.menu')) { $('filesPop').hidden = true; $('filesBtn').setAttribute('aria-expanded', 'false'); } });
   $('filesPop').addEventListener('click', e => { if (e.target.closest('button')) $('filesPop').hidden = true; });
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
+
+  $('followToggle').onclick = () => {
+    const h = !$('followList').hidden;
+    try { localStorage.setItem('poeFollowHidden', h ? '1' : '0'); } catch {}
+    renderFollow();
+  };
+
+  // =================== Overlay local (pont trade) ===================
+  const OVERLAY = 'http://127.0.0.1:7777';
+  let overlayOK = false;
+  async function checkOverlay() {
+    try {
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 1500);
+      const r = await fetch(`${OVERLAY}/health`, { signal: ctl.signal, cache: 'no-store' });
+      clearTimeout(t);
+      overlayOK = r.ok && !!(await r.json()).ok;
+    } catch { overlayOK = false; }
+    $('ovPill').hidden = !overlayOK;
+    if (overlayOK) $('relayPill').hidden = true;
+    if (selected !== null && data) select(selected);
+  }
+  checkOverlay();
+  setInterval(checkOverlay, 30000);
+
+  const ovNext = {};
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const parseRules = x => (x || '').split(',').filter(Boolean).map(r => r.split(':').map(Number));
+  function ovDelay(res, floor) {
+    let d = floor;
+    for (const sc of ['account', 'ip']) {
+      const lim = parseRules(res.headers.get(`x-rate-limit-${sc}`)), st = parseRules(res.headers.get(`x-rate-limit-${sc}-state`));
+      lim.forEach(([max, period], k) => {
+        const [hits = 0, , pen = 0] = st[k] || [];
+        if (pen > 0) d = Math.max(d, pen * 1000 + 1000);
+        else if (hits >= max - 1) d = Math.max(d, period * 1000 + 1000);
+        else if (period <= 60) d = Math.max(d, (period * 1000) / max + 200);
+      });
+    }
+    return d;
+  }
+  async function ovReq(kind, path, body, live) {
+    for (let a = 0; a < 5; a++) {
+      const w = (ovNext[kind] || 0) - Date.now();
+      if (w > 0) { if (w > 2000) live(`Limite du trade (${kind === 'search' ? 'recherches' : 'annonces'}) : pause ${Math.ceil(w / 1000)} s…`); await sleep(w); }
+      const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 40000);
+      let res;
+      try { res = await fetch(OVERLAY + path, { method: body ? 'POST' : 'GET', headers: body ? { 'Content-Type': 'application/json' } : {}, body, signal: ctl.signal }); }
+      catch { throw new Error("L'overlay ne répond pas (est-il toujours lancé ?)"); }
+      finally { clearTimeout(t); }
+      ovNext[kind] = Date.now() + ovDelay(res, kind === 'search' ? 1200 : 500);
+      if (res.status === 429) { ovNext[kind] = Date.now() + ((Number(res.headers.get('retry-after')) || 60) * 1000 + 1000); continue; }
+      const txt = await res.text();
+      let j; try { j = JSON.parse(txt); } catch { throw new Error(`Le trade a répondu ${res.status} sans données (protection du site ?)`); }
+      if (!res.ok) throw new Error(`Le trade a répondu ${res.status}${j.error ? ` : ${j.error.message || j.error}` : ''}`);
+      return j;
+    }
+    throw new Error('Trade : trop de refus (429), réessaie dans une minute.');
+  }
+  async function overlayEstimate(i, d) {
+    const id = i.raw.id, league = data.league;
+    const live = msg => { tradeLive = msg; if (selected === i.idx) select(i.idx); };
+    const q = tradeQueryFor(i);
+    live('Recherche sur le trade (via l\'overlay)…');
+    const search = await ovReq('search', `/api/trade/search/${encodeURIComponent(league)}`, JSON.stringify(q), live);
+    const ids = (search.result || []).slice(0, 50);
+    const rates = { chaos: 1, ...((prices && prices.tradeIds) || {}) };
+    if (!rates.divine && P && P.divine) rates.divine = P.divine;
+    const listings = [];
+    for (let k = 0; k < ids.length; k += 10) {
+      live(`Annonces ${k + 1} à ${Math.min(k + 10, ids.length)} sur ${ids.length}…`);
+      const j = await ovReq('fetch', `/api/trade/fetch/${ids.slice(k, k + 10).join(',')}?query=${search.id}`, null, live);
+      for (const r of j.result || []) {
+        const pr = r && r.listing && r.listing.price;
+        if (!pr) continue;
+        const it = r.item || {};
+        listings.push({ id: r.id, amount: pr.amount, currency: pr.currency, chaos: rates[pr.currency] ? pr.amount * rates[pr.currency] : null,
+          seller: r.listing.account?.name, indexed: r.listing.indexed,
+          item: { name: clean(it.name), typeLine: clean(it.typeLine), ilvl: it.ilvl, corrupted: !!it.corrupted, influences: Object.keys(it.influences || {}),
+            mods: [...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || [])].map(m => clean(mt(m))) } });
+      }
+    }
+    const v = listings.map(l => l.chaos).filter(x => x > 0).sort((a, b) => a - b);
+    const cut = v.length >= 10 ? Math.floor(v.length * 0.1) : 0, core = v.slice(cut, v.length - cut);
+    const rec = { itemId: id, at: Date.now(), league, queryId: search.id, total: search.total || 0, countMin: 0, nMods: d.mods.filter(m => m.enabled && m.id).length,
+      mods: d.mods, extras: d.extras, listings, divine: rates.divine || 0, via: 'overlay',
+      ...(v.length ? { estimate: core.reduce((a, b) => a + b, 0) / core.length, median: v[Math.floor(v.length / 2)], min: v[0], max: v[v.length - 1], n: v.length } : { estimate: null, n: 0 }) };
+    return rec;
+  }
 
   // =================== Données partagées du dépôt (GitHub Actions) ===================
   async function getJson(url) {
@@ -931,9 +1029,22 @@
       const rec = history[k] || [];
       const repo = pr ? repoHistory(pr.hk) : null;
       const pts = repo && repo.length >= 3 ? repo.filter(p => p[0] > Date.now() - 7 * 86400000) : rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
-      return `<button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
-        <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(change7(pr))}</span></span>${miniSpark(pts)}</button>`;
+      return `<div class="flw"><button class="unf" data-u="${esc(k)}" title="Ne plus suivre" aria-label="Ne plus suivre ${esc(f.label)}">✕</button><button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
+        <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(change7(pr))}</span></span>${miniSpark(pts)}</button></div>`;
     }).join('');
+    $('followCount').textContent = `(${keys.length})`;
+    let hidden = false; try { hidden = localStorage.getItem('poeFollowHidden') === '1'; } catch {}
+    $('followList').hidden = hidden;
+    $('followToggle').textContent = hidden ? 'Afficher' : 'Masquer';
+    $('followToggle').setAttribute('aria-expanded', String(!hidden));
+    $('followList').querySelectorAll('.unf').forEach(b => b.onclick = e => {
+      e.stopPropagation();
+      const f = follow[b.dataset.u];
+      delete follow[b.dataset.u];
+      saveTracking(); renderFollow(); render();
+      if (selected !== null) select(selected);
+      if (f) status(`${f.label} n'est plus suivi`);
+    });
     $('followList').querySelectorAll('.fl').forEach(b => b.onclick = () => {
       const k = b.dataset.k;
       const it = items.find(i => itemKey(i) === k);
@@ -1411,8 +1522,18 @@
     $('tradeGo').onclick = () => {
       tradeBusy.add(id); tradeLive = ''; tradeStarted[id] = Date.now();
       setTimeout(() => { if (tradeBusy.has(id) && Date.now() - tradeStarted[id] >= 180000) { tradeBusy.delete(id); status('La recherche trade n\'a pas abouti en 3 minutes. Ouvre un onglet pathofexile.com (il sert de relais au script), puis relance.', true); if (selected !== null) select(selected); } }, 180000);
-      cmd('trade', { itemId: id, item: i.raw, mods: d.mods, extras: d.extras });
       status('Recherche sur le trade…', false, true);
+      if (overlayOK) {
+        overlayEstimate(i, d).then(rec => {
+          trades[id] = rec; tradeBusy.delete(id); lstShown[id] = 20;
+          if (bridge) cmd('trade-store', rec);
+          try { const all = JSON.parse(localStorage.getItem('poeTrades') || '{}'); all[id] = rec; localStorage.setItem('poeTrades', JSON.stringify(all)); } catch {}
+          status(rec.estimate ? `Estimation trade terminée : ${rec.n} annonces.` : 'Aucune annonce trouvée sur le trade.', !rec.estimate);
+          applyPrices();
+        }).catch(e => { tradeBusy.delete(id); status(e.message, true); if (selected !== null) select(selected); });
+      } else {
+        cmd('trade', { itemId: id, item: i.raw, mods: d.mods, extras: d.extras });
+      }
       rerender();
     };
     if ($('tradeDel')) $('tradeDel').onclick = () => { delete trades[id]; delete drafts[id]; cmd('trade-delete', { itemId: id }); applyPrices(); };

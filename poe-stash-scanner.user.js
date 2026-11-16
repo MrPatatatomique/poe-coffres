@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.1
+// @version      2.6.2
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -83,7 +83,7 @@
       if (ON_GGG) return withTimeout(ggFetch(url, method, body), 45000, 'pathofexile.com').then(wrap);
       if (relayAlive()) return viaRelay(url, method, body).then(wrap);
     }
-    return new Promise((resolve, reject) => GM_xmlhttpRequest({
+    return withTimeout(new Promise((resolve, reject) => GM_xmlhttpRequest({
       url, method, headers, data: body || undefined,
       timeout: 30000,
       onload: r => {
@@ -94,7 +94,7 @@
       onerror: () => reject(new Error(IS_GGG_URL(url) ? 'pathofexile.com injoignable depuis cette page : ouvre un onglet pathofexile.com (il sert de relais), puis réessaie.' : `Erreur réseau sur ${url}`)),
       ontimeout: () => reject(new Error(IS_GGG_URL(url) ? 'pathofexile.com ne répond pas depuis cette page : ouvre un onglet pathofexile.com (il sert de relais), puis réessaie.' : `Délai dépassé sur ${url}`)),
       onabort: () => reject(new Error(`Requête annulée : ${url}`)),
-    }));
+    })), 40000, IS_GGG_URL(url) ? 'pathofexile.com (ouvre un onglet pathofexile.com, il sert de relais)' : url);
   }
 
   // ---------- API GGG avec respect des limites ----------
@@ -505,14 +505,14 @@
     GM_addValueChangeListener('gggAlive', () => pushRelay());
     const pushUniques = u => u && send('uniques', JSON.stringify(u.db));
     const pushTrades = () => send('trades', JSON.stringify(GM_getValue('tradeEstimates', {})));
-    let tradeQueue = Promise.resolve();
+    let tradeQueue = Promise.resolve(), tradeQueued = 0;
     const pushTracking = () => send('tracking', JSON.stringify({ follow: GM_getValue('follow', {}), history: GM_getValue('priceHistory', {}) }));
 
     let greeted = false;
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.1' });
+      send('ready', { version: '2.6.2' });
       pushSettings(); pushRelay(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);
@@ -547,9 +547,14 @@
           } catch (e) { send('trade-draft-error', { itemId, msg: `Liste des mods du trade indisponible : ${e.message}` }); throw e; }
         } else if (m.cmd === 'trade') {
           const { itemId, item, mods, extras } = m.data;
-          tradeQueue = tradeQueue.then(() => tradeEstimate(itemId, item, mods, extras, report))
+          if (tradeQueued) report({ msg: 'Recherche en attente : une autre recherche trade est en cours…' });
+          tradeQueued++;
+          tradeQueue = tradeQueue.then(() => withTimeout(tradeEstimate(itemId, item, mods, extras, report), 240000, 'Recherche trade'))
             .then(rec => send('trade-result', JSON.stringify(rec)))
-            .catch(e => { report({ msg: e.message, error: true }); send('trade-error', { itemId }); });
+            .catch(e => { report({ msg: e.message, error: true }); send('trade-error', { itemId }); })
+            .finally(() => { tradeQueued--; });
+        } else if (m.cmd === 'trade-store') {
+          const all = GM_getValue('tradeEstimates', {}); all[m.data.itemId] = m.data; GM_setValue('tradeEstimates', all);
         } else if (m.cmd === 'trade-delete') {
           const all = GM_getValue('tradeEstimates', {}); delete all[m.data.itemId]; GM_setValue('tradeEstimates', all);
         } else if (m.cmd === 'tracking') {
