@@ -80,6 +80,22 @@
   .kpi.hero{border-color:var(--gold3);background:radial-gradient(400px 160px at 0% 0%,#3a2a12aa,transparent 70%),linear-gradient(160deg,#1f1810,#14100b)}
   .cur{width:26px;height:26px;object-fit:contain;flex:none}
   .kpi.hero .cur{width:34px;height:34px}
+  .kpi.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:stretch}
+  .hero-l{min-width:0}
+  .hero-r{display:flex;flex-direction:column;min-width:0;border-left:1px solid #3e332455;padding-left:16px}
+  .hc-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px;min-height:18px}
+  .hc-info{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+  .hc-info b{color:var(--gold2);font-weight:600}
+  .hc-rng{display:flex;gap:2px;flex:none}
+  .hc-rng button{background:none;border:0;border-radius:5px;padding:2px 6px;font-size:10.5px;color:var(--muted);cursor:pointer}
+  .hc-rng button.on{background:#3a2a12;color:var(--gold2)}
+  .hc{position:relative;flex:1;min-height:58px}
+  .hc svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .hc .hl{fill:none;stroke:var(--gold);stroke-width:1.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+  .hc .ha{fill:url(#vhGrad)}
+  .hc .hv{stroke:#c8a35a66;stroke-width:1;vector-effect:non-scaling-stroke}
+  .hc .hd{position:absolute;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--gold2);box-shadow:0 0 0 2px #0b0a08;pointer-events:none;display:none}
+  .hc-empty{font-size:11.5px;color:var(--muted);padding-top:14px}
   .meter{height:4px;background:#0c0a08;border-radius:3px;margin-top:9px;overflow:hidden}
   .meter>div{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));border-radius:3px;transition:width .4s}
   .kpi select{padding:2px 6px;font-size:12px;border-radius:6px;margin-left:4px}
@@ -449,9 +465,16 @@
 
   <section class="kpis" id="kpis" hidden>
     <div class="kpi hero">
-      <div class="lb">Valeur estimée totale</div>
-      <div class="vl" id="kTotal">—</div>
-      <div class="sb" id="kTotalSub"></div>
+      <div class="hero-l">
+        <div class="lb">Valeur estimée totale</div>
+        <div class="vl" id="kTotal">—</div>
+        <div class="sb" id="kTotalSub"></div>
+      </div>
+      <div class="hero-r">
+        <div class="hc-head"><span class="hc-info" id="vhInfo">Évolution (relevé toutes les 15 min)</span>
+          <span class="hc-rng" role="group" aria-label="Période"><button data-r="24">24 h</button><button data-r="168">7 j</button><button data-r="0">tout</button></span></div>
+        <div class="hc" id="vhChart"></div>
+      </div>
     </div>
     <div class="kpi safe">
       <div class="lb">Prix sûrs · poe.ninja</div>
@@ -1238,11 +1261,67 @@
   }
 
   // =================== KPI ===================
+  // =================== Historique de la valeur totale (toutes les 15 min) ===================
+  const VH_SLOT = 15 * 60000, VH_MAX = 60 * 96; // 60 jours de relevés
+  let vhRange = 24; try { vhRange = Number(localStorage.getItem('poeVhRange') ?? 24); } catch {}
+  const vhKey = () => data ? `${data.account}|${data.league}` : null;
+  function vhLoad() { try { return JSON.parse(localStorage.getItem('poeValueHist') || '{}'); } catch { return {}; } }
+  function recordValue(total, safe, trade) {
+    const k = vhKey();
+    if (!k || !P || !(total > 0)) return;
+    const all = vhLoad(), pts = all[k] || (all[k] = []);
+    const slot = Math.floor(Date.now() / VH_SLOT) * VH_SLOT;
+    const pt = [slot, Math.round(total), Math.round(safe), Math.round(trade)];
+    if (pts.length && pts[pts.length - 1][0] === slot) pts[pts.length - 1] = pt; else pts.push(pt);
+    if (pts.length > VH_MAX) pts.splice(0, pts.length - VH_MAX);
+    try { localStorage.setItem('poeValueHist', JSON.stringify(all)); } catch {}
+  }
+  function drawValueChart() {
+    const box = $('vhChart'), k = vhKey();
+    document.querySelectorAll('.hc-rng button').forEach(b => b.classList.toggle('on', Number(b.dataset.r) === vhRange));
+    let pts = (k && vhLoad()[k]) || [];
+    if (vhRange) pts = pts.filter(p => p[0] >= Date.now() - vhRange * 3600000);
+    if (pts.length < 2) {
+      box.innerHTML = `<div class="hc-empty">${pts.length ? 'Premier relevé enregistré : la courbe apparaît au suivant (dans 15 min).' : 'Collecte en cours : un relevé toutes les 15 min tant que la page est ouverte.'}</div>`;
+      $('vhInfo').textContent = 'Évolution (relevé toutes les 15 min)';
+      return;
+    }
+    const t0 = pts[0][0], t1 = pts[pts.length - 1][0], vs = pts.map(p => p[1]);
+    let v0 = Math.min(...vs), v1 = Math.max(...vs); const pad = (v1 - v0) * 0.12 || v1 * 0.05 || 1; v0 = Math.max(0, v0 - pad); v1 += pad;
+    const X = t => ((t - t0) / ((t1 - t0) || 1)) * 100, Y = v => (1 - (v - v0) / (v1 - v0)) * 100;
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(2)},${Y(p[1]).toFixed(2)}`).join('');
+    box.innerHTML = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Évolution de la valeur totale"><defs><linearGradient id="vhGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8a35a" stop-opacity=".3"/><stop offset="1" stop-color="#c8a35a" stop-opacity="0"/></linearGradient></defs>
+      <path class="ha" d="${d}L100,100L0,100Z"/><path class="hl" d="${d}"/><line class="hv" id="vhV" x1="0" x2="0" y1="0" y2="100" visibility="hidden"/></svg><span class="hd" id="vhDot"></span>`;
+    const first = pts[0][1], last = pts[pts.length - 1][1], chg = first ? last / first - 1 : 0;
+    const per = vhRange === 24 ? '24 h' : vhRange === 168 ? '7 j' : 'depuis le début';
+    const def = `${chgHtml(chg)} <span>sur ${per} · ${pts.length} relevés</span>`;
+    $('vhInfo').innerHTML = def;
+    const svg = box.querySelector('svg'), dot = $('vhDot'), vl = $('vhV');
+    svg.addEventListener('mousemove', e => {
+      const r = svg.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * 100;
+      let best = pts[0];
+      for (const p of pts) if (Math.abs(X(p[0]) - x) < Math.abs(X(best[0]) - x)) best = p;
+      vl.setAttribute('x1', X(best[0])); vl.setAttribute('x2', X(best[0])); vl.setAttribute('visibility', 'visible');
+      dot.style.display = 'block'; dot.style.left = `${X(best[0])}%`; dot.style.top = `${Y(best[1])}%`;
+      $('vhInfo').innerHTML = `<b>${esc(fmt(best[1]))}</b> · ${esc(new Date(best[0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))}${best[3] ? ` · dont trade ${esc(fmt(best[3]))}` : ''}`;
+    });
+    svg.addEventListener('mouseleave', () => { dot.style.display = 'none'; vl.setAttribute('visibility', 'hidden'); $('vhInfo').innerHTML = def; });
+  }
+  document.querySelectorAll('.hc-rng button').forEach(b => b.onclick = () => {
+    vhRange = Number(b.dataset.r);
+    try { localStorage.setItem('poeVhRange', String(vhRange)); } catch {}
+    drawValueChart();
+  });
+  setInterval(() => { if (data && P) renderKpis(); }, 60000);
+  window.addEventListener('resize', () => { if (data) drawValueChart(); });
+
   function renderKpis() {
     const safe = items.filter(i => i.price), traded = items.filter(i => i.trade);
     const sSafe = safe.reduce((s, i) => s + i.price.total, 0), sTrade = traded.reduce((s, i) => s + i.trade.estimate, 0), sum = sSafe + sTrade;
     const money = (c, el) => { const big = P && P.divine && c >= P.divine; $(el).innerHTML = `${curImg(big ? 'divine' : 'chaos')}${esc(fmt(c) || '0 c')}`; return big; };
     if (P) {
+      recordValue(sum, sSafe, sTrade);
+      drawValueChart();
       const big = money(sum, 'kTotal');
       $('kTotalSub').textContent = `${big ? `${fmtC(sum)} chaos · ` : ''}${safe.length + traded.length} objets valorisés sur ${items.length}`;
       money(sSafe, 'kSafe');
