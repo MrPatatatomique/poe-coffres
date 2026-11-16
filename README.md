@@ -39,7 +39,9 @@ Sous Chrome ou Edge, tu peux installer la page comme une application : icône d'
 
 **Avec l'overlay PoE de MrPatatatomique** lancé (pont local sur `127.0.0.1:7777`), la page lui confie directement les recherches trade : pastille « Overlay » dans l'en-tête.
 
-**Sinon, garde un onglet pathofexile.com ouvert** (n'importe quelle page du site) : le site est protégé par Cloudflare, et c'est cet onglet qui exécute pour la page les recherches trade et les rescans.
+**Sous Windows, sans l'overlay** : télécharge le [pont Windows](https://github.com/MrPatatatomique/poe-coffres/releases/download/pont-windows/poe-coffres-pont.exe) et lance-le (fenêtre à laisser ouverte, réduite). Windows peut afficher « Windows a protégé votre ordinateur » : *Informations complémentaires* → *Exécuter quand même*. Pour le lancer au démarrage : `Win + R` → `shell:startup`, puis glisse-y un raccourci vers le fichier. La pastille **API** passe au vert.
+
+**En dernier recours, garde un onglet pathofexile.com ouvert** (n'importe quelle page du site) : le site est protégé par Cloudflare, et c'est cet onglet qui exécute pour la page les recherches trade et les rescans.
 
 Les estimations trade se font objet par objet : le site de trade limite fortement le nombre de recherches (environ 5 par 10 s et 30 par 5 min). Le script fait les pauses tout seul.
 

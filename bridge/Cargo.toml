@@ -1,0 +1,14 @@
+[package]
+name = "poe-coffres-pont"
+version = "1.0.0"
+edition = "2021"
+description = "Pont local pour la page Coffres PoE1 : exécute ses recherches sur le site de trade"
+license = "MIT"
+
+[dependencies]
+ureq = "3"
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true

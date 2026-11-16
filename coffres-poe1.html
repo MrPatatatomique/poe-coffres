@@ -220,6 +220,33 @@
   .kpis{grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(160px,1fr))}
   .pill.relay{text-decoration:none;cursor:pointer}
   .pill.relay:hover{border-color:var(--line3)}
+  .leds{display:flex;gap:6px}
+  .led{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;color:var(--text2);font-size:12px;white-space:nowrap;cursor:default}
+  .acct{display:flex;align-items:center;gap:11px;padding:6px 12px 6px 7px;border:1px solid var(--gold3);border-radius:12px;background:linear-gradient(#2a2117,#1b1611);color:var(--text);cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
+  .acct:hover{border-color:var(--gold);background:linear-gradient(#33281b,#201a13)}
+  .acct .av{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font:700 16px/1 var(--title);color:#1a140c;background:linear-gradient(135deg,var(--gold2),var(--gold3));flex:none}
+  .acct-main{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+  .acct-main b{font-size:13.5px;font-weight:600;color:var(--gold2);white-space:nowrap}
+  .acct-main span{font-size:12px;color:var(--text2)}
+  .acct-fresh{display:flex;flex-direction:column;gap:1px;padding-left:11px;border-left:1px solid var(--line2);font-size:11px;color:var(--muted);line-height:1.35;white-space:nowrap}
+  .acct-fresh b{color:var(--text2);font-weight:500}
+  .acct-fresh b.old{color:var(--err)}
+  .acct .chev{width:15px;height:15px;color:var(--muted)}
+  .acct-pop{min-width:330px;max-height:calc(100vh - 90px);overflow:auto}
+  .mp-sec{font:600 10px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 10px 5px}
+  .mp-sec:first-child{padding-top:4px}
+  .mp-row{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:7px}
+  .mp-row span{flex:1}
+  .mp-row b{display:block;font-weight:600;font-size:13px}
+  .mp-row small{display:block;color:var(--muted);font-size:11.5px}
+  .mp-row svg{width:15px;height:15px;color:var(--gold)}
+  .mp-row select{padding:3px 6px;font-size:12px}
+  .mp-link{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:7px;color:var(--text);text-decoration:none}
+  .mp-link:hover{background:var(--panel3)}
+  .mp-link svg{width:15px;height:15px;margin-top:2px;color:var(--gold)}
+  .mp-link b{display:block;font-weight:600;font-size:13px}
+  .mp-link small{display:block;color:var(--muted);font-size:11.5px}
+  .mp-info{padding:2px 10px 6px;font-size:12px;color:var(--text2);line-height:1.45}
   header .fresh{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);padding:4px 12px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;white-space:nowrap}
   header .fresh b{color:var(--text2);font-weight:500}
   header .fresh b.old{color:var(--err)}
@@ -343,7 +370,13 @@
   .legend{display:flex;gap:10px;letter-spacing:0;text-transform:none;font-weight:400}
   .legend i{display:inline-block;width:14px;height:0;border-top:2px solid var(--gold);vertical-align:middle;margin-right:4px}
   .legend i.dash{border-top:2px dashed #8a6d36}
-  .chart{position:relative}
+  .chart{position:relative;padding-top:52px}
+  .cv{position:absolute;top:0;left:0;right:0;height:46px;padding:4px 2px;pointer-events:none}
+  .cv-v{display:flex;align-items:center;gap:6px;font:700 19px/1.1 var(--title);color:var(--gold2);white-space:nowrap}
+  .cv-v small{font:400 11px/1 var(--body);color:var(--muted)}
+  .cv-s{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cv.hover .cv-v{color:#fff3d6}
+  .cur.sm{width:20px;height:20px}
   .chart svg{display:block;width:100%;height:auto;overflow:visible}
   .chart .ax{fill:var(--muted);font-size:9.5px;font-family:var(--body)}
   .chart .gl{stroke:#2b241b;stroke-width:1}
@@ -378,29 +411,37 @@
       <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f2d9a0"/><stop offset="1" stop-color="#9a7638"/></linearGradient></defs><use href="#i-chest" stroke="url(#g1)"/></svg>
       <h1>Coffres</h1>
     </div>
+    <div class="leds">
+      <span class="led" id="scriptLed" title="Script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Script</span></span>
+      <span class="led" id="apiLed" title="Recherches trade"><span class="dot" id="apiDot"></span><span id="apiTxt">API</span></span>
+    </div>
     <div class="ext">
       <a class="btn ghost" id="lnkTrade" href="https://www.pathofexile.com/trade" target="_blank" rel="noopener" title="Ouvrir le site de trade dans un nouvel onglet"><svg><use href="#i-ext"/></svg>Trade</a>
       <a class="btn ghost" id="lnkNinja" href="https://poe.ninja/poe1/economy" target="_blank" rel="noopener" title="Ouvrir poe.ninja dans un nouvel onglet"><svg><use href="#i-ext"/></svg>poe.ninja</a>
     </div>
-    <div class="who" id="who"></div>
     <span class="spacer"></span>
-    <div class="fresh" id="fresh" hidden>
-      <span title="Dernier scan des coffres">Scan <b id="kScan">—</b></span>
-      <span title="Prix poe.ninja (mis à jour toutes les 30 min par le dépôt)">Prix <b id="kPrices">—</b></span>
-      <label title="Rescan automatique des coffres">Auto <select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
-    </div>
-    <span class="pill" title="Liaison avec le script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Recherche du script…</span></span>
-    <span class="pill relay" id="ovPill" hidden title="Ton overlay PoE tourne : la page lui confie les recherches trade (pas de vérification Cloudflare)."><span class="dot on"></span>Overlay</span>
-    <a class="pill relay" id="relayPill" hidden href="https://www.pathofexile.com/trade" target="_blank" rel="noopener"><span class="dot" id="relayDot"></span><span id="relayTxt">Relais</span></a>
-    <div class="actions">
-      <button class="btn primary" id="scanBtn" hidden><svg><use href="#i-refresh"/></svg>Rescanner</button>
-      <div class="menu">
-        <button class="btn ghost" id="filesBtn" aria-haspopup="true" aria-expanded="false"><svg><use href="#i-down"/></svg>Fichiers ▾</button>
-        <div class="menu-pop" id="filesPop" hidden role="menu">
-          <button role="menuitem" id="exportJson" disabled><svg><use href="#i-down"/></svg><span><b>Exporter le scan</b><small>JSON complet, réimportable</small></span></button>
-          <button role="menuitem" id="exportCsv" disabled><svg><use href="#i-down"/></svg><span><b>Exporter la vue</b><small>CSV des objets filtrés, pour Excel</small></span></button>
-          <button role="menuitem" id="openBtn"><svg><use href="#i-open"/></svg><span><b>Ouvrir un scan</b><small>Fichier JSON exporté auparavant</small></span></button>
-        </div>
+    <div class="menu">
+      <button class="acct" id="acctBtn" aria-haspopup="true" aria-expanded="false" title="Compte et réglages">
+        <span class="av" id="acctAv">?</span>
+        <span class="acct-main"><b id="acctName">Aucun scan</b><span id="acctLeague">—</span></span>
+        <span class="acct-fresh"><span>Scan <b id="kScan">—</b></span><span>Prix <b id="kPrices">—</b></span></span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="menu-pop acct-pop" id="acctPop" hidden role="menu">
+        <div class="mp-sec">Coffres</div>
+        <button role="menuitem" id="scanBtn" disabled><svg><use href="#i-refresh"/></svg><span><b>Rescanner maintenant</b><small>Relit tous les onglets choisis</small></span></button>
+        <label class="mp-row" title="Même réglage que dans le panneau Coffres du site GGG"><svg><use href="#i-refresh"/></svg><span><b>Rescan automatique</b><small>Partagé avec le panneau du site GGG</small></span><select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
+        <div class="mp-sec">Prix</div>
+        <button role="menuitem" id="reloadPrices"><svg><use href="#i-coin"/></svg><span><b>Recharger les prix</b><small>Dernière publication poe.ninja du dépôt (toutes les 30 min)</small></span></button>
+        <div class="mp-sec">Fichiers</div>
+        <button role="menuitem" id="exportJson" disabled><svg><use href="#i-down"/></svg><span><b>Exporter le scan</b><small>JSON complet, réimportable</small></span></button>
+        <button role="menuitem" id="exportCsv" disabled><svg><use href="#i-down"/></svg><span><b>Exporter la vue</b><small>CSV des objets filtrés, pour Excel</small></span></button>
+        <button role="menuitem" id="openBtn"><svg><use href="#i-open"/></svg><span><b>Ouvrir un scan</b><small>Fichier JSON exporté auparavant</small></span></button>
+        <div class="mp-sec">Recherches trade</div>
+        <div class="mp-info" id="apiInfo">—</div>
+        <a role="menuitem" class="mp-link" href="https://github.com/MrPatatatomique/poe-coffres/releases/download/pont-windows/poe-coffres-pont.exe"><svg><use href="#i-down"/></svg><span><b>Télécharger le pont Windows</b><small>Petit programme à laisser ouvert : recherches trade fiables</small></span></a>
+        <div class="mp-sec">Page</div>
+        <button role="menuitem" id="reloadPage"><svg><use href="#i-refresh"/></svg><span><b>Recharger la page</b><small id="verInfo">—</small></span></button>
       </div>
     </div>
     <input type="file" id="file" accept=".json,application/json" hidden>
@@ -535,13 +576,16 @@
         bridge = true;
         scriptVersion = m.data.version;
         $('dot').classList.add('on');
-        $('bridge').textContent = `Script v${m.data.version}`;
+        $('bridge').textContent = 'Script';
+        $('scriptLed').title = `Script Violentmonkey v${m.data.version} connecté`;
+        $('verInfo').textContent = `Page connectée au script v${m.data.version}`;
+        updateApi();
         if (vnum(m.data.version) < vnum(REQ_SCRIPT)) {
           $('updBar').hidden = false;
           $('updBar').innerHTML = `Ton script Violentmonkey (v${esc(m.data.version)}) est trop ancien pour cette page (v${REQ_SCRIPT} requise). <a href="poe-stash-scanner.user.js">Mettre à jour le script</a>, puis recharge la page.`;
         }
         if (prices && prices.fromRepo) cmd('prices-set', prices);
-        $('scanBtn').hidden = false;
+        $('scanBtn').disabled = false;
         $('dropTitle').textContent = 'Aucun scan enregistré';
         $('dropText').textContent = 'Lance un premier scan depuis pathofexile.com (bouton « Coffres » en bas à droite). Il apparaîtra ici automatiquement.';
         break;
@@ -559,16 +603,10 @@
           applyPrices();
         } catch {}
         break;
-      case 'relay': {
-        const on = !!m.data.alive;
-        $('relayPill').hidden = false;
-        $('relayDot').classList.toggle('on', on);
-        $('relayTxt').textContent = on ? 'Relais pathofexile.com' : 'Relais absent';
-        $('relayPill').title = on
-          ? 'Un onglet pathofexile.com est ouvert : il exécute les recherches trade et les rescans de la page.'
-          : 'Aucun onglet pathofexile.com détecté. Clique pour en ouvrir un (passe la vérification Cloudflare si elle apparaît), puis garde-le ouvert.';
+      case 'relay':
+        relayOn = !!m.data.alive;
+        updateApi();
         break;
-      }
       case 'trade-draft-error':
         draftErr[m.data.itemId] = m.data.msg; draftReq.delete(m.data.itemId);
         if (selected !== null) select(selected);
@@ -620,21 +658,32 @@
     cmd('hello');
     if (++tries === 20) {
       clearInterval(helloTimer);
-      $('bridge').textContent = 'Script non détecté';
+      $('bridge').textContent = 'Script absent';
+      $('verInfo').textContent = 'Script Violentmonkey non détecté';
+      updateApi();
       if (location.protocol.startsWith('http') && !/^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname)) {
         $('dropTitle').textContent = 'Installe le script pour commencer';
         $('dropText').innerHTML = 'Il faut l\'extension <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" style="color:var(--gold2)">Violentmonkey</a>, puis <a href="poe-stash-scanner.user.js" style="color:var(--gold2)">ce script</a>. Recharge ensuite cette page. Tu peux aussi ouvrir un fichier de scan JSON.';
       }
-      $('bridge').parentElement.title = location.protocol === 'file:' ? 'Page ouverte en file:// — sers-la en local (python -m http.server)' : 'Violentmonkey ne tourne pas sur cette page';
+      $('scriptLed').title = location.protocol === 'file:' ? 'Page ouverte en file:// — sers-la en local (python -m http.server)' : 'Script Violentmonkey non détecté sur cette page';
     }
   }, 500);
   cmd('hello');
 
   function setBusy(id, on) { $(id).disabled = on; $(id).classList.toggle('spin', on); }
   $('scanBtn').onclick = () => { setBusy('scanBtn', true); status('Scan demandé…', false, true); cmd('scan'); };
-  $('filesBtn').onclick = e => { e.stopPropagation(); const h = !$('filesPop').hidden; $('filesPop').hidden = h; $('filesBtn').setAttribute('aria-expanded', String(!h)); };
-  document.addEventListener('click', e => { if (!e.target.closest('.menu')) { $('filesPop').hidden = true; $('filesBtn').setAttribute('aria-expanded', 'false'); } });
-  $('filesPop').addEventListener('click', e => { if (e.target.closest('button')) $('filesPop').hidden = true; });
+  const closeMenu = () => { $('acctPop').hidden = true; $('acctBtn').setAttribute('aria-expanded', 'false'); };
+  $('acctBtn').onclick = e => { e.stopPropagation(); const h = !$('acctPop').hidden; $('acctPop').hidden = h; $('acctBtn').setAttribute('aria-expanded', String(!h)); };
+  document.addEventListener('click', e => { if (!e.target.closest('.menu')) closeMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  $('acctPop').addEventListener('click', e => { if (e.target.closest('button,a')) closeMenu(); });
+  $('reloadPage').onclick = () => location.reload();
+  $('reloadPrices').onclick = async () => {
+    status('Rechargement des prix…', false, true);
+    if (ONLINE && data) { repoLeagues = null; await loadRepoPrices(true); }
+    else if (bridge) cmd('prices');
+    status(prices ? `Prix du ${new Date(prices.fetchedAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}` : 'Prix indisponibles', !prices);
+  };
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
 
   $('followToggle').onclick = () => {
@@ -645,16 +694,26 @@
 
   // =================== Overlay local (pont trade) ===================
   const OVERLAY = 'http://127.0.0.1:7777';
-  let overlayOK = false;
+  let overlayOK = false, overlayName = '', relayOn = false;
+  function updateApi() {
+    const on = overlayOK || relayOn;
+    $('apiDot').classList.toggle('on', on);
+    const txt = overlayOK
+      ? `${overlayName === 'poe-overlay' ? 'Ton overlay PoE' : 'Le pont Windows'} tourne : la page lui confie les recherches trade.`
+      : relayOn ? 'Un onglet pathofexile.com sert de relais pour les recherches trade (solution de secours, moins fiable).'
+      : 'Aucune API pour les recherches trade : lance le pont Windows (ou l\'overlay), ou ouvre un onglet pathofexile.com.';
+    $('apiLed').title = txt;
+    $('apiInfo').textContent = txt;
+  }
   async function checkOverlay() {
     try {
       const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 1500);
       const r = await fetch(`${OVERLAY}/health`, { signal: ctl.signal, cache: 'no-store' });
       clearTimeout(t);
-      overlayOK = r.ok && !!(await r.json()).ok;
+      const j = r.ok ? await r.json() : null;
+      overlayOK = !!(j && j.ok); overlayName = j ? j.name : '';
     } catch { overlayOK = false; }
-    $('ovPill').hidden = !overlayOK;
-    if (overlayOK) $('relayPill').hidden = true;
+    updateApi();
     if (selected !== null && data) select(selected);
   }
   checkOverlay();
@@ -742,7 +801,7 @@
     const pref = L.filter(l => g.startsWith(l.id.toLowerCase()) || l.id.toLowerCase().startsWith(g)).sort((a, b) => b.id.length - a.id.length);
     return pref[0] ? pref[0].file : null;
   }
-  async function loadRepoPrices() {
+  async function loadRepoPrices(force) {
     if (!ONLINE || !data) return;
     if (!repoLeagues) repoLeagues = await getJson('data/leagues.json');
     const f = pickLeagueFile(data.league);
@@ -750,7 +809,7 @@
     const p = await getJson(`data/prices/${f}.json`);
     if (!p || !p.fetchedAt) return;
     repoPricesFile = f;
-    if (!prices || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
+    if (force || !prices || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
   }
   function shardOf(key) { let h = 5381; for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0; return h % (repoLeagues ? repoLeagues.shards : 64); }
   function repoHistory(k) {
@@ -793,8 +852,10 @@
     if (!sameLeague || (activeTab !== null && !tabs.some(t => t.i === activeTab))) activeTab = null;
     selected = null; shown = PAGE;
     $('lnkTrade').href = `https://www.pathofexile.com/trade/search/${encodeURIComponent(json.league || 'Standard')}`;
-    $('who').innerHTML = `<span class="pill">${esc(json.account || '?')}</span><span class="pill">${esc(json.league || '?')}</span>` +
-      (json.failedTabs?.length ? `<span class="pill" style="color:var(--err)" title="${esc(json.failedTabs.map(f => f.n).join(', '))}">${json.failedTabs.length} onglet(s) en échec</span>` : '');
+    $('acctName').textContent = (json.account || '?').replace(/#\d+$/, '');
+    $('acctName').title = json.account || '';
+    $('acctLeague').textContent = `${json.league || '?'}${json.failedTabs?.length ? ` · ${json.failedTabs.length} onglet(s) en échec` : ''}`;
+    $('acctAv').textContent = (json.account || '?').charAt(0).toUpperCase();
     $('emptyView').hidden = true; $('mainView').hidden = false; $('kpis').hidden = false;
     $('exportCsv').disabled = $('exportJson').disabled = false;
     $('detailBody').innerHTML = EMPTY_DETAIL;
@@ -1070,7 +1131,8 @@
     const X = t => pl + ((t - t0) / (t1 - t0)) * (W - pl - pr), Y = v => pt + (1 - (v - v0) / (v1 - v0)) * (H - pt - pb);
     let g = '';
     for (let k = 0; k <= 2; k++) { const v = v0 + ((v1 - v0) * k) / 2, y = Y(v); g += `<line class="gl" x1="0" x2="${W}" y1="${y}" y2="${y}"/><text class="ax" x="${W - 2}" y="${y - 3}" text-anchor="end">${esc(fmt(v) || '0')}</text>`; }
-    const dfmt = t => new Date(t).toLocaleString('fr-FR', t1 - t0 > 2 * 86400000 ? { day: '2-digit', month: '2-digit' } : { hour: '2-digit', minute: '2-digit' });
+    const span = t1 - t0;
+    const dfmt = t => new Date(t).toLocaleString('fr-FR', span > 2 * 86400000 ? { day: '2-digit', month: '2-digit' } : span > 12 * 3600000 ? { day: '2-digit', month: '2-digit', hour: '2-digit' } : { hour: '2-digit', minute: '2-digit' });
     g += `<text class="ax" x="2" y="${H - 5}">${dfmt(t0)}</text><text class="ax" x="${W - 2}" y="${H - 5}" text-anchor="end">${dfmt(t1)}</text>`;
     let paths = '';
     for (const s of series) {
@@ -1080,22 +1142,28 @@
       paths += `<path class="${s.cls}" d="${d}"/>`;
     }
     const hover = all.map(p => [X(p[0]), Y(p[1]), p[0], p[1]]);
-    return `<svg viewBox="0 0 ${W} ${H}" data-pts='${JSON.stringify(hover)}'><defs><linearGradient id="chartGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8a35a" stop-opacity=".28"/><stop offset="1" stop-color="#c8a35a" stop-opacity="0"/></linearGradient></defs>${g}${paths}<line class="vline" id="vl" y1="${pt}" y2="${H - pb}" x1="-10" x2="-10"/><circle class="mk" id="mk" r="4" cx="-10" cy="-10"/></svg>`;
+    return `<svg viewBox="0 0 ${W} ${H}" data-pts='${JSON.stringify(hover)}'><defs><linearGradient id="chartGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8a35a" stop-opacity=".28"/><stop offset="1" stop-color="#c8a35a" stop-opacity="0"/></linearGradient></defs>${g}${paths}<line class="vline" id="vl" y1="${pt}" y2="${H - pb}" x1="-999" x2="-999"/><circle class="mk" id="mk" r="4" cx="-999" cy="-999"/></svg>`;
   }
   function wireChart() {
-    const svg = document.querySelector('#chart svg'), info = $('chartInfo');
-    if (!svg) return;
+    const svg = document.querySelector('#chart svg'), cv = $('cv');
+    if (!svg || !cv) return;
     const pts = JSON.parse(svg.dataset.pts);
-    const def = info.innerHTML;
+    const def = cv.innerHTML, mk = svg.querySelector('#mk'), vl = svg.querySelector('#vl');
+    const unit = cv.dataset.unit === '1';
     svg.addEventListener('mousemove', e => {
       const r = svg.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * 320;
       let best = pts[0];
       for (const p of pts) if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
-      svg.querySelector('#mk').setAttribute('cx', best[0]); svg.querySelector('#mk').setAttribute('cy', best[1]);
-      svg.querySelector('#vl').setAttribute('x1', best[0]); svg.querySelector('#vl').setAttribute('x2', best[0]);
-      info.innerHTML = `<b style="color:var(--gold2)">${esc(fmt(best[3]))}</b> · ${new Date(best[2]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}`;
+      mk.setAttribute('cx', best[0]); mk.setAttribute('cy', best[1]);
+      vl.setAttribute('x1', best[0]); vl.setAttribute('x2', best[0]);
+      const big = P && P.divine && best[3] >= P.divine;
+      cv.classList.add('hover');
+      cv.innerHTML = `<div class="cv-v">${curImg(big ? 'divine' : 'chaos', 'cur sm')}${esc(fmt(best[3]))}${unit ? '<small> / u</small>' : ''}</div><div class="cv-s">${esc(new Date(best[2]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))}</div>`;
     });
-    svg.addEventListener('mouseleave', () => { svg.querySelector('#mk').setAttribute('cx', -10); svg.querySelector('#vl').setAttribute('x1', -10); svg.querySelector('#vl').setAttribute('x2', -10); info.innerHTML = def; });
+    svg.addEventListener('mouseleave', () => {
+      mk.setAttribute('cx', -999); vl.setAttribute('x1', -999); vl.setAttribute('x2', -999);
+      cv.classList.remove('hover'); cv.innerHTML = def;
+    });
   }
 
   // =================== Liens externes d'un objet ===================
@@ -1206,7 +1274,7 @@
     $('kScan').textContent = ago(sAt);
     $('kPrices').textContent = prices ? ago(prices.fetchedAt) : '—';
     $('kPrices').className = prices && Date.now() - prices.fetchedAt > 3600000 ? 'old' : '';
-    $('fresh').hidden = false;
+
   }
   setInterval(renderFresh, 30000);
   $('top').addEventListener('wheel', e => {
@@ -1355,6 +1423,7 @@
     const reqs = (r.requirements || []).map(p => `${esc(clean(p.name))} <b>${esc((p.values || []).map(v => v[0]).join(''))}</b>`).join(', ');
     const pr = i.price;
     const big = pr && P && P.divine && pr.total >= P.divine;
+    const chart = pr ? chartSection(i, k, pr, followed) : '';
     $('detailBody').innerHTML = `<div class="card">
       <div class="hd f${i.rarity}">${pr ? `<button class="star hdstar${followed ? ' on' : ''}" id="followBtn" title="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}" aria-label="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}">★</button>` : ''}<div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}${badges ? `<div class="infl">${badges}</div>` : ''}${rollPill}${i.ghost ? '' : `<div class="hdlinks"><a href="#" id="lnkItemTrade" title="Ouvre le site de trade avec cette recherche, modifiable"><svg><use href="#i-ext"/></svg>Trade</a>${ninjaUrl(pr) ? `<a href="${esc(ninjaUrl(pr))}" target="_blank" rel="noopener" title="Fiche de l'objet sur poe.ninja"><svg><use href="#i-ext"/></svg>poe.ninja</a>` : ''}</div>`}</div>
       <div class="art"><img src="${esc(r.icon)}" alt=""></div>
@@ -1367,12 +1436,12 @@
         ${sec(mods(r.utilityMods, '') + (r.flavourText ? `<div class="flav">${esc(clean(r.flavourText.join(' ')))}</div>` : '') + (r.descrText ? `<div class="prop">${esc(clean(r.descrText))}</div>` : ''))}
         ${sec((i.corrupted ? '<div class="corrtxt">Corrompu</div>' : '') + (i.unid ? '<div class="prop">Non identifié</div>' : '') + (r.note ? `<div class="prop">Note : <b>${esc(r.note)}</b></div>` : ''))}
       </div></div>
-      <div class="pricebox${pr ? '' : ' none'}"${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div></div>${pr
+      <div class="pricebox${pr ? '' : ' none'}"${chart || (!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2)) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div></div>${pr
         ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
            <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(change7(pr))}</div>
            ${pr.approx ? '<div class="s">Plusieurs variantes à des prix différents : la moins chère est retenue.</div>' : ''}`
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
-      ${pr ? chartSection(i, k, pr, followed) : ''}
+      ${chart}
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
       ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}${bridge && !ONLINE && !uniqueDb ? ' <button class="btn ghost" id="uniBuild">Construire depuis poewiki</button>' : ''}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
@@ -1540,26 +1609,30 @@
     if ($('lstMore')) $('lstMore').onclick = () => { lstShown[id] = (lstShown[id] || 20) + 20; rerender(); };
   }
 
+  // Graphique avec la carte de prix posée dessus ; au survol, la carte montre le prix du point survolé
   function chartSection(i, k, pr, followed) {
     const repo = repoHistory(pr.hk);
+    let series, legend, info;
     if (repo && repo.length >= 2) {
-      const svg = chartHtml([{ pts: repo, cls: 'l1' }]);
-      const first = repo[0][0];
-      return `<div class="chartbox"><div class="lb"><span>Prix unitaire</span><span class="legend"><span><i></i>historique de la ligue</span></span></div>
-        <div class="chart" id="chart">${svg}</div>
-        <div class="chartinfo" id="chartInfo">${repo.length} relevés depuis le ${esc(new Date(first).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))} · toutes les 30 min</div></div>`;
+      series = [{ pts: repo, cls: 'l1' }];
+      legend = '<span><i></i>historique de la ligue</span>';
+      info = `${repo.length} relevés depuis le ${new Date(repo[0][0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}, toutes les 30 min`;
+    } else {
+      const nin = ninjaSeries(pr), rec = (history[k] || []).map(p => [p[0], p[1]]);
+      series = [{ pts: nin, cls: 'l0' }, { pts: rec, cls: 'l1' }];
+      legend = `${nin.length ? '<span><i class="dash"></i>7 j poe.ninja</span>' : ''}${rec.length ? '<span><i></i>suivi</span>' : ''}`;
+      info = rec.length ? `${rec.length} relevés personnels` : 'Courbe des 7 derniers jours (poe.ninja)';
     }
-    const nin = ninjaSeries(pr);
-    const rec = (history[k] || []).map(p => [p[0], p[1]]);
-    const series = [{ pts: nin, cls: 'l0' }, { pts: rec, cls: 'l1' }];
     const svg = chartHtml(series);
-    const legend = `<span class="legend">${nin.length ? '<span><i class="dash"></i>7 j poe.ninja</span>' : ''}${rec.length ? '<span><i></i>suivi</span>' : ''}</span>`;
-    const hint = followed
-      ? (rec.length < 2 ? 'Le suivi enregistre un point à chaque mise à jour des prix (toutes les 15 min, page ouverte).' : `${rec.length} relevés depuis le ${new Date(rec[0][0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}`)
-      : '';
-    return `<div class="chartbox"><div class="lb"><span>Prix unitaire</span>${legend}</div>
-      ${svg ? `<div class="chart" id="chart">${svg}</div>` : '<div class="chartempty">Pas encore assez de données pour tracer une courbe.</div>'}
-      <div class="chartinfo" id="chartInfo">${esc(hint)}</div></div>`;
+    if (!svg) return '';
+    const big = P && P.divine && pr.unit >= P.divine;
+    const ch = change7(pr);
+    return `<div class="chartbox"><div class="lb"><span title="${esc(info)}">Prix · poe.ninja</span><span class="legend">${legend}</span></div>
+      <div class="chart" id="chart">
+        <div class="cv" id="cv" data-unit="${i.stack > 1 ? 1 : 0}"><div class="cv-v">${curImg(big ? 'divine' : 'chaos', 'cur sm')}${pr.approx ? '~' : ''}${esc(fmt(pr.unit))}${i.stack > 1 ? '<small> / u</small>' : ''}</div>
+          <div class="cv-s">${i.stack > 1 ? `${esc(fmt(pr.total))} pour ${nf(i.stack, 0)} · ` : ''}${esc(pr.src)} ${chgHtml(ch)}</div></div>
+        ${svg}
+      </div></div>`;
   }
 
   // =================== Exports ===================

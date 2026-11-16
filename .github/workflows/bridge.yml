@@ -1,0 +1,32 @@
+name: Pont Windows
+
+# Compile le pont local (bridge/) pour Windows et le publie dans la release « pont-windows ».
+on:
+  push:
+    branches: [main]
+    paths: ['bridge/**', '.github/workflows/bridge.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compiler
+        run: cargo build --release --manifest-path bridge/Cargo.toml
+
+      - name: Publier dans la release pont-windows
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp bridge/target/release/poe-coffres-pont.exe poe-coffres-pont.exe
+          if ! gh release view pont-windows >/dev/null 2>&1; then
+            gh release create pont-windows --title "Pont trade pour Windows" --notes "Petit programme qui exécute les recherches trade de la page Coffres PoE1. Lance-le et laisse sa fenêtre ouverte (réduite) : la page affiche alors la pastille API en vert. Voir le README pour le lancer au démarrage de Windows."
+          fi
+          gh release upload pont-windows poe-coffres-pont.exe --clobber
