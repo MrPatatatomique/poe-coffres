@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.3.1
+// @version      2.4.0
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -18,6 +18,7 @@
 // @grant        GM_addValueChangeListener
 // @connect      www.pathofexile.com
 // @connect      poe.ninja
+// @connect      www.poewiki.net
 // @run-at       document-idle
 // ==/UserScript==
 (() => {
@@ -208,6 +209,7 @@
           gemLevel: l.gemLevel, gemQuality: l.gemQuality || 0, corrupted: !!l.corrupted,
           mapTier: l.mapTier, itemClass: l.itemClass, v: l.chaosValue, listings: l.listingCount,
           sp: (l.sparkLine?.data || []).some(x => x !== null) ? l.sparkLine.data : l.lowConfidenceSparkLine?.data,
+          ...(/^Unique/.test(t) ? { ranges: (l.explicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)), iranges: (l.implicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)) } : {}),
         }));
       } catch {}
       await sleep(150);
@@ -220,6 +222,7 @@
   // ---------- Estimation par le site de trade ----------
   const TRADE = 'https://www.pathofexile.com/api/trade';
   const tradeNext = {};
+  const modText = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   const clean = s => String(s ?? '').replace(/<<[^>]*>>/g, '').replace(/\[([^\]|]+)\|([^\]]+)\]/g, '$2').replace(/\[([^\]]+)\]/g, '$1');
   const IGNORE = [/Light Radius/i, /Stun and Block Recovery/i, /Attribute Requirements/i, /^Reflects \d+ Physical Damage/i, /increased Stun Duration on Enemies/i];
   const GEAR_PROPS = ['Armour', 'Evasion Rating', 'Energy Shield', 'Ward', 'Physical Damage', 'Elemental Damage', 'Attacks per Second', 'Critical Strike Chance', 'Chance to Block'];
@@ -265,7 +268,7 @@
     const out = [], used = new Set();
     let life = 0, res = 0, chaosRes = 0;
     const find = (type, t) => (isGear && stats.map[`${type}|${t} (Local)`]) || stats.map[`${type}|${t}`];
-    for (const [field, type] of groups) for (const full of item[field] || []) for (const line of clean(full).split('\n')) {
+    for (const [field, type] of groups) for (const full of item[field] || []) for (const line of clean(modText(full)).split('\n')) {
       const nums = (line.match(/\d+(?:\.\d+)?/g) || []).map(Number);
       const t = line.replace(/\d+(?:\.\d+)?/g, '#');
       if (hasPseudo && type !== 'enchant') {
@@ -285,20 +288,40 @@
       if (used.has(id)) continue;
       used.add(id);
       const v = nums.length >= 2 && /^Adds # to #/.test(t) ? (nums[0] + nums[1]) / 2 : (nums.length ? nums[0] : null);
-      out.push({ text: line, type, id, value: v === null ? null : (neg ? -v : v), enabled: type !== 'enchant' && !IGNORE.some(r => r.test(line)) });
+      out.push({ text: line, type, id, value: v === null ? null : (neg ? -v : v), pct: 85, enabled: type !== 'enchant' && !IGNORE.some(r => r.test(line)) });
     }
-    const pseudo = (id, text, v) => { if (v > 0 && stats.ids[id]) out.unshift({ text, type: 'pseudo', id, value: v, enabled: true }); };
+    const pseudo = (id, text, v) => { if (v > 0 && stats.ids[id]) out.unshift({ text, type: 'pseudo', id, value: v, pct: 85, enabled: true }); };
     pseudo('pseudo.pseudo_total_chaos_resistance', `+${chaosRes}% résistance au chaos (total)`, chaosRes);
     pseudo('pseudo.pseudo_total_elemental_resistance', `+${res}% résistances élémentaires (total)`, res);
     pseudo('pseudo.pseudo_total_life', `+${life} vie maximum (total)`, life);
     return out;
   }
 
-  function buildQuery(item, mods, factor, countMin) {
+  const INFL = { shaper: 'Shaper', elder: 'Elder', crusader: 'Crusader', redeemer: 'Redeemer', hunter: 'Hunter', warlord: 'Warlord' };
+  function itemExtras(item) {
+    const ex = [];
+    for (const k of Object.keys(INFL)) if (item.influences && item.influences[k]) ex.push({ key: k, label: INFL[k], kind: 'stat', id: `pseudo.pseudo_has_${k}_influence`, enabled: true });
+    if (item.searing) ex.push({ key: 'searing', label: 'Searing Exarch', kind: 'misc', id: 'searing_item', enabled: true });
+    if (item.tangled) ex.push({ key: 'tangled', label: 'Eater of Worlds', kind: 'misc', id: 'tangled_item', enabled: true });
+    if (item.fractured) ex.push({ key: 'fractured', label: 'Fracturé', kind: 'misc', id: 'fractured_item', enabled: true });
+    if (item.synthesised) ex.push({ key: 'synth', label: 'Synthétisé', kind: 'misc', id: 'synthesised_item', enabled: true });
+    if (item.ilvl) ex.push({ key: 'ilvl', label: `iLvl ≥ ${item.ilvl}`, kind: 'ilvl', value: item.ilvl, enabled: false });
+    ex.push({ key: 'corrupted', label: item.corrupted ? 'Corrompu' : 'Non corrompu', kind: 'misc', id: 'corrupted', value: item.corrupted ? 'true' : 'false', enabled: false });
+    return ex;
+  }
+
+  function buildQuery(item, mods, extras, countMin) {
     const filters = mods.filter(m => m.enabled && m.id).map(m => ({
       id: m.id,
-      value: m.value === null || m.value === undefined || m.value < 0 ? {} : { min: Math.floor(m.value * factor * 100) / 100 },
+      value: m.value === null || m.value === undefined || m.value < 0 ? {} : { min: Math.floor(m.value * (m.pct || 85) / 100 * 100) / 100 },
     }));
+    const misc = {};
+    for (const e of extras || []) {
+      if (!e.enabled) continue;
+      if (e.kind === 'stat') filters.push({ id: e.id, value: {} });
+      else if (e.kind === 'misc') misc[e.id] = { option: e.value || 'true' };
+      else if (e.kind === 'ilvl') misc.ilvl = { min: e.value };
+    }
     const st = getSettings();
     const q = {
       query: {
@@ -311,6 +334,7 @@
       },
       sort: { price: 'asc' },
     };
+    if (Object.keys(misc).length) q.query.filters.misc_filters = { filters: misc };
     const base = clean(item.baseType || item.typeLine);
     if (base) q.query.type = base;
     return q;
@@ -331,18 +355,19 @@
     return { estimate: core.reduce((a, b) => a + b, 0) / core.length, median: v[Math.floor(v.length / 2)], min: v[0], max: v[v.length - 1], n: v.length };
   }
 
-  async function tradeEstimate(itemId, item, customMods, report) {
+  async function tradeEstimate(itemId, item, customMods, customExtras, report) {
     const league = getSettings().league;
     if (!league) throw new Error('Ligue inconnue : fais un premier scan.');
     const stats = await loadStats(report);
     const mods = customMods || parseMods(item, stats);
+    const extras = customExtras || itemExtras(item);
     const rates = currencyRates(GM_getValue('ninjaPrices', null));
     const n = mods.filter(m => m.enabled && m.id).length;
     const steps = customMods ? [0] : [0, Math.max(1, n - 1), Math.max(1, Math.ceil(n / 2))].filter((c, k, a) => k === 0 || (n > 1 && c < n && c !== a[k - 1]));
     let search = null, countMin = 0;
     for (const c of steps) {
       report({ msg: `Recherche sur le trade${c ? ` (assouplie : ${c} mods sur ${n})` : ''}…` });
-      search = await tradeReq('search', `${TRADE}/search/${encodeURIComponent(league)}`, 'POST', JSON.stringify(buildQuery(item, mods, 0.85, c)), report);
+      search = await tradeReq('search', `${TRADE}/search/${encodeURIComponent(league)}`, 'POST', JSON.stringify(buildQuery(item, mods, extras, c)), report);
       countMin = c;
       if ((search.total || 0) >= 8) break;
     }
@@ -359,17 +384,53 @@
           id: r.id, amount: p.amount, currency: p.currency, chaos: rates[p.currency] ? p.amount * rates[p.currency] : null,
           seller: r.listing.account?.name, indexed: r.listing.indexed,
           item: { name: clean(it.name), typeLine: clean(it.typeLine), ilvl: it.ilvl, corrupted: !!it.corrupted,
-            mods: [...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || [])].map(clean) },
+            mods: [...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || [])].map(m => clean(modText(m))),
+            influences: Object.keys(it.influences || {}) },
         });
       }
     }
     const vals = listings.map(l => l.chaos).filter(v => v > 0).sort((a, b) => a - b);
-    const rec = { itemId, at: Date.now(), league, queryId: search.id, total: search.total || 0, countMin, nMods: n, mods, listings, divine: rates.divine || 0, ...summarize(vals) };
+    const rec = { itemId, at: Date.now(), league, queryId: search.id, total: search.total || 0, countMin, nMods: n, mods, extras, listings, divine: rates.divine || 0, ...summarize(vals) };
     const all = GM_getValue('tradeEstimates', {});
     all[itemId] = rec;
     GM_setValue('tradeEstimates', all);
     report({ msg: rec.estimate ? `Estimation trade terminée : ${rec.n} annonces.` : 'Aucune annonce trouvée sur le trade.', error: !rec.estimate });
     return rec;
+  }
+
+  // ---------- Base des uniques (poewiki) ----------
+  const WIKI = 'https://www.poewiki.net/w/api.php';
+  async function loadUniqueDb(report, force) {
+    const c = GM_getValue('uniqueDb', null);
+    if (!force && c && Date.now() - c.at < 7 * 86400000) return c;
+    report({ msg: 'Construction de la base des uniques (poewiki)…' });
+    const rows = [];
+    for (let off = 0; ; off += 500) {
+      const url = `${WIKI}?action=cargoquery&tables=items&fields=items.name,items.base_item,items.explicit_stat_text,items.implicit_stat_text,items.drop_enabled&where=items.rarity%3D%22Unique%22&limit=500&offset=${off}&format=json`;
+      const res = await http(url);
+      let j;
+      try { j = JSON.parse(res.text); } catch { throw new Error('poewiki demande une vérification anti-robot : ouvre https://www.poewiki.net une fois dans ce navigateur, puis clique sur « Construire la base ».'); }
+      const b = (j.cargoquery || []).map(x => x.title);
+      rows.push(...b);
+      report({ msg: `Base des uniques : ${rows.length} objets lus…` });
+      if (b.length < 500) break;
+      await sleep(600);
+    }
+    const dec = t => String(t || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#0*39;/g, "'").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/&quot;/g, '"').replace(/&ndash;/g, '–').replace(/&amp;/g, '&');
+    const lines = t => dec(t).replace(/<br\s*\/?>/gi, '\n').replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1').replace(/<[^>]+>/g, '').replace(/–/g, '-').split('\n').map(x => x.trim()).filter(x => /\(-?[\d.]+-/.test(x));
+    const db = {};
+    for (const r of rows) {
+      if (!r.name) continue;
+      const v = { b: dec(r['base item']), i: lines(r['implicit stat text']), e: lines(r['explicit stat text']), d: r['drop enabled'] === '1' ? 1 : 0 };
+      if (!v.i.length && !v.e.length) continue;
+      const k = dec(r.name);
+      (db[k] = db[k] || []);
+      if (!db[k].some(x => JSON.stringify(x) === JSON.stringify(v))) db[k].push(v);
+    }
+    const out = { at: Date.now(), n: Object.keys(db).length, db };
+    GM_setValue('uniqueDb', out);
+    report({ msg: `Base des uniques prête : ${out.n} uniques.` });
+    return out;
   }
 
   // ---------- Rescan automatique (le premier contexte disponible s'en charge) ----------
@@ -395,6 +456,7 @@
     const pushScan = () => { const s = GM_getValue('lastScan', null); if (s) send('scan', s); };
     const pushPrices = p => p && send('prices', JSON.stringify(p));
     const pushSettings = () => send('settings', getSettings());
+    const pushUniques = u => u && send('uniques', JSON.stringify(u.db));
     const pushTrades = () => send('trades', JSON.stringify(GM_getValue('tradeEstimates', {})));
     let tradeQueue = Promise.resolve();
     const pushTracking = () => send('tracking', JSON.stringify({ follow: GM_getValue('follow', {}), history: GM_getValue('priceHistory', {}) }));
@@ -403,8 +465,11 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.3.1' });
+      send('ready', { version: '2.4.0' });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
+      const u = GM_getValue('uniqueDb', null);
+      if (u) pushUniques(u);
+      if (!u || Date.now() - u.at > 7 * 86400000) loadUniqueDb(report).then(pushUniques).catch(e => send('uniques-error', { msg: e.message }));
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
       if (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== getSettings().league) pushPrices(await loadPrices(false, report));
@@ -423,9 +488,15 @@
           pushPrices(await loadPrices(false, report));
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report));
+        } else if (m.cmd === 'uniques-refresh') {
+          pushUniques(await loadUniqueDb(report, true));
+        } else if (m.cmd === 'trade-prepare') {
+          const { itemId, item } = m.data;
+          const stats = await loadStats(report);
+          send('trade-draft', JSON.stringify({ itemId, mods: parseMods(item, stats), extras: itemExtras(item) }));
         } else if (m.cmd === 'trade') {
-          const { itemId, item, mods } = m.data;
-          tradeQueue = tradeQueue.then(() => tradeEstimate(itemId, item, mods, report))
+          const { itemId, item, mods, extras } = m.data;
+          tradeQueue = tradeQueue.then(() => tradeEstimate(itemId, item, mods, extras, report))
             .then(rec => send('trade-result', JSON.stringify(rec)))
             .catch(e => { report({ msg: e.message, error: true }); send('trade-error', { itemId }); });
         } else if (m.cmd === 'trade-delete') {
@@ -436,7 +507,10 @@
         } else if (m.cmd === 'settings') {
           setSettings(m.data || {}); pushSettings();
         }
-      } catch (e) { report({ msg: e.message, error: true }); }
+      } catch (e) {
+        report({ msg: e.message, error: true });
+        if (m.cmd === 'uniques-refresh') send('uniques-error', { msg: e.message });
+      }
     });
 
     // Un scan fait depuis l'onglet GGG met la page à jour toute seule

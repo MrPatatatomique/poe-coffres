@@ -244,6 +244,43 @@
   .lst .la{color:var(--muted);font-size:11.5px;text-align:right;grid-column:3;white-space:nowrap}
   .lst-more{display:flex;margin:10px auto 0}
 
+  /* ---------- Influences ---------- */
+  .infl{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px}
+  .ib{font:600 10.5px/1 var(--body);letter-spacing:.04em;padding:3px 7px;border-radius:999px;border:1px solid currentColor;background:#00000055}
+  .ib.shaper{color:#8fb8ff}.ib.elder{color:#b88fe8}.ib.crusader{color:#e9c869}.ib.redeemer{color:#7fd3e8}.ib.hunter{color:#9bd36a}.ib.warlord{color:#e88f6a}
+  .ib.searing{color:#ff9b5a}.ib.tangled{color:#9b8fd8}.ib.fractured{color:#a29162}.ib.synth{color:#c9c2a8}.ib.mirror{color:#c8e6ff}.ib.split{color:#c0c0c0}
+
+  /* ---------- Rolls des uniques ---------- */
+  .roll-l{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+  .rng{color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+  .rbar{display:inline-block;width:46px;height:4px;background:#1d1a14;border-radius:2px;overflow:hidden;vertical-align:middle}
+  .rbar i{display:block;height:100%;border-radius:2px}
+  .rollpill{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font:600 11.5px/1 var(--body);padding:4px 10px;border-radius:999px;border:1px solid currentColor;background:#00000055}
+  .tag.roll{border:1px solid currentColor;background:#00000040}
+  .q-lo{color:#e0735f}.q-mid{color:#d9b35b}.q-hi{color:#86c06c}
+  .q-lo-b{background:#e0735f}.q-mid-b{background:#d9b35b}.q-hi-b{background:#86c06c}
+  .ubox{margin-top:12px;padding:10px 14px;border:1px solid var(--line2);border-radius:var(--r);background:#13100c;font-size:12px;color:var(--muted)}
+
+  /* ---------- Critères trade ---------- */
+  .tglob{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);margin:6px 0 8px}
+  .tglob input,.tm-sl input{flex:1;accent-color:var(--trade)}
+  .tglob #tAllV{width:38px;text-align:right;white-space:nowrap;color:var(--trade);font-variant-numeric:tabular-nums}
+  .tms{display:flex;flex-direction:column;gap:4px}
+  .tm{padding:6px 9px;border:1px solid #1f2a2e;border-radius:7px;background:#0d1012;cursor:pointer;text-align:left;transition:background .12s,border-color .12s}
+  .tm:hover{border-color:#2d4650}
+  .tm.on{background:linear-gradient(90deg,#173540,#11252c);border-color:var(--trade2);box-shadow:inset 3px 0 0 var(--trade)}
+  .tm.na{cursor:default;opacity:.55}
+  .tm-top{display:flex;gap:8px;align-items:baseline;font-size:12px}
+  .tm .mt{flex:none;width:58px;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+  .tm .tx{color:var(--text2)} .tm.on .tx{color:#e3f2f7}
+  .tm .mv{margin-left:auto;color:var(--trade);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tm-sl{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:11px;color:var(--trade);font-variant-numeric:tabular-nums}
+  .tm-sl span{width:38px;text-align:right}
+  .xchips{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 2px}
+  .xchip{font:500 11.5px/1 var(--body);padding:5px 9px;border-radius:999px;border:1px solid #2a3a40;background:#0d1012;color:var(--muted);cursor:pointer}
+  .xchip.on{border-color:var(--trade);background:#173540;color:#e3f2f7}
+  .tsub{font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+
   /* ---------- Trésor ---------- */
   .treasure{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--gold3);border-radius:10px;background:radial-gradient(circle at 50% 40%,#4a3515,#1a140c 75%);box-shadow:0 0 18px #c8a35a30,inset 0 0 10px #00000080}
   .treasure svg{width:24px;height:24px;filter:drop-shadow(0 0 4px #c8a35a80)}
@@ -421,6 +458,8 @@
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
   let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
+  let drafts = {}, draftReq = new Set(), uniqueDb = null, uniqueErr = '';
+  const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   try { const j = JSON.parse(localStorage.getItem('poeTracking') || '{}'); follow = j.follow || {}; history = j.history || {}; } catch {}
 
   // =================== Toast ===================
@@ -463,6 +502,16 @@
           trades[rec.itemId] = rec; tradeBusy.delete(rec.itemId); lstShown[rec.itemId] = 20;
           applyPrices();
         } catch {}
+        break;
+      case 'trade-draft':
+        try { const d = JSON.parse(m.data); drafts[d.itemId] = { mods: d.mods, extras: d.extras }; draftReq.delete(d.itemId); if (selected !== null) select(selected); } catch {}
+        break;
+      case 'uniques':
+        try { uniqueDb = JSON.parse(m.data); uniqueErr = ''; applyPrices(); } catch {}
+        break;
+      case 'uniques-error':
+        uniqueErr = m.data.msg || 'erreur';
+        if (selected !== null) select(selected);
         break;
       case 'trade-error':
         tradeBusy.delete(m.data.itemId);
@@ -556,7 +605,7 @@
     const groups = {};
     (it.sockets || []).forEach(s => (groups[s.group] = groups[s.group] || []).push(s.sColour || 'A'));
     const g = Object.values(groups);
-    const mods = [...(it.enchantMods || []), ...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || []), ...(it.utilityMods || [])].map(clean);
+    const mods = [...(it.enchantMods || []), ...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || []), ...(it.utilityMods || [])].map(m => clean(mt(m)));
     const prop = n => { const p = (it.properties || []).find(p => clean(p.name) === n); return p && p.values && p.values[0] ? clean(p.values[0][0]) : null; };
     return {
       raw: it, idx,
@@ -649,6 +698,47 @@
     return r;
   }
 
+  // =================== Rolls des uniques ===================
+  const TOK = /\((-?[\d.]+)-(-?[\d.]+)\)|(-?\d+(?:\.\d+)?)/g;
+  const tpl = s => s.replace(/–/g, '-').replace(/\(-?[\d.]+-(-?[\d.]+)\)/g, '#').replace(/-?\d+(?:\.\d+)?/g, '#');
+  function uniqueRanges(i) {
+    const vs = uniqueDb && uniqueDb[i.name];
+    const v = vs && (vs.find(x => x.b === i.base && x.d) || vs.find(x => x.b === i.base) || vs.find(x => x.d) || vs[0]);
+    if (v) return { e: v.e, i: v.i, src: 'poewiki' };
+    if (P) {
+      const l = (P.byItem.get(i.name.toLowerCase()) || []).find(l => (l.ranges && l.ranges.length) || (l.iranges && l.iranges.length));
+      if (l) return { e: l.ranges || [], i: l.iranges || [], src: 'poe.ninja' };
+    }
+    return null;
+  }
+  function rollFor(line, ranges) {
+    const t = tpl(line);
+    const nums = (line.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    for (const r of ranges) {
+      if (tpl(r) !== t) continue;
+      const toks = [...r.replace(/–/g, '-').matchAll(TOK)].map(m => m[1] !== undefined ? { min: +m[1], max: +m[2] } : { fixed: +m[3] });
+      if (toks.length !== nums.length) continue;
+      const parts = toks.map((tk, k) => tk.min === undefined ? null : { v: nums[k], min: tk.min, max: tk.max, pct: tk.max === tk.min ? 1 : (nums[k] - tk.min) / (tk.max - tk.min) }).filter(Boolean);
+      if (!parts.length) return null;
+      return { parts, pct: parts.reduce((a, p) => a + Math.max(0, Math.min(1, p.pct)), 0) / parts.length };
+    }
+    return null;
+  }
+  function computeRoll(i) {
+    if (!(i.rarity === 3 || i.rarity === 9) || !i.name) return null;
+    const rg = uniqueRanges(i);
+    if (!rg) return null;
+    const lines = new Map();
+    const scan = (arr, ranges) => (arr || []).forEach(m => clean(mt(m)).split('\n').forEach(l => { const r = rollFor(l, ranges); if (r) lines.set(l, r); }));
+    scan(i.raw.implicitMods, rg.i);
+    scan(i.raw.explicitMods, rg.e);
+    if (!lines.size) return { pct: null, lines, src: rg.src };
+    const all = [...lines.values()];
+    return { pct: all.reduce((a, r) => a + r.pct, 0) / all.length, lines, src: rg.src };
+  }
+  const qCls = p => p < 0.34 ? 'q-lo' : p < 0.67 ? 'q-mid' : 'q-hi';
+  const pctTxt = p => `${Math.round(Math.max(0, Math.min(1, p)) * 100)} %`;
+
   const val = i => i.price ? i.price.total : (i.trade && i.trade.estimate) || 0;
   function applyPrices() {
     if (!data) return;
@@ -656,6 +746,7 @@
       i.price = priceItem(i);
       const t = i.raw.id && trades[i.raw.id];
       i.trade = !i.price && t && t.estimate ? t : null;
+      i.roll = computeRoll(i);
     });
     renderKpis(); renderTabs(); renderFollow(); render();
     if (selected !== null) select(selected);
@@ -926,7 +1017,7 @@
     const rows = list.slice(0, shown).map(i => `<tr class="it${selected === i.idx ? ' sel' : ''}" data-i="${i.idx}">
       <td class="st-c">${i.price ? `<button class="star${follow[itemKey(i)] ? ' on' : ''}" data-f="${i.idx}" title="${follow[itemKey(i)] ? 'Ne plus suivre' : 'Suivre le prix'}" aria-label="Suivre le prix">★</button>` : ''}</td>
       <td><div class="icw"><img class="ic" loading="lazy" src="${esc(i.raw.icon)}" alt=""></div></td>
-      <td><div class="nm1 r${i.rarity}">${esc(i.name || i.type)}${i.corrupted ? '<span class="tag corr">Corrompu</span>' : ''}${i.unid ? '<span class="tag unid">Non id.</span>' : ''}</div>${i.name ? `<div class="base">${esc(i.type)}</div>` : ''}</td>
+      <td><div class="nm1 r${i.rarity}">${esc(i.name || i.type)}${i.roll && i.roll.pct !== null ? `<span class="tag roll ${qCls(i.roll.pct)}" title="Qualité des rolls (${esc(i.roll.src)})">${pctTxt(i.roll.pct)}</span>` : ''}${i.corrupted ? '<span class="tag corr">Corrompu</span>' : ''}${i.unid ? '<span class="tag unid">Non id.</span>' : ''}</div>${i.name ? `<div class="base">${esc(i.type)}</div>` : ''}</td>
       <td class="tab-cell">${esc(i.tabN)}</td>
       <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
       <td class="num">${i.ilvl || ''}</td>
@@ -971,7 +1062,19 @@
     const r = i.raw;
     const k = itemKey(i), followed = !!follow[k];
     const sec = html => `<div class="sec">${html || ''}</div>`;
-    const mods = (arr, cls) => (arr || []).map(m => `<div class="mod ${cls}">${esc(clean(m))}</div>`).join('');
+    const mods = (arr, cls) => (arr || []).flatMap(m => clean(mt(m)).split('\n')).map(l => {
+      const ro = i.roll && i.roll.lines.get(l);
+      if (!ro) return `<div class="mod ${cls}">${esc(l)}</div>`;
+      return `<div class="mod ${cls} roll-l"><span>${esc(l)}</span><span class="rng">${ro.parts.map(p => `${p.min}–${p.max}`).join(' / ')}</span><span class="rbar" title="${pctTxt(ro.pct)}"><i class="${qCls(ro.pct)}-b" style="width:${Math.max(4, Math.min(1, Math.max(0, ro.pct)) * 100)}%"></i></span></div>`;
+    }).join('');
+    const IB = { shaper: 'Shaper', elder: 'Elder', crusader: 'Crusader', redeemer: 'Redeemer', hunter: 'Hunter', warlord: 'Warlord' };
+    const badges = [
+      ...Object.keys(IB).filter(k => r.influences && r.influences[k]).map(k => `<span class="ib ${k}">${IB[k]}</span>`),
+      r.searing ? '<span class="ib searing">Searing Exarch</span>' : '', r.tangled ? '<span class="ib tangled">Eater of Worlds</span>' : '',
+      r.fractured ? '<span class="ib fractured">Fracturé</span>' : '', r.synthesised ? '<span class="ib synth">Synthétisé</span>' : '',
+      r.duplicated ? '<span class="ib mirror">Miroir</span>' : '', r.split ? '<span class="ib split">Scindé</span>' : '',
+    ].join('');
+    const rollPill = i.roll && i.roll.pct !== null ? `<div><span class="rollpill ${qCls(i.roll.pct)}" title="Moyenne des rolls par rapport aux plages (${esc(i.roll.src)})">Rolls ${pctTxt(i.roll.pct)}</span></div>` : '';
     const props = (r.properties || []).map(p => {
       const vals = (p.values || []).map(v => clean(v[0]));
       let n = clean(p.name);
@@ -983,7 +1086,7 @@
     const pr = i.price;
     const big = pr && P && P.divine && pr.total >= P.divine;
     $('detailBody').innerHTML = `<div class="card">
-      <div class="hd f${i.rarity}"><div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}</div>
+      <div class="hd f${i.rarity}"><div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}${badges ? `<div class="infl">${badges}</div>` : ''}${rollPill}</div>
       <div class="art"><img src="${esc(r.icon)}" alt=""></div>
       <div class="bd">
         ${sec(props)}
@@ -1001,11 +1104,13 @@
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${pr ? chartSection(i, k, pr, followed) : ''}
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
+      ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni sur poewiki, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : 'Base des uniques en cours de construction…'}${bridge && (!uniqueDb || uniqueErr) ? ' <button class="btn ghost" id="uniBuild">Construire la base</button>' : ''}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
     wireChart();
     wireTrade(i);
+    if ($('uniBuild')) $('uniBuild').onclick = () => { uniqueErr = ''; status('Construction de la base des uniques…', false, true); cmd('uniques-refresh'); };
     $('detail').classList.add('show');
   }
 
@@ -1014,44 +1119,79 @@
   const INDEXED = [['1day', '1 jour'], ['3days', '3 jours'], ['1week', '1 semaine'], ['2weeks', '2 semaines'], ['1month', '1 mois'], ['any', 'toutes']];
   function tradeSection(i) {
     const id = i.raw.id, rec = trades[id], busy = tradeBusy.has(id);
-    const idxSel = `<select id="tradeIdx" title="Ancienneté maximale des annonces">${INDEXED.map(([v, l]) => `<option value="${v}"${(settings.tradeIndexed || '1week') === v ? ' selected' : ''}>annonces &lt; ${l}</option>`).join('')}</select>`;
-    const go = `<button class="btn primary" id="tradeGo"${!bridge || busy ? ' disabled' : ''}>${busy ? 'Estimation en cours…' : rec ? 'Ré-estimer' : 'Estimer sur le trade'}</button>`;
-    if (!rec) return `<div class="tradebox"><div class="head"><span class="lb">Estimation trade</span></div>
-      <div class="s">Pas de prix poe.ninja pour cet objet. Le trade cherche la même base avec des mods proches (au moins 85 % de tes valeurs), récupère jusqu'à 50 annonces et en fait la moyenne.</div>
-      <div class="acts">${go}${idxSel}</div>${bridge ? '' : '<div class="warn">Nécessite le script Violentmonkey.</div>'}</div>`;
-    const shownN = lstShown[id] || 20;
-    const ls = [...rec.listings].sort((a, b) => (a.chaos ?? 1e12) - (b.chaos ?? 1e12));
-    const used = rec.mods.filter(m => m.enabled && m.id).length;
+    if (!drafts[id] && rec) drafts[id] = { mods: rec.mods, extras: rec.extras || [] };
+    const d = drafts[id];
+    const head = `<div class="head"><span class="lb">Estimation trade</span>${rec ? `<span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span>` : ''}</div>`;
+    if (!d) {
+      if (bridge && !draftReq.has(id)) { draftReq.add(id); cmd('trade-prepare', { itemId: id, item: i.raw }); }
+      return `<div class="tradebox">${head}<div class="s">${bridge ? 'Préparation des critères de recherche…' : 'Nécessite le script Violentmonkey.'}</div></div>`;
+    }
     const TYPES = { pseudo: 'total', explicit: 'explicite', implicit: 'implicite', crafted: 'crafté', fractured: 'fracturé', enchant: 'enchant' };
-    return `<div class="tradebox"><div class="head"><span class="lb">Estimation trade</span><span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span></div>
-      ${rec.estimate ? `<div class="v">≈ ${esc(fmt(rec.estimate))}</div>
-      <div class="s">moyenne de ${rec.n} annonces (10 % extrêmes retirés) · médiane ${esc(fmt(rec.median))} · de ${esc(fmt(rec.min))} à ${esc(fmt(rec.max))}</div>
-      <div class="s">${rec.total} annonce${rec.total > 1 ? 's' : ''} correspondante${rec.total > 1 ? 's' : ''} sur le trade${rec.countMin ? ` · recherche assouplie (${rec.countMin} mods sur ${rec.nMods})` : ''}</div>
-      ${rec.n < 5 ? '<div class="warn">Peu d\'annonces : estimation peu fiable.</div>' : ''}` : '<div class="warn">Aucune annonce trouvée avec ces filtres. Décoche des mods ou élargis l\'ancienneté.</div>'}
-      <details class="mods"><summary>Mods utilisés (${used} sur ${rec.mods.length}) : coche ou décoche, puis ré-estime</summary>
-        ${rec.mods.map((m, k) => `<label class="${m.enabled && m.id ? '' : 'off'}"><input type="checkbox" data-m="${k}"${m.enabled && m.id ? ' checked' : ''}${m.id ? '' : ' disabled'}><span class="mt">${esc(TYPES[m.type] || m.type)}</span><span>${esc(m.text)}${m.id ? '' : ' (non reconnu)'}</span>${m.id && m.value > 0 ? `<span class="mv">≥ ${nf(Math.floor(m.value * 0.85 * 100) / 100, 0)}</span>` : ''}</label>`).join('')}
-      </details>
-      <div class="acts">${go}${idxSel}${rec.queryId ? `<a class="btn ghost" href="https://www.pathofexile.com/trade/search/${encodeURIComponent(rec.league)}/${encodeURIComponent(rec.queryId)}" target="_blank" rel="noopener">Voir sur le trade ↗</a>` : ''}<button class="btn ghost" id="tradeDel">Oublier</button></div>
-      ${ls.length ? `<div class="lst-wrap">${ls.slice(0, shownN).map(l => `<div class="lst" title="${esc([l.item.name, l.item.typeLine, l.item.ilvl ? `iLvl ${l.item.ilvl}` : '', ...l.item.mods, l.item.corrupted ? 'Corrompu' : ''].filter(Boolean).join('\n'))}">
-        <span class="lp">${esc(nf(l.amount, l.amount % 1 ? 1 : 0))} ${esc(CUR[l.currency] || l.currency)}</span><span class="lc">${l.chaos ? '≈ ' + esc(fmt(l.chaos)) : '?'}</span>
-        <span class="ls">${esc(l.seller || '?')}</span><span class="la">${esc(ago(Date.parse(l.indexed)))}</span></div>`).join('')}
-        ${ls.length > shownN ? `<button class="btn lst-more" id="lstMore">Afficher ${Math.min(20, ls.length - shownN)} de plus · ${ls.length - shownN} restantes</button>` : ''}</div>` : ''}
+    const nSel = d.mods.filter(m => m.enabled && m.id).length + d.extras.filter(e => e.enabled).length;
+    const avg = Math.round((d.mods.filter(m => m.enabled && m.id).reduce((a, m) => a + (m.pct || 85), 0) / Math.max(1, d.mods.filter(m => m.enabled && m.id).length)) / 5) * 5 || 85;
+    const minOf = m => nf(Math.floor(m.value * (m.pct || 85) / 100 * 100) / 100, m.value % 1 ? 1 : 0);
+    const rows = d.mods.map((m, k) => {
+      const on = m.enabled && m.id, num = m.id && m.value > 0;
+      return `<div class="tm${on ? ' on' : ''}${m.id ? '' : ' na'}" data-m="${k}" title="${m.id ? 'Clique pour inclure ou exclure ce mod' : 'Mod non reconnu par le trade'}">
+        <div class="tm-top"><span class="mt">${esc(TYPES[m.type] || m.type)}</span><span class="tx">${esc(m.text)}</span>${on && num ? `<span class="mv" data-mv="${k}">≥ ${minOf(m)}</span>` : ''}</div>
+        ${on && num ? `<div class="tm-sl"><input type="range" min="50" max="100" step="5" value="${m.pct || 85}" data-p="${k}" aria-label="Correspondance minimale"><span data-pv="${k}">${m.pct || 85} %</span></div>` : ''}</div>`;
+    }).join('');
+    const chips = d.extras.map((e, k) => `<button class="xchip${e.enabled ? ' on' : ''}" data-x="${k}">${esc(e.label)}</button>`).join('');
+    const idxSel = `<select id="tradeIdx" title="Ancienneté maximale des annonces">${INDEXED.map(([v, l]) => `<option value="${v}"${(settings.tradeIndexed || '1week') === v ? ' selected' : ''}>annonces &lt; ${l}</option>`).join('')}</select>`;
+    const go = `<button class="btn primary" id="tradeGo"${!bridge || busy || !nSel ? ' disabled' : ''}>${busy ? 'Recherche en cours…' : `${rec ? 'Relancer' : 'Rechercher'} · ${nSel} critère${nSel > 1 ? 's' : ''}`}</button>`;
+    let res = '';
+    if (rec) {
+      const shownN = lstShown[id] || 20;
+      const ls = [...rec.listings].sort((a, b) => (a.chaos ?? 1e12) - (b.chaos ?? 1e12));
+      res = `${rec.estimate ? `<div class="v">≈ ${esc(fmt(rec.estimate))}</div>
+        <div class="s">moyenne de ${rec.n} annonces (10 % extrêmes retirés) · médiane ${esc(fmt(rec.median))} · de ${esc(fmt(rec.min))} à ${esc(fmt(rec.max))}</div>
+        <div class="s">${rec.total} annonce${rec.total > 1 ? 's' : ''} correspondante${rec.total > 1 ? 's' : ''} sur le trade${rec.countMin ? ` · recherche assouplie (${rec.countMin} mods sur ${rec.nMods})` : ''}</div>
+        ${rec.n < 5 ? '<div class="warn">Peu d\'annonces : baisse le % de correspondance ou retire des critères.</div>' : ''}`
+        : '<div class="warn">Aucune annonce trouvée : baisse le % de correspondance ou retire des critères.</div>'}
+        ${ls.length ? `<div class="lst-wrap">${ls.slice(0, shownN).map(l => `<div class="lst" title="${esc([l.item.name, l.item.typeLine, l.item.ilvl ? `iLvl ${l.item.ilvl}` : '', (l.item.influences || []).join(', '), ...l.item.mods, l.item.corrupted ? 'Corrompu' : ''].filter(Boolean).join('\n'))}">
+          <span class="lp">${esc(nf(l.amount, l.amount % 1 ? 1 : 0))} ${esc(CUR[l.currency] || l.currency)}</span><span class="lc">${l.chaos ? '≈ ' + esc(fmt(l.chaos)) : '?'}</span>
+          <span class="ls">${esc(l.seller || '?')}</span><span class="la">${esc(ago(Date.parse(l.indexed)))}</span></div>`).join('')}
+          ${ls.length > shownN ? `<button class="btn lst-more" id="lstMore">Afficher ${Math.min(20, ls.length - shownN)} de plus · ${ls.length - shownN} restantes</button>` : ''}</div>` : ''}`;
+    }
+    return `<div class="tradebox">${head}${rec ? res.split('<div class="lst-wrap">')[0] : ''}
+      <div class="tsub">Critères de recherche</div>
+      <div class="tglob"><span style="white-space:nowrap">Tous les mods</span><input type="range" min="50" max="100" step="5" value="${avg}" id="tAll" aria-label="Correspondance de tous les mods"><span id="tAllV">${avg} %</span></div>
+      <div class="tms">${rows}</div>
+      ${chips ? `<div class="xchips">${chips}</div>` : ''}
+      <div class="acts">${go}${idxSel}${rec && rec.queryId ? `<a class="btn ghost" href="https://www.pathofexile.com/trade/search/${encodeURIComponent(rec.league)}/${encodeURIComponent(rec.queryId)}" target="_blank" rel="noopener">Voir sur le trade ↗</a>` : ''}${rec ? '<button class="btn ghost" id="tradeDel">Oublier</button>' : ''}</div>
+      ${rec && res.includes('<div class="lst-wrap">') ? '<div class="tsub">Annonces</div><div class="lst-wrap">' + res.split('<div class="lst-wrap">')[1] : ''}
     </div>`;
   }
   function wireTrade(i) {
     const id = i.raw && i.raw.id;
     if (!id || !$('tradeGo')) return;
+    const d = drafts[id];
+    const rerender = () => { const sc = $('detail').scrollTop; select(i.idx); $('detail').scrollTop = sc; };
     $('tradeIdx').onchange = () => { settings.tradeIndexed = $('tradeIdx').value; cmd('settings', { tradeIndexed: settings.tradeIndexed }); };
-    document.querySelectorAll('.mods input[data-m]').forEach(cb => cb.onchange = () => { const m = trades[id].mods[Number(cb.dataset.m)]; m.enabled = cb.checked; cb.parentElement.classList.toggle('off', !cb.checked); });
-    $('tradeGo').onclick = () => {
-      const rec = trades[id];
-      tradeBusy.add(id);
-      cmd('trade', { itemId: id, item: i.raw, mods: rec ? rec.mods : null });
-      status('Estimation trade lancée…', false, true);
-      select(i.idx);
+    document.querySelectorAll('.tm[data-m]').forEach(el => el.onclick = e => {
+      if (e.target.closest('.tm-sl')) return;
+      const m = d.mods[Number(el.dataset.m)];
+      if (!m.id) return;
+      m.enabled = !m.enabled; rerender();
+    });
+    const setPct = (k, v) => {
+      const m = d.mods[k]; m.pct = v;
+      const pv = document.querySelector(`[data-pv="${k}"]`), mv = document.querySelector(`[data-mv="${k}"]`), sl = document.querySelector(`[data-p="${k}"]`);
+      if (pv) pv.textContent = `${v} %`;
+      if (sl) sl.value = v;
+      if (mv) mv.textContent = `≥ ${nf(Math.floor(m.value * v / 100 * 100) / 100, m.value % 1 ? 1 : 0)}`;
     };
-    if ($('tradeDel')) $('tradeDel').onclick = () => { delete trades[id]; cmd('trade-delete', { itemId: id }); applyPrices(); };
-    if ($('lstMore')) $('lstMore').onclick = () => { lstShown[id] = (lstShown[id] || 20) + 20; select(i.idx); };
+    document.querySelectorAll('.tm-sl input').forEach(sl => sl.oninput = () => setPct(Number(sl.dataset.p), Number(sl.value)));
+    $('tAll').oninput = () => { const v = Number($('tAll').value); $('tAllV').textContent = `${v} %`; d.mods.forEach((m, k) => { if (m.enabled && m.id && m.value > 0) setPct(k, v); }); };
+    document.querySelectorAll('.xchip').forEach(c => c.onclick = () => { const e = d.extras[Number(c.dataset.x)]; e.enabled = !e.enabled; rerender(); });
+    $('tradeGo').onclick = () => {
+      tradeBusy.add(id);
+      cmd('trade', { itemId: id, item: i.raw, mods: d.mods, extras: d.extras });
+      status('Recherche sur le trade…', false, true);
+      rerender();
+    };
+    if ($('tradeDel')) $('tradeDel').onclick = () => { delete trades[id]; delete drafts[id]; cmd('trade-delete', { itemId: id }); applyPrices(); };
+    if ($('lstMore')) $('lstMore').onclick = () => { lstShown[id] = (lstShown[id] || 20) + 20; rerender(); };
   }
 
   function chartSection(i, k, pr, followed) {
@@ -1083,7 +1223,7 @@
     const head = ['Onglet','Nom','Type','Base','Rareté','Pile','iLvl','Sockets','Liens','Corrompu','Identifié','Prix unitaire (c)','Prix total (c)','Note','Mods'];
     const lines = filtered().map(i => [i.tabN, i.name, i.type, i.base, RARITY[i.rarity] || i.rarity, i.stack, i.ilvl, i.sockets, i.links,
       i.corrupted ? 'oui' : 'non', i.unid ? 'non' : 'oui', num(i.price?.unit), num(i.price?.total), i.raw.note,
-      [...(i.raw.implicitMods || []), ...(i.raw.explicitMods || []), ...(i.raw.craftedMods || [])].map(clean).join(' | ')].map(q).join(';'));
+      [...(i.raw.implicitMods || []), ...(i.raw.explicitMods || []), ...(i.raw.craftedMods || [])].map(m => clean(mt(m))).join(' | ')].map(q).join(';'));
     save(new Blob(['﻿' + [head.map(q).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' }), `coffres_${slug()}.csv`);
   };
 
