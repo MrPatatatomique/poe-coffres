@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.5.0
+// @version      2.5.1
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -360,8 +360,7 @@
   async function tradeEstimate(itemId, item, customMods, customExtras, report) {
     const league = getSettings().league;
     if (!league) throw new Error('Ligue inconnue : fais un premier scan.');
-    const stats = await loadStats(report);
-    const mods = customMods || parseMods(item, stats);
+    const mods = customMods || parseMods(item, await loadStats(report));
     const extras = customExtras || itemExtras(item);
     const rates = currencyRates(GM_getValue('ninjaPrices', null));
     const n = mods.filter(m => m.enabled && m.id).length;
@@ -467,7 +466,7 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.5.0' });
+      send('ready', { version: '2.5.1' });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);

@@ -201,6 +201,25 @@ async function updateUniques(dir) {
   return n;
 }
 
+// ------------------------------------------------ mods du site de trade
+async function updateTradeStats(dir) {
+  const file = join(dir, 'trade-stats.json');
+  if (existsSync(file)) {
+    try { const j = JSON.parse(await readFile(file, 'utf8')); if (Date.now() - j.at < 20 * 3600000) return Object.keys(j.map).length; } catch {}
+  }
+  const j = await getJson('https://www.pathofexile.com/api/trade/data/stats');
+  if (!j || !j.result) { console.warn('stats du trade indisponibles'); return 0; }
+  const map = {}, ids = {};
+  for (const g of j.result) for (const e of g.entries || []) {
+    ids[e.id] = e.text;
+    if (e.option) continue;
+    const k = `${e.type}|${e.text}`;
+    if (!map[k]) map[k] = e.id;
+  }
+  await writeFile(file, JSON.stringify({ at: Date.now(), map, ids }));
+  return Object.keys(map).length;
+}
+
 // --------------------------------------------------------------- main
 async function main() {
   await mkdir(join(OUT, 'prices'), { recursive: true });
@@ -222,6 +241,8 @@ async function main() {
   await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
   const nu = await updateUniques(OUT);
   console.log(`uniques : ${nu}`);
+  const ns = await updateTradeStats(OUT);
+  console.log(`mods du trade : ${ns}`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main().catch(e => { console.error(e); process.exit(1); });
