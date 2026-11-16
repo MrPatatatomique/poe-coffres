@@ -218,6 +218,8 @@
   /* ---------- Trade ---------- */
   :root{--trade:#7fb8cc;--trade2:#3c6a7a}
   .kpis{grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(160px,1fr))}
+  .pill.relay{text-decoration:none;cursor:pointer}
+  .pill.relay:hover{border-color:var(--line3)}
   header .fresh{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);padding:4px 12px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;white-space:nowrap}
   header .fresh b{color:var(--text2);font-weight:500}
   header .fresh b.old{color:var(--err)}
@@ -380,6 +382,7 @@
       <label title="Rescan automatique des coffres">Auto <select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
     </div>
     <span class="pill" title="Liaison avec le script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Recherche du script…</span></span>
+    <a class="pill relay" id="relayPill" hidden href="https://www.pathofexile.com/trade" target="_blank" rel="noopener"><span class="dot" id="relayDot"></span><span id="relayTxt">Relais</span></a>
     <div class="actions">
       <button class="btn primary" id="scanBtn" hidden><svg><use href="#i-refresh"/></svg>Rescanner</button>
       <div class="menu">
@@ -492,7 +495,7 @@
   let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.0';
+  const REQ_SCRIPT = '2.6.1';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, hist = {}, histReq = {}, scriptVersion = '';
@@ -546,6 +549,16 @@
           applyPrices();
         } catch {}
         break;
+      case 'relay': {
+        const on = !!m.data.alive;
+        $('relayPill').hidden = false;
+        $('relayDot').classList.toggle('on', on);
+        $('relayTxt').textContent = on ? 'Relais pathofexile.com' : 'Relais absent';
+        $('relayPill').title = on
+          ? 'Un onglet pathofexile.com est ouvert : il exécute les recherches trade et les rescans de la page.'
+          : 'Aucun onglet pathofexile.com détecté. Clique pour en ouvrir un (passe la vérification Cloudflare si elle apparaît), puis garde-le ouvert.';
+        break;
+      }
       case 'trade-draft-error':
         draftErr[m.data.itemId] = m.data.msg; draftReq.delete(m.data.itemId);
         if (selected !== null) select(selected);

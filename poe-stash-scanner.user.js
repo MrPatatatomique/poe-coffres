@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.0
+// @version      2.6.1
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -48,21 +48,33 @@
   }
   const wrap = r => ({ status: r.status, header: n => (r.headers || {})[n.toLowerCase()] ?? null, text: r.text, error: r.error });
 
-  // Relais : un onglet pathofexile.com ouvert exécute les requêtes GGG de la page (même origine, mêmes cookies)
-  const relayWait = new Map();
-  function relayAlive() { return Date.now() - GM_getValue('gggAlive', 0) < 15000; }
+  // Relais : un onglet pathofexile.com ouvert exécute les requêtes GGG de la page (même origine, mêmes cookies,
+  // vérification Cloudflare déjà passée). Les échanges se font par le stockage de Violentmonkey.
+  const relayWait = new Map(), relayAcks = new Set();
+  function relayAlive() { return Date.now() - GM_getValue('gggAlive', 0) < 180000; }
   function viaRelay(url, method, body) {
     const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-    return withTimeout(new Promise(resolve => {
-      relayWait.set(id, resolve);
-      GM_setValue(`relayReq_${id}`, { url, method, body });
-      GM_setValue('relayPing', id);
-    }), 60000, 'Relais pathofexile.com').finally(() => { relayWait.delete(id); GM_deleteValue(`relayReq_${id}`); GM_deleteValue(`relayRes_${id}`); });
+    const tab = GM_getValue('relayTab', null);
+    const done = new Promise(resolve => relayWait.set(id, resolve));
+    GM_setValue(`relayReq_${id}`, { url, method, body });
+    GM_setValue('relayPing', { id, tab, at: Date.now() });
+    const ack = new Promise((resolve, reject) => {
+      const t0 = Date.now();
+      const iv = setInterval(() => {
+        if (relayAcks.has(id)) { clearInterval(iv); resolve(); }
+        else if (Date.now() - t0 > 6000) { clearInterval(iv); reject(new Error("L'onglet pathofexile.com ne répond pas : recharge-le (F5) après la mise à jour du script, garde-le ouvert, puis réessaie.")); }
+      }, 200);
+    });
+    return ack.then(() => withTimeout(done, 60000, 'Relais pathofexile.com'))
+      .finally(() => { relayWait.delete(id); relayAcks.delete(id); GM_deleteValue(`relayReq_${id}`); GM_deleteValue(`relayRes_${id}`); });
   }
-  if (!ON_GGG) GM_addValueChangeListener('relayDone', (k, o, id) => {
-    const res = relayWait.get(id);
-    if (res) res(GM_getValue(`relayRes_${id}`, { status: 0, headers: {}, text: '' }));
-  });
+  if (!ON_GGG) {
+    GM_addValueChangeListener('relayAck', (k, o, id) => { if (relayWait.has(id)) relayAcks.add(id); });
+    GM_addValueChangeListener('relayDone', (k, o, id) => {
+      const res = relayWait.get(id);
+      if (res) res(GM_getValue(`relayRes_${id}`, { status: 0, headers: {}, text: '' }));
+    });
+  }
 
   function http(url, method = 'GET', body = null) {
     const headers = { 'X-Requested-With': 'XMLHttpRequest' };
@@ -488,6 +500,9 @@
     const pushScan = () => { const s = GM_getValue('lastScan', null); if (s) send('scan', s); };
     const pushPrices = p => p && send('prices', JSON.stringify(p));
     const pushSettings = () => send('settings', getSettings());
+    const pushRelay = () => send('relay', { alive: relayAlive(), at: GM_getValue('gggAlive', 0) });
+    setInterval(pushRelay, 10000);
+    GM_addValueChangeListener('gggAlive', () => pushRelay());
     const pushUniques = u => u && send('uniques', JSON.stringify(u.db));
     const pushTrades = () => send('trades', JSON.stringify(GM_getValue('tradeEstimates', {})));
     let tradeQueue = Promise.resolve();
@@ -497,8 +512,8 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.0' });
-      pushSettings(); pushTracking(); pushTrades(); pushScan();
+      send('ready', { version: '2.6.1' });
+      pushSettings(); pushRelay(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);
       const p = GM_getValue('ninjaPrices', null);
@@ -575,21 +590,25 @@
   // =====================================================================
   function gggRelay() {
     const tab = Math.random().toString(36).slice(2);
-    const beat = () => GM_setValue('gggAlive', Date.now());
-    beat(); setInterval(beat, 5000);
-    GM_addValueChangeListener('relayPing', async (k, o, id, remote) => {
-      if (!remote || !id) return;
+    const beat = () => { GM_setValue('gggAlive', Date.now()); GM_setValue('relayTab', tab); };
+    beat();
+    setInterval(beat, 5000);
+    document.addEventListener('visibilitychange', beat);
+    window.addEventListener('focus', beat);
+    GM_addValueChangeListener('relayPing', async (k, o, ping, remote) => {
+      if (!remote || !ping || !ping.id) return;
+      // l'onglet visé répond ; si la page n'en vise aucun (ou un onglet fermé), le premier à réagir s'en charge
+      if (ping.tab && ping.tab !== tab && Date.now() - GM_getValue('gggAlive', 0) < 180000 && GM_getValue('relayTab', null) !== tab) return;
+      const id = ping.id;
       const req = GM_getValue(`relayReq_${id}`, null);
-      if (!req || GM_getValue(`relayClaim_${id}`, null)) return;
-      GM_setValue(`relayClaim_${id}`, tab);
-      await sleep(60);
-      if (GM_getValue(`relayClaim_${id}`, null) !== tab) return;
+      if (!req) return;
+      GM_setValue('relayTab', tab);
+      GM_setValue('relayAck', id);
       let res;
       try { res = await withTimeout(ggFetch(req.url, req.method || 'GET', req.body || null), 45000, 'pathofexile.com'); }
       catch (e) { res = { status: 0, headers: {}, text: '', error: e.message }; }
       GM_setValue(`relayRes_${id}`, res);
       GM_setValue('relayDone', id);
-      setTimeout(() => GM_deleteValue(`relayClaim_${id}`), 5000);
     });
   }
 
