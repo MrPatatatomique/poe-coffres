@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coffres PoE1</title>
+<meta name="description" content="Scan de coffres Path of Exile 1, prix poe.ninja et estimations trade">
+<meta name="theme-color" content="#120f0c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a08; --bg2:#100e0b; --panel:#15120e; --panel2:#1c1813; --panel3:#241e17;
+    --line:#2b241b; --line2:#3e3324; --line3:#5a4a32;
+    --text:#e2dbcd; --text2:#b8ae9c; --muted:#857b6b;
+    --gold:#c8a35a; --gold2:#ecd29a; --gold3:#8a6d36;
+    --normal:#c8c8c8; --magic:#8f8fff; --rare:#ffff77; --unique:#c8692c;
+    --gem:#1ba29b; --currency:#aa9e82; --div:#c0e6f0; --quest:#4ae63a; --relic:#82ad6a;
+    --corrupt:#e03b3b; --ok:#86c06c; --err:#ff8a7a;
+    --r:10px;
+    --title:"Cinzel",Georgia,serif;
+    --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(1200px 600px at 20% -10%,#2a1f12 0%,transparent 60%),radial-gradient(900px 500px at 110% 0%,#1d1610 0%,transparent 55%),var(--bg);color:var(--text);font:14px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+  button,input,select{font:inherit;color:inherit}
+  ::selection{background:#c8a35a55}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:#3a3024;border-radius:8px;border:2px solid var(--bg2)}
+  ::-webkit-scrollbar-track{background:transparent}
+  *{scrollbar-color:#3a3024 transparent;scrollbar-width:thin}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(#231d16,#1a1611);border:1px solid var(--line2);border-radius:8px;padding:7px 13px;cursor:pointer;color:var(--gold2);white-space:nowrap;transition:border-color .15s,background .15s,transform .05s}
+  .btn:hover:not(:disabled){border-color:var(--gold3);background:linear-gradient(#2b231a,#1f1a14)}
+  .btn:active:not(:disabled){transform:translateY(1px)}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn.primary{border-color:var(--gold3);background:linear-gradient(#3a2d18,#261d11)}
+  .btn.primary:hover:not(:disabled){border-color:var(--gold)}
+  .btn.ghost{background:none;border-color:transparent;color:var(--text2)}
+  .btn.ghost:hover:not(:disabled){border-color:var(--line2);color:var(--gold2)}
+  .btn svg{width:15px;height:15px;flex:none}
+  .btn.spin svg{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  input,select{background:#0c0a08;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;transition:border-color .15s}
+  input:hover,select:hover{border-color:var(--line3)}
+
+  .app{display:grid;grid-template-rows:auto auto 1fr;height:100%}
+
+  /* ---------- En-tête ---------- */
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:linear-gradient(#17130e,#120f0c);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand svg{width:30px;height:30px}
+  .brand h1{margin:0;font:700 19px/1 var(--title);letter-spacing:.06em;color:var(--gold2);text-shadow:0 0 18px #c8a35a40}
+  .who{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;margin-left:6px}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;color:var(--text2);font-size:12px;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:#555;flex:none}
+  .dot.on{background:var(--ok);box-shadow:0 0 8px #86c06c99}
+  .spacer{flex:1}
+  .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+  /* ---------- Bandeau KPI ---------- */
+  .kpis{display:grid;grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(170px,1fr));gap:12px;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .kpi{position:relative;background:linear-gradient(160deg,#1b1611,#13100c);border:1px solid var(--line2);border-radius:var(--r);padding:12px 15px;overflow:hidden;min-width:0}
+  .kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,#c8a35a66,transparent)}
+  .kpi .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .kpi .vl{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi .sb{color:var(--muted);font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi.hero .vl{font:700 30px/1.1 var(--title);color:var(--gold2);text-shadow:0 0 22px #c8a35a40}
+  .kpi.hero{border-color:var(--gold3);background:radial-gradient(400px 160px at 0% 0%,#3a2a12aa,transparent 70%),linear-gradient(160deg,#1f1810,#14100b)}
+  .cur{width:26px;height:26px;object-fit:contain;flex:none}
+  .kpi.hero .cur{width:34px;height:34px}
+  .meter{height:4px;background:#0c0a08;border-radius:3px;margin-top:9px;overflow:hidden}
+  .meter>div{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold));border-radius:3px;transition:width .4s}
+  .kpi select{padding:2px 6px;font-size:12px;border-radius:6px;margin-left:4px}
+  .fresh{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:12.5px;color:var(--text2)}
+  .fresh span:nth-child(odd){color:var(--muted)}
+  .fresh .old{color:var(--err)}
+
+  /* ---------- Les plus précieux ---------- */
+  .topwrap{grid-column:1/-1;display:flex;align-items:center;gap:10px;min-width:0}
+  .topwrap .lb{flex:none;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .top{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;min-width:0}
+  .chip{display:flex;align-items:center;gap:8px;flex:none;background:#120f0c;border:1px solid var(--line);border-radius:9px;padding:5px 11px 5px 6px;cursor:pointer;transition:border-color .15s,background .15s}
+  .chip:hover{border-color:var(--gold3);background:#19140f}
+  .chip img{width:28px;height:28px;object-fit:contain}
+  .chip .t{font-size:12.5px;font-weight:600;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip .p{font-size:12px;color:var(--gold2);font-variant-numeric:tabular-nums}
+
+  /* ---------- Corps ---------- */
+  .main{display:grid;grid-template-columns:260px 1fr 360px;min-height:0}
+  aside{border-right:1px solid var(--line);overflow:auto;padding:12px 10px;background:#110e0bcc}
+  .sect{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 8px 10px}
+  .tab{display:block;width:100%;text-align:left;background:none;border:1px solid transparent;color:var(--text);padding:7px 9px 8px;border-radius:8px;cursor:pointer;transition:background .12s,border-color .12s}
+  .tab:hover{background:var(--panel2)}
+  .tab.active{background:linear-gradient(90deg,#2a2016,#1c1813);border-color:var(--line3)}
+  .tab .tr1{display:flex;align-items:center;gap:8px}
+  .tab .sw{width:10px;height:10px;border-radius:3px;flex:none;box-shadow:inset 0 0 0 1px #0006}
+  .tab .nm{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+  .tab .v{font-size:12px;color:var(--gold2);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .tab .tr2{display:flex;align-items:center;gap:8px;margin:5px 0 0 18px}
+  .tab .ct{font-size:11px;color:var(--muted);white-space:nowrap;min-width:44px}
+  .tab .bar{flex:1;height:3px;background:#0c0a08;border-radius:2px;overflow:hidden}
+  .tab .bar>div{height:100%;background:linear-gradient(90deg,var(--gold3),var(--gold))}
+
+  .center{display:flex;flex-direction:column;min-width:0;min-height:0}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .search{position:relative;flex:1;min-width:220px}
+  .search svg{position:absolute;left:10px;top:50%;width:15px;height:15px;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .search input{width:100%;padding-left:32px}
+  .toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid var(--line2);border-radius:999px;color:var(--text2);font-size:12.5px;cursor:pointer;user-select:none;transition:all .12s}
+  .toggle input{display:none}
+  .toggle:hover{border-color:var(--line3)}
+  .toggle:has(input:checked){border-color:var(--gold3);background:#2a2016;color:var(--gold2)}
+  .seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:none;color:var(--muted);padding:6px 12px;cursor:pointer}
+  .seg button.on{background:var(--panel3);color:var(--gold2)}
+  .count{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12.5px;padding:7px 16px;border-bottom:1px solid var(--line)}
+  .count b{color:var(--gold2);font-weight:600}
+  .view{flex:1;overflow:auto;min-height:0}
+
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th{position:sticky;top:0;z-index:1;background:#14110dee;backdrop-filter:blur(4px);text-align:left;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
+  th.num{text-align:right}
+  th:hover,th.sorted{color:var(--gold2)}
+  td{padding:6px 12px;border-bottom:1px solid #1b1712;vertical-align:middle}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text2)}
+  td.price{color:var(--gold2);font-weight:600}
+  td.price .unit{display:block;color:var(--muted);font-size:11px;font-weight:400}
+  tr.it{cursor:pointer;transition:background .1s}
+  tr.it td:first-child{border-left:2px solid transparent}
+  tr.it:hover td{background:#1a1611}
+  tr.it.sel td{background:#251e15}
+  tr.it.sel td:first-child{border-left-color:var(--gold)}
+  .icw{width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#ffffff0d,transparent 70%);border-radius:6px}
+  .ic{max-width:38px;max-height:38px;object-fit:contain;display:block}
+  .nm1{font-weight:600;font-size:13.5px}
+  .base{color:var(--muted);font-size:12px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:0 6px;border-radius:4px;margin-left:7px;vertical-align:1px}
+  .tag.corr{color:var(--corrupt);background:#e03b3b1a;border:1px solid #e03b3b55}
+  .tag.unid{color:var(--muted);border:1px solid var(--line2)}
+  .tab-cell{color:var(--text2);font-size:12.5px}
+  .sockets{display:inline-flex;gap:3px;align-items:center}
+  .sk{width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1px #0008}
+  .sk.R{background:#d44}.sk.G{background:#5c5}.sk.B{background:#58f}.sk.W{background:#eee}.sk.A{background:#888}.sk.DV{background:#222;box-shadow:inset 0 0 0 1px #888}
+  .lk{width:5px;height:2px;background:#b89b5e;margin:0 -1px}
+  .gap{width:6px}
+  .r0{color:var(--normal)} .r1{color:var(--magic)} .r2{color:var(--rare)} .r3{color:var(--unique)}
+  .r4{color:var(--gem)} .r5{color:var(--currency)} .r6{color:var(--div)} .r7{color:var(--quest)} .r9{color:var(--relic)}
+  .approx{color:var(--muted);font-weight:400}
+  .more{display:flex;margin:14px auto}
+
+  .grid-wrap{padding:18px;display:flex;justify-content:center}
+  .grid{position:relative;background:#0a0907;border:1px solid var(--line2);border-radius:6px;box-shadow:0 10px 40px #000a}
+  .cell{position:absolute;border:1px solid #17140f}
+  .gi{position:absolute;display:flex;align-items:center;justify-content:center;background:#ffffff06;border:1px solid #ffffff10;cursor:pointer;transition:border-color .1s,background .1s}
+  .gi:hover{border-color:var(--gold);z-index:2}
+  .gi.sel{border-color:var(--gold2);background:#c8a35a26;z-index:2}
+  .gi.valued{background:#c8a35a12}
+  .gi img{max-width:100%;max-height:100%}
+  .gi .st{position:absolute;left:3px;top:1px;font-size:11px;font-weight:700;color:#fff;text-shadow:0 0 3px #000,0 0 3px #000}
+
+  /* ---------- Détail ---------- */
+  .detail{border-left:1px solid var(--line);overflow:auto;background:#110e0bcc;padding:12px 16px 20px}
+  .card{border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;background:#0b0907;box-shadow:0 10px 30px #0008}
+  .card .hd{position:relative;text-align:center;padding:12px 12px 14px;border-bottom:1px solid var(--line2)}
+  .card .hd.f0{background:linear-gradient(#2a2a2a,#1a1a1a)} .card .hd.f1{background:linear-gradient(#26264a,#16162a)}
+  .card .hd.f2{background:linear-gradient(#3f3a1c,#221f10)} .card .hd.f3{background:linear-gradient(#45260f,#251407)}
+  .card .hd.f4{background:linear-gradient(#123c39,#0a201f)} .card .hd.f5,.card .hd.f6{background:linear-gradient(#2c2820,#18160f)}
+  .card .hd.f9{background:linear-gradient(#26381e,#141e10)}
+  .card .hd .n{font:700 16px/1.25 var(--title);letter-spacing:.02em}
+  .card .hd .t{font:500 14px/1.3 var(--title)}
+  .card .art{display:flex;justify-content:center;padding:14px 0 6px;background:radial-gradient(circle at 50% 45%,#ffffff12,transparent 60%)}
+  .card .art img{max-height:150px}
+  .card .bd{padding:4px 14px 12px;font-size:13px;text-align:center}
+  .card .sec{padding:8px 0;position:relative}
+  .card .sec+.sec::before{content:"";position:absolute;top:0;left:15%;right:15%;height:1px;background:linear-gradient(90deg,transparent,var(--line3),transparent)}
+  .card .sec:empty{display:none}
+  .prop{color:#7f7f7f} .prop b{color:#e8e8e8;font-weight:500}
+  .mod{color:#8f8fff} .mod.cr{color:#b4b4ff} .mod.fr{color:#a29162} .mod.en{color:#b4b4ff}
+  .flav{color:#af6025;font-style:italic}
+  .corrtxt{color:var(--corrupt)}
+  .pricebox{margin-top:12px;padding:13px 15px;border:1px solid var(--gold3);border-radius:var(--r);background:radial-gradient(300px 120px at 0 0,#3a2a12aa,transparent 70%),#15110c}
+  .pricebox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .pricebox .v{display:flex;align-items:center;gap:8px;font:700 22px/1.1 var(--title);color:var(--gold2)}
+  .pricebox .s{color:var(--muted);font-size:12px;margin-top:5px}
+  .pricebox.none{border-color:var(--line2);background:#13100c}
+  .loc{margin-top:10px;color:var(--muted);font-size:12px;text-align:center}
+
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:70%;color:var(--muted);font-size:13px;text-align:center;padding:20px}
+  .placeholder svg{width:46px;height:46px;opacity:.35}
+
+  /* ---------- Vide ---------- */
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px;text-align:center;min-height:0;grid-row:2/4}
+  .drop{border:1.5px dashed var(--line3);border-radius:16px;padding:44px 60px;max-width:620px;background:radial-gradient(400px 200px at 50% 0%,#2a1f12aa,transparent 70%),var(--panel);transition:border-color .15s,background .15s}
+  .drop.over{border-color:var(--gold);background:#1d1914}
+  .drop svg{width:52px;height:52px;color:var(--gold3);margin-bottom:6px}
+  .drop h2{margin:0 0 8px;color:var(--gold2);font:700 20px/1.2 var(--title)}
+  .drop p{margin:0 0 20px;color:var(--text2)}
+  .err{color:var(--err)}
+
+  /* ---------- Toast ---------- */
+  .toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:10px;max-width:min(680px,90vw);padding:10px 16px;border:1px solid var(--line3);border-radius:10px;background:#1a1510f2;box-shadow:0 10px 30px #000c;font-size:13px;transition:opacity .2s,transform .2s;z-index:20}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.err{border-color:#a5443a;color:var(--err)}
+  .toast .spinner{width:14px;height:14px;border:2px solid var(--gold3);border-top-color:var(--gold2);border-radius:50%;animation:spin .8s linear infinite;flex:none}
+
+  /* ---------- Trade ---------- */
+  :root{--trade:#7fb8cc;--trade2:#3c6a7a}
+  .kpis{grid-template-columns:minmax(250px,1.3fr) repeat(4,minmax(150px,1fr))}
+  .kpi.trade .vl{color:var(--trade)}
+  .kpi.safe .vl{color:var(--gold2)}
+  .tbadge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--trade);border:1px solid var(--trade2);border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
+  td.price.tr{color:var(--trade)}
+  .tradebox{margin-top:12px;padding:13px 15px;border:1px solid var(--trade2);border-radius:var(--r);background:radial-gradient(300px 120px at 0 0,#16323caa,transparent 70%),#0f1214}
+  .tradebox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .tradebox .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .tradebox .v{font:700 22px/1.1 var(--title);color:var(--trade)}
+  .tradebox .s{color:var(--muted);font-size:12px;margin-top:5px}
+  .tradebox .warn{color:#d9a35b;font-size:12px;margin-top:5px}
+  .tradebox .acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px}
+  .tradebox .acts select{padding:5px 8px;font-size:12px}
+  .tradebox .btn.primary{border-color:var(--trade2);background:linear-gradient(#173540,#0f232b);color:#cfeaf3}
+  .tradebox .btn.primary:hover:not(:disabled){border-color:var(--trade)}
+  .tradebox a.btn{text-decoration:none}
+  .mods{margin-top:10px;border-top:1px solid #1f2a2e;padding-top:8px}
+  .mods summary{cursor:pointer;color:var(--text2);font-size:12.5px}
+  .mods label{display:flex;gap:7px;align-items:flex-start;font-size:12px;color:var(--text2);padding:3px 0;cursor:pointer;text-align:left}
+  .mods label.off{color:var(--muted);text-decoration:line-through}
+  .mods label .mt{color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;flex:none;width:56px;padding-top:1px}
+  .mods label .mv{margin-left:auto;color:var(--trade);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .lst-wrap{margin-top:10px;border-top:1px solid #1f2a2e;padding-top:6px}
+  .lst{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:6px 4px;border-bottom:1px solid #182024;font-size:12.5px;cursor:default}
+  .lst:hover{background:#13202599}
+  .lst .lp{font-weight:600;color:var(--text);white-space:nowrap}
+  .lst .lc{color:var(--trade);font-variant-numeric:tabular-nums;text-align:right;grid-column:3}
+  .lst .ls{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;grid-column:1/3}
+  .lst .la{color:var(--muted);font-size:11.5px;text-align:right;grid-column:3;white-space:nowrap}
+  .lst-more{display:flex;margin:10px auto 0}
+
+  /* ---------- Trésor ---------- */
+  .treasure{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--gold3);border-radius:10px;background:radial-gradient(circle at 50% 40%,#4a3515,#1a140c 75%);box-shadow:0 0 18px #c8a35a30,inset 0 0 10px #00000080}
+  .treasure svg{width:24px;height:24px;filter:drop-shadow(0 0 4px #c8a35a80)}
+
+  /* ---------- Suivi des prix ---------- */
+  .star{background:none;border:0;cursor:pointer;color:#4a3f30;font-size:15px;line-height:1;padding:4px;border-radius:5px;transition:color .12s,transform .1s}
+  .star:hover{color:var(--gold)}
+  .star.on{color:var(--gold2);text-shadow:0 0 8px #c8a35a90}
+  .star:active{transform:scale(.85)}
+  td.st-c{width:28px;padding-right:0}
+  .chg{font-size:11px;font-weight:600}
+  .chg.up{color:var(--ok)} .chg.down{color:var(--err)}
+  .follow-sect{margin-bottom:14px}
+  .fl{display:grid;grid-template-columns:30px 1fr 64px;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:5px 7px;cursor:pointer;color:var(--text)}
+  .fl:hover{background:var(--panel2)}
+  .fl img{width:28px;height:28px;object-fit:contain}
+  .fl .flt{min-width:0}
+  .fl .flt .nm{display:block;font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fl .fp{font-size:11.5px;color:var(--gold2);font-variant-numeric:tabular-nums}
+  .fl svg{width:64px;height:24px}
+  .btn.follow.on{border-color:var(--gold);color:var(--gold2);background:linear-gradient(#3a2d18,#261d11)}
+  .pricebox .row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .chartbox{margin-top:12px;padding:12px 14px;border:1px solid var(--line2);border-radius:var(--r);background:#13100c}
+  .chartbox .lb{display:flex;justify-content:space-between;align-items:center;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .legend{display:flex;gap:10px;letter-spacing:0;text-transform:none;font-weight:400}
+  .legend i{display:inline-block;width:14px;height:0;border-top:2px solid var(--gold);vertical-align:middle;margin-right:4px}
+  .legend i.dash{border-top:2px dashed #8a6d36}
+  .chart{position:relative}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .chart .ax{fill:var(--muted);font-size:9.5px;font-family:var(--body)}
+  .chart .gl{stroke:#2b241b;stroke-width:1}
+  .chart .l1{fill:none;stroke:var(--gold);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+  .chart .l0{fill:none;stroke:#8a6d36;stroke-width:1.6;stroke-dasharray:4 3;stroke-linejoin:round}
+  .chart .area{fill:url(#chartGrad)}
+  .chart .mk{fill:var(--gold2);stroke:#0b0a08;stroke-width:2}
+  .chart .vline{stroke:#c8a35a55;stroke-width:1}
+  .chartinfo{margin-top:6px;font-size:12px;color:var(--text2);min-height:1.4em;font-variant-numeric:tabular-nums}
+  .chartempty{font-size:12px;color:var(--muted);padding:6px 0}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}
+  @media (max-width:1250px){.kpis{grid-template-columns:1fr 1fr}.main{grid-template-columns:230px 1fr}.detail{display:none}.detail.show{display:block;position:fixed;right:0;top:0;bottom:0;width:360px;z-index:15;box-shadow:-10px 0 30px #000a}}
+  @media (max-width:760px){.main{grid-template-columns:1fr}aside{display:none}.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.5 10.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-treasure" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M9.5 2.5h5l2 2.5-4.5 5-4.5-5z"/><path d="M7.5 5h9M12 10 10.3 5l1.7-2.5L13.7 5z"/><ellipse cx="7.5" cy="15" rx="4.5" ry="1.8"/><path d="M3 15v4.2c0 1 2 1.8 4.5 1.8s4.5-.8 4.5-1.8V15M3 17.1c0 1 2 1.8 4.5 1.8s4.5-.8 4.5-1.8"/><ellipse cx="16.5" cy="13" rx="4.5" ry="1.8"/><path d="M12 13v6.2c0 1 2 1.8 4.5 1.8s4.5-.8 4.5-1.8V13M12 15.1c0 1 2 1.8 4.5 1.8s4.5-.8 4.5-1.8M12 17.2c0 1 2 1.8 4.5 1.8s4.5-.8 4.5-1.8"/></symbol>
+  <symbol id="i-chest" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M6 20a10 10 0 0 1 10-10h16a10 10 0 0 1 10 10v4H6z"/><path d="M6 24h36v14H6z"/><path d="M20 21h8v8h-8z"/><path d="M12 10v14M36 10v14"/></symbol>
+</svg>
+
+<div class="app">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f2d9a0"/><stop offset="1" stop-color="#9a7638"/></linearGradient></defs><use href="#i-chest" stroke="url(#g1)"/></svg>
+      <h1>Coffres</h1>
+    </div>
+    <div class="who" id="who"></div>
+    <span class="spacer"></span>
+    <span class="pill" title="Liaison avec le script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Recherche du script…</span></span>
+    <div class="actions">
+      <button class="btn primary" id="scanBtn" hidden><svg><use href="#i-refresh"/></svg>Rescanner</button>
+      <button class="btn" id="pricesBtn" hidden><svg><use href="#i-coin"/></svg>Prix</button>
+      <button class="btn ghost" id="exportJson" hidden title="Exporter le scan en JSON"><svg><use href="#i-down"/></svg>JSON</button>
+      <button class="btn ghost" id="exportCsv" hidden title="Exporter la vue filtrée en CSV"><svg><use href="#i-down"/></svg>CSV</button>
+      <button class="btn ghost" id="openBtn" title="Ouvrir un fichier de scan"><svg><use href="#i-open"/></svg>Ouvrir</button>
+    </div>
+    <input type="file" id="file" accept=".json,application/json" hidden>
+  </header>
+
+  <section class="kpis" id="kpis" hidden>
+    <div class="kpi hero">
+      <div class="lb">Valeur estimée totale</div>
+      <div class="vl" id="kTotal">—</div>
+      <div class="sb" id="kTotalSub"></div>
+    </div>
+    <div class="kpi safe">
+      <div class="lb">Prix sûrs · poe.ninja</div>
+      <div class="vl" id="kSafe">—</div>
+      <div class="sb" id="kSafeSub"></div>
+      <div class="meter"><div id="kPricedBar" style="width:0"></div></div>
+    </div>
+    <div class="kpi trade">
+      <div class="lb">Estimations trade</div>
+      <div class="vl" id="kTrade">—</div>
+      <div class="sb" id="kTradeSub">aucune estimation</div>
+    </div>
+    <div class="kpi">
+      <div class="lb">Divine Orb</div>
+      <div class="vl" id="kDiv">—</div>
+      <div class="sb" id="kDivSub">poe.ninja</div>
+    </div>
+    <div class="kpi">
+      <div class="lb">Fraîcheur</div>
+      <div class="fresh">
+        <span>Scan</span><span id="kScan">—</span>
+        <span>Prix</span><span id="kPrices">—</span>
+        <span>Auto</span><span><select id="auto" aria-label="Rescan automatique"><option value="0">désactivé</option><option value="15">toutes les 15 min</option><option value="30">toutes les 30 min</option><option value="60">toutes les heures</option></select></span>
+      </div>
+    </div>
+    <div class="topwrap" id="topWrap" hidden>
+      <span class="treasure" title="Les plus précieux" aria-label="Les plus précieux" role="img"><svg><defs><linearGradient id="gT" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffe7a8"/><stop offset="1" stop-color="#b48a3c"/></linearGradient></defs><use href="#i-treasure" stroke="url(#gT)"/></svg></span>
+      <div class="top" id="top"></div>
+    </div>
+  </section>
+
+  <div id="emptyView" class="empty">
+    <div class="drop" id="drop">
+      <svg aria-hidden="true"><use href="#i-chest"/></svg>
+      <h2 id="dropTitle">En attente d'un scan</h2>
+      <p id="dropText">Dépose ici un fichier de scan JSON, ou installe le script Violentmonkey pour que tout se charge tout seul.</p>
+      <button class="btn primary" id="openBtn2"><svg><use href="#i-open"/></svg>Choisir un fichier</button>
+    </div>
+    <p class="err" id="loadErr"></p>
+  </div>
+
+  <div class="main" id="mainView" hidden>
+    <aside>
+      <div class="follow-sect" id="followWrap" hidden>
+        <div class="sect">★ Suivis</div>
+        <div id="followList"></div>
+      </div>
+      <div class="sect">Onglets</div>
+      <div id="tabList"></div>
+    </aside>
+    <section class="center">
+      <div class="filters">
+        <label class="search"><svg><use href="#i-search"/></svg><input type="search" id="q" placeholder="Rechercher (nom, base, mod)…  /" aria-label="Rechercher"></label>
+        <select id="rarity" aria-label="Rareté">
+          <option value="">Toutes raretés</option>
+          <option value="0">Normal</option><option value="1">Magique</option><option value="2">Rare</option>
+          <option value="3">Unique</option><option value="4">Gemme</option><option value="5">Currency</option>
+          <option value="6">Carte divination</option><option value="9">Relique</option>
+        </select>
+        <select id="links" aria-label="Liens">
+          <option value="0">Tous liens</option><option value="4">4L+</option><option value="5">5L+</option><option value="6">6L</option>
+        </select>
+        <label class="toggle"><input type="checkbox" id="priced">Cotés</label>
+        <label class="toggle"><input type="checkbox" id="corr">Corrompus</label>
+        <label class="toggle"><input type="checkbox" id="unid">Non identifiés</label>
+        <div class="seg" role="group" aria-label="Affichage">
+          <button id="vList" class="on">Liste</button>
+          <button id="vGrid">Grille</button>
+        </div>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="view" id="view"></div>
+    </section>
+    <section class="detail" id="detail">
+      <div class="sect">Objet</div>
+      <div id="detailBody"></div>
+    </section>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
+
+<script>
+(() => {
+  'use strict';
+  const RARITY = ['Normal','Magique','Rare','Unique','Gemme','Currency','Carte div.','Quête','Prophétie','Relique'];
+  const GRID_TYPES = { NormalStash: 12, PremiumStash: 12, QuadStash: 24 };
+  const PAGE = 300;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+  const clean = s => String(s ?? '').replace(/<<[^>]*>>/g, '').replace(/\[([^\]|]+)\|([^\]]+)\]/g, '$2').replace(/\[([^\]]+)\]/g, '$1');
+  const EMPTY_DETAIL = `<div class="placeholder"><svg><use href="#i-chest"/></svg>Clique sur un objet pour voir ses détails et son prix.</div>`;
+
+  let data = null, items = [], tabs = [], prices = null, P = null;
+  let activeTab = null, view = 'list', sortKey = 'tab', sortDir = 1, shown = PAGE, selected = null;
+  let bridge = false, curIcons = {};
+  let follow = {}, history = {};
+  let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
+  try { const j = JSON.parse(localStorage.getItem('poeTracking') || '{}'); follow = j.follow || {}; history = j.history || {}; } catch {}
+
+  // =================== Toast ===================
+  let toastTimer = 0;
+  function status(msg, err = false, busy = false) {
+    clearTimeout(toastTimer);
+    if (!msg) { $('toast').classList.remove('show'); return; }
+    $('toastMsg').textContent = msg;
+    $('toastSpin').hidden = !busy;
+    $('toast').className = 'toast show' + (err ? ' err' : '');
+    if (!busy) toastTimer = setTimeout(() => $('toast').classList.remove('show'), err ? 8000 : 3500);
+  }
+
+  // =================== Pont avec le userscript ===================
+  const cmd = (c, d) => window.postMessage(JSON.stringify({ src: 'poe-viewer', cmd: c, data: d }), '*');
+  window.addEventListener('message', ev => {
+    if (ev.source !== window || typeof ev.data !== 'string') return;
+    let m; try { m = JSON.parse(ev.data); } catch { return; }
+    if (!m || m.src !== 'poe-us') return;
+    switch (m.type) {
+      case 'ready':
+        if (bridge) return;
+        bridge = true;
+        $('dot').classList.add('on');
+        $('bridge').textContent = `Script v${m.data.version}`;
+        $('scanBtn').hidden = $('pricesBtn').hidden = false;
+        $('dropTitle').textContent = 'Aucun scan enregistré';
+        $('dropText').textContent = 'Lance un premier scan depuis pathofexile.com (bouton « Coffres » en bas à droite). Il apparaîtra ici automatiquement.';
+        break;
+      case 'settings':
+        settings = m.data || {};
+        $('auto').value = String(settings.autoMinutes || 0);
+        break;
+      case 'trades':
+        try { trades = JSON.parse(m.data) || {}; applyPrices(); } catch {}
+        break;
+      case 'trade-result':
+        try {
+          const rec = JSON.parse(m.data);
+          trades[rec.itemId] = rec; tradeBusy.delete(rec.itemId); lstShown[rec.itemId] = 20;
+          applyPrices();
+        } catch {}
+        break;
+      case 'trade-error':
+        tradeBusy.delete(m.data.itemId);
+        if (selected !== null) select(selected);
+        break;
+      case 'tracking':
+        try {
+          const t = JSON.parse(m.data);
+          follow = { ...follow, ...(t.follow || {}) };
+          for (const [k, pts] of Object.entries(t.history || {})) {
+            const seen = new Set((history[k] || []).map(p => p[0]));
+            history[k] = [...(history[k] || []), ...pts.filter(p => !seen.has(p[0]))].sort((a, b) => a[0] - b[0]);
+          }
+          saveTracking(); renderFollow();
+        } catch {}
+        break;
+      case 'scan':
+        try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
+        break;
+      case 'prices':
+        try { setPrices(JSON.parse(m.data)); } catch (e) { status('Prix reçus illisibles : ' + e.message, true); }
+        break;
+      case 'status': {
+        const d = m.data || {};
+        const busy = !d.done && !d.error && /…|\(\d+\/\d+\)|Onglet \d/.test(d.msg || '');
+        status(d.msg || '', !!d.error, busy);
+        if (d.done || d.error) setBusy('scanBtn', false);
+        if (/^Prix poe\.ninja à jour/.test(d.msg || '') || d.error) setBusy('pricesBtn', false);
+        break;
+      }
+    }
+  });
+  let tries = 0;
+  const helloTimer = setInterval(() => {
+    if (bridge) return clearInterval(helloTimer);
+    cmd('hello');
+    if (++tries === 20) {
+      clearInterval(helloTimer);
+      $('bridge').textContent = 'Script non détecté';
+      if (location.protocol.startsWith('http') && !/^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname)) {
+        $('dropTitle').textContent = 'Installe le script pour commencer';
+        $('dropText').innerHTML = 'Il faut l\'extension <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" style="color:var(--gold2)">Violentmonkey</a>, puis <a href="poe-stash-scanner.user.js" style="color:var(--gold2)">ce script</a>. Recharge ensuite cette page. Tu peux aussi ouvrir un fichier de scan JSON.';
+      }
+      $('bridge').parentElement.title = location.protocol === 'file:' ? 'Page ouverte en file:// — sers-la en local (python -m http.server)' : 'Violentmonkey ne tourne pas sur cette page';
+    }
+  }, 500);
+  cmd('hello');
+
+  function setBusy(id, on) { $(id).disabled = on; $(id).classList.toggle('spin', on); }
+  $('scanBtn').onclick = () => { setBusy('scanBtn', true); status('Scan demandé…', false, true); cmd('scan'); };
+  $('pricesBtn').onclick = () => { setBusy('pricesBtn', true); status('Actualisation des prix…', false, true); cmd('prices'); };
+  $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
+
+  // =================== Chargement manuel ===================
+  $('openBtn').onclick = $('openBtn2').onclick = () => $('file').click();
+  $('file').onchange = e => { if (e.target.files[0]) readFile(e.target.files[0]); e.target.value = ''; };
+  const drop = $('drop');
+  ['dragenter','dragover'].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  document.addEventListener('dragleave', e => { if (!e.relatedTarget) drop.classList.remove('over'); });
+  document.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer?.files?.[0]; if (f) readFile(f); });
+
+  function readFile(f) {
+    const r = new FileReader();
+    r.onload = () => { try { load(JSON.parse(r.result)); $('loadErr').textContent = ''; status(`Fichier ${f.name} chargé`); } catch (e) { $('loadErr').textContent = 'Fichier illisible : ' + e.message; } };
+    r.readAsText(f);
+  }
+
+  function load(json) {
+    if (!json || !Array.isArray(json.items)) throw new Error("ce n'est pas un scan de coffres (champ items manquant)");
+    const sameLeague = data && data.league === json.league;
+    data = json;
+    tabs = json.tabs || [];
+    items = json.items.map((it, idx) => enrich(it, idx));
+    curIcons = {};
+    for (const i of items) {
+      if (i.type === 'Chaos Orb' && !curIcons.chaos) curIcons.chaos = i.raw.icon;
+      if (i.type === 'Divine Orb' && !curIcons.divine) curIcons.divine = i.raw.icon;
+    }
+    if (!sameLeague || (activeTab !== null && !tabs.some(t => t.i === activeTab))) activeTab = null;
+    selected = null; shown = PAGE;
+    $('who').innerHTML = `<span class="pill">${esc(json.account || '?')}</span><span class="pill">${esc(json.league || '?')}</span>` +
+      (json.failedTabs?.length ? `<span class="pill" style="color:var(--err)" title="${esc(json.failedTabs.map(f => f.n).join(', '))}">${json.failedTabs.length} onglet(s) en échec</span>` : '');
+    $('emptyView').hidden = true; $('mainView').hidden = false; $('kpis').hidden = false;
+    $('exportCsv').hidden = $('exportJson').hidden = false;
+    $('detailBody').innerHTML = EMPTY_DETAIL;
+    applyPrices();
+  }
+
+  function enrich(it, idx) {
+    const name = clean(it.name), type = clean(it.typeLine);
+    const groups = {};
+    (it.sockets || []).forEach(s => (groups[s.group] = groups[s.group] || []).push(s.sColour || 'A'));
+    const g = Object.values(groups);
+    const mods = [...(it.enchantMods || []), ...(it.implicitMods || []), ...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.craftedMods || []), ...(it.utilityMods || [])].map(clean);
+    const prop = n => { const p = (it.properties || []).find(p => clean(p.name) === n); return p && p.values && p.values[0] ? clean(p.values[0][0]) : null; };
+    return {
+      raw: it, idx,
+      tabI: it._tab?.i, tabN: it._tab?.n || '?',
+      name, type, base: clean(it.baseType || it.typeLine),
+      label: name ? `${name} ${type}` : type,
+      rarity: it.frameType ?? 0,
+      ilvl: it.ilvl || 0,
+      stack: it.stackSize || 1,
+      groups: g,
+      links: g.reduce((m, x) => Math.max(m, x.length), 0),
+      sockets: g.map(x => x.join('-')).join(' '),
+      corrupted: !!it.corrupted, unid: it.identified === false,
+      gemLevel: parseInt(prop('Level')) || 1,
+      gemQuality: parseInt((prop('Quality') || '0').replace(/[^\d]/g, '')) || 0,
+      mapTier: parseInt(prop('Map Tier')) || 0,
+      search: [name, type, it.baseType, it.note, ...mods].join(' ').toLowerCase(),
+      price: null,
+    };
+  }
+
+  // =================== Prix poe.ninja ===================
+  function setPrices(p) {
+    const first = !prices;
+    prices = p;
+    P = buildIndex(p);
+    applyPrices();
+    recordAll();
+    renderFollow();
+    if (!first) status(`Prix poe.ninja mis à jour (${p.league})`);
+  }
+
+  function buildIndex(p) {
+    let divine = 0;
+    if (p.core && p.core.rates && p.core.rates.divine) divine = p.core.primary === 'chaos' ? 1 / p.core.rates.divine : 0;
+    const toChaos = v => (p.core && p.core.primary === 'divine' && divine) ? v * divine : v;
+    const byName = new Map();
+    const put = (name, chaos, src, sp) => { if (!name || !(chaos > 0)) return; const k = name.toLowerCase(); if (!byName.has(k)) byName.set(k, { chaos, src, sp }); };
+    for (const [t, lines] of Object.entries(p.exchange || {})) lines.forEach(l => put(l.name, toChaos(l.v), t, l.sp));
+    for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp));
+    put('Chaos Orb', 1, 'Currency');
+    if (!divine) divine = byName.get('divine orb')?.chaos || 0;
+    const byItem = new Map();
+    for (const [t, lines] of Object.entries(p.items || {})) for (const l of lines) {
+      if (!l.name || !(l.v > 0)) continue;
+      const k = l.name.toLowerCase();
+      if (!byItem.has(k)) byItem.set(k, []);
+      byItem.get(k).push({ ...l, t });
+    }
+    return { byName, byItem, divine };
+  }
+
+  function pick(lines, src) {
+    if (!lines.length) return null;
+    const s = [...lines].sort((a, b) => a.v - b.v);
+    return { unit: s[0].v, approx: s.length > 1 && s[s.length - 1].v > s[0].v * 1.2, src: src || s[0].t, variant: s[0].variant, listings: s[0].listings, sp: s[0].sp };
+  }
+
+  function priceItem(i) {
+    if (!P) return null;
+    const nameK = i.name.toLowerCase(), typeK = i.type.toLowerCase(), baseK = i.base.toLowerCase();
+    let r = null;
+    if (i.rarity === 3 || i.rarity === 9) {
+      let c = (P.byItem.get(nameK) || []).filter(l => /^Unique/.test(l.t));
+      const kind = c.filter(l => (i.rarity === 9) === (l.t === 'UniqueRelic'));
+      if (kind.length) c = kind;
+      const sameBase = c.filter(l => !l.baseType || l.baseType.toLowerCase() === baseK || l.t === 'UniqueMap');
+      if (sameBase.length) c = sameBase;
+      const want = i.links >= 5 ? i.links : 0;
+      let m = c.filter(l => (l.links || 0) === want);
+      if (!m.length && want) m = c.filter(l => !l.links);
+      r = pick(m);
+    } else if (i.rarity === 4) {
+      const c = (P.byItem.get(typeK) || []).filter(l => l.t === 'SkillGem' && (l.gemLevel || 1) === i.gemLevel && l.corrupted === i.corrupted && (l.gemQuality || 0) <= i.gemQuality);
+      if (c.length) {
+        const q = Math.max(...c.map(l => l.gemQuality || 0));
+        r = pick(c.filter(l => (l.gemQuality || 0) === q));
+      }
+    } else {
+      const hit = P.byName.get(typeK) || P.byName.get(baseK);
+      if (hit) r = { unit: hit.chaos, src: hit.src, sp: hit.sp };
+      else if (i.rarity <= 2) {
+        let c = (P.byItem.get(baseK) || P.byItem.get(typeK) || []).filter(l => !/^Unique|SkillGem/.test(l.t));
+        if (i.mapTier) { const t = c.filter(l => !l.mapTier || l.mapTier === i.mapTier); if (t.length) c = t; }
+        r = pick(c);
+      }
+    }
+    if (!r) return null;
+    r.total = r.unit * i.stack;
+    return r;
+  }
+
+  const val = i => i.price ? i.price.total : (i.trade && i.trade.estimate) || 0;
+  function applyPrices() {
+    if (!data) return;
+    items.forEach(i => {
+      i.price = priceItem(i);
+      const t = i.raw.id && trades[i.raw.id];
+      i.trade = !i.price && t && t.estimate ? t : null;
+    });
+    renderKpis(); renderTabs(); renderFollow(); render();
+    if (selected !== null) select(selected);
+  }
+
+  // =================== Suivi des prix ===================
+  function itemKey(i) {
+    if (i.rarity === 3 || i.rarity === 9) return `u|${i.name}|${i.base}|${i.links >= 5 ? i.links : 0}`;
+    if (i.rarity === 4) return `g|${i.type}|${i.gemLevel}|${i.gemQuality}|${i.corrupted ? 1 : 0}`;
+    return `n|${i.type}`;
+  }
+  const probeOf = i => ({ name: i.name, type: i.type, base: i.base, rarity: i.rarity, links: i.links, gemLevel: i.gemLevel, gemQuality: i.gemQuality, corrupted: i.corrupted, mapTier: i.mapTier, stack: 1 });
+
+  function saveTracking() {
+    const payload = { follow, history };
+    if (bridge) cmd('tracking', payload);
+    try { localStorage.setItem('poeTracking', JSON.stringify(payload)); } catch {}
+  }
+  function recordPoint(k) {
+    const f = follow[k];
+    if (!f || !prices || !P) return false;
+    const pr = priceItem(f.probe);
+    if (!pr) return false;
+    const h = history[k] || (history[k] = []);
+    if (h.length && h[h.length - 1][0] >= prices.fetchedAt) return false;
+    h.push([prices.fetchedAt, Math.round(pr.unit * 100) / 100, Math.round((P.divine || 0) * 10) / 10]);
+    if (h.length > 1500) h.splice(0, h.length - 1500);
+    return true;
+  }
+  function recordAll() {
+    let changed = false;
+    for (const k of Object.keys(follow)) if (recordPoint(k)) changed = true;
+    if (changed) saveTracking();
+  }
+  function toggleFollow(i) {
+    const k = itemKey(i);
+    if (follow[k]) { delete follow[k]; status(`${i.name || i.type} n'est plus suivi`); }
+    else {
+      follow[k] = { label: i.name || i.type, sub: i.name ? i.type : '', icon: i.raw.icon, rarity: i.rarity, probe: probeOf(i), addedAt: Date.now() };
+      recordPoint(k);
+      status(`${i.name || i.type} ajouté aux suivis : son prix sera enregistré à chaque mise à jour`);
+    }
+    saveTracking(); renderFollow(); render();
+    if (selected !== null) select(selected);
+  }
+
+  // Courbe 7 jours reconstituée depuis la sparkline poe.ninja (variations en % par jour)
+  function ninjaSeries(pr) {
+    const d = pr && pr.sp;
+    if (!d || !d.length || !prices) return [];
+    const n = d.length - 1;
+    let last = null;
+    for (let k = n; k >= 0; k--) if (d[k] !== null && d[k] !== undefined) { last = d[k]; break; }
+    if (last === null) return [];
+    return d.map((v, k) => (v === null || v === undefined) ? null : [prices.fetchedAt - (n - k) * 86400000, pr.unit * (1 + v / 100) / (1 + last / 100)]).filter(Boolean);
+  }
+  function change7(pr) {
+    const s = ninjaSeries(pr);
+    if (s.length < 2 || !(s[0][1] > 0)) return null;
+    return s[s.length - 1][1] / s[0][1] - 1;
+  }
+  const chgHtml = c => c === null || !isFinite(c) ? '' : `<span class="chg ${c >= 0 ? 'up' : 'down'}" title="Variation sur 7 jours (poe.ninja)">${c >= 0 ? '▲' : '▼'} ${Math.abs(c * 100) < 10 ? nf(Math.abs(c * 100), 1) : nf(Math.round(Math.abs(c * 100)), 0)} %</span>`;
+
+  function miniSpark(pts) {
+    if (pts.length < 2) return '<svg></svg>';
+    const W = 64, H = 24, vs = pts.map(p => p[1]), t0 = pts[0][0], t1 = pts[pts.length - 1][0] || t0 + 1;
+    const v0 = Math.min(...vs), v1 = Math.max(...vs) || 1, rng = (v1 - v0) || v1 * 0.1 || 1;
+    const d = pts.map((p, k) => `${k ? 'L' : 'M'}${(((p[0] - t0) / ((t1 - t0) || 1)) * (W - 2) + 1).toFixed(1)},${(H - 2 - ((p[1] - v0) / rng) * (H - 4)).toFixed(1)}`).join('');
+    const up = vs[vs.length - 1] >= vs[0];
+    return `<svg viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="${up ? 'var(--ok)' : 'var(--err)'}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
+  }
+
+  function renderFollow() {
+    const keys = Object.keys(follow).sort((a, b) => (follow[b].addedAt || 0) - (follow[a].addedAt || 0));
+    $('followWrap').hidden = !keys.length || !data;
+    $('followList').innerHTML = keys.map(k => {
+      const f = follow[k], pr = P ? priceItem(f.probe) : null;
+      const rec = history[k] || [];
+      const pts = rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
+      return `<button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
+        <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(change7(pr))}</span></span>${miniSpark(pts)}</button>`;
+    }).join('');
+    $('followList').querySelectorAll('.fl').forEach(b => b.onclick = () => {
+      const k = b.dataset.k;
+      const it = items.find(i => itemKey(i) === k);
+      if (it) focusItem(it.idx); else showFollowed(k);
+    });
+  }
+  function showFollowed(k) {
+    const f = follow[k];
+    selected = null;
+    document.querySelectorAll('#view .sel').forEach(e => e.classList.remove('sel'));
+    renderDetail({ ...f.probe, idx: -1, key: k, label: f.label, raw: { icon: f.icon, properties: [] }, groups: [], tabN: 'plus dans le coffre', ilvl: 0, unid: false, price: P ? priceItem(f.probe) : null, ghost: true });
+  }
+
+  function chartHtml(series) {
+    const all = series.flatMap(s => s.pts);
+    if (all.length < 2) return '';
+    const W = 320, H = 150, pl = 4, pr = 4, pt = 10, pb = 20;
+    let t0 = Math.min(...all.map(p => p[0])), t1 = Math.max(...all.map(p => p[0]));
+    if (t1 === t0) t1 = t0 + 3600000;
+    let v0 = Math.min(...all.map(p => p[1])), v1 = Math.max(...all.map(p => p[1]));
+    const pad = (v1 - v0) * 0.15 || v1 * 0.08 || 1;
+    v0 = Math.max(0, v0 - pad); v1 += pad;
+    const X = t => pl + ((t - t0) / (t1 - t0)) * (W - pl - pr), Y = v => pt + (1 - (v - v0) / (v1 - v0)) * (H - pt - pb);
+    let g = '';
+    for (let k = 0; k <= 2; k++) { const v = v0 + ((v1 - v0) * k) / 2, y = Y(v); g += `<line class="gl" x1="0" x2="${W}" y1="${y}" y2="${y}"/><text class="ax" x="${W - 2}" y="${y - 3}" text-anchor="end">${esc(fmt(v) || '0')}</text>`; }
+    const dfmt = t => new Date(t).toLocaleString('fr-FR', t1 - t0 > 2 * 86400000 ? { day: '2-digit', month: '2-digit' } : { hour: '2-digit', minute: '2-digit' });
+    g += `<text class="ax" x="2" y="${H - 5}">${dfmt(t0)}</text><text class="ax" x="${W - 2}" y="${H - 5}" text-anchor="end">${dfmt(t1)}</text>`;
+    let paths = '';
+    for (const s of series) {
+      if (s.pts.length < 2) continue;
+      const d = s.pts.map((p, k) => `${k ? 'L' : 'M'}${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join('');
+      if (s.cls === 'l1') paths += `<path class="area" d="${d}L${X(s.pts[s.pts.length - 1][0]).toFixed(1)},${H - pb}L${X(s.pts[0][0]).toFixed(1)},${H - pb}Z"/>`;
+      paths += `<path class="${s.cls}" d="${d}"/>`;
+    }
+    const hover = all.map(p => [X(p[0]), Y(p[1]), p[0], p[1]]);
+    return `<svg viewBox="0 0 ${W} ${H}" data-pts='${JSON.stringify(hover)}'><defs><linearGradient id="chartGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8a35a" stop-opacity=".28"/><stop offset="1" stop-color="#c8a35a" stop-opacity="0"/></linearGradient></defs>${g}${paths}<line class="vline" id="vl" y1="${pt}" y2="${H - pb}" x1="-10" x2="-10"/><circle class="mk" id="mk" r="4" cx="-10" cy="-10"/></svg>`;
+  }
+  function wireChart() {
+    const svg = document.querySelector('#chart svg'), info = $('chartInfo');
+    if (!svg) return;
+    const pts = JSON.parse(svg.dataset.pts);
+    const def = info.innerHTML;
+    svg.addEventListener('mousemove', e => {
+      const r = svg.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * 320;
+      let best = pts[0];
+      for (const p of pts) if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
+      svg.querySelector('#mk').setAttribute('cx', best[0]); svg.querySelector('#mk').setAttribute('cy', best[1]);
+      svg.querySelector('#vl').setAttribute('x1', best[0]); svg.querySelector('#vl').setAttribute('x2', best[0]);
+      info.innerHTML = `<b style="color:var(--gold2)">${esc(fmt(best[3]))}</b> · ${new Date(best[2]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}`;
+    });
+    svg.addEventListener('mouseleave', () => { svg.querySelector('#mk').setAttribute('cx', -10); svg.querySelector('#vl').setAttribute('x1', -10); svg.querySelector('#vl').setAttribute('x2', -10); info.innerHTML = def; });
+  }
+
+  // =================== Formatage ===================
+  const nf = (v, d) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const fmtC = c => c >= 100 ? nf(Math.round(c), 0) : c >= 10 ? nf(c, 1) : nf(c, 2);
+  function fmt(c) {
+    if (!(c > 0)) return '';
+    if (P && P.divine && c >= P.divine) { const d = c / P.divine; return `${nf(d, d >= 100 ? 0 : 1)} div`; }
+    return `${fmtC(c)} c`;
+  }
+  const curImg = (k, cls = 'cur') => curIcons[k] ? `<img class="${cls}" src="${esc(curIcons[k])}" alt="">` : '';
+  function ago(ts) {
+    if (!ts) return '—';
+    const m = Math.round((Date.now() - ts) / 60000);
+    if (m < 1) return "à l'instant";
+    if (m < 60) return `il y a ${m} min`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `il y a ${h} h${m % 60 ? ` ${String(m % 60).padStart(2, '0')}` : ''}`;
+    return new Date(ts).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+  }
+  function socketsHtml(i) {
+    if (!i.groups.length) return '';
+    return `<span class="sockets" title="${esc(i.sockets)}">${i.groups.map(g => g.map(c => `<span class="sk ${esc(c)}"></span>`).join('<span class="lk"></span>')).join('<span class="gap"></span>')}</span>`;
+  }
+
+  // =================== KPI ===================
+  function renderKpis() {
+    const safe = items.filter(i => i.price), traded = items.filter(i => i.trade);
+    const sSafe = safe.reduce((s, i) => s + i.price.total, 0), sTrade = traded.reduce((s, i) => s + i.trade.estimate, 0), sum = sSafe + sTrade;
+    const money = (c, el) => { const big = P && P.divine && c >= P.divine; $(el).innerHTML = `${curImg(big ? 'divine' : 'chaos')}${esc(fmt(c) || '0 c')}`; return big; };
+    if (P) {
+      const big = money(sum, 'kTotal');
+      $('kTotalSub').textContent = `${big ? `${fmtC(sum)} chaos · ` : ''}${safe.length + traded.length} objets valorisés sur ${items.length}`;
+      money(sSafe, 'kSafe');
+      $('kDiv').innerHTML = P.divine ? `${curImg('divine')}${nf(Math.round(P.divine), 0)} c` : '—';
+      $('kDivSub').textContent = `ligue poe.ninja : ${prices.league}`;
+    } else {
+      $('kTotal').textContent = '—'; $('kSafe').textContent = '—';
+      $('kTotalSub').textContent = bridge ? 'chargement des prix…' : 'prix indisponibles sans le script';
+      $('kDiv').textContent = '—';
+    }
+    $('kSafeSub').textContent = `${safe.length} objets cotés sur ${items.length}`;
+    $('kPricedBar').style.width = items.length ? `${(safe.length / items.length) * 100}%` : '0';
+    if (traded.length) {
+      $('kTrade').textContent = fmt(sTrade) || '0 c';
+      const oldest = Math.min(...traded.map(i => i.trade.at));
+      $('kTradeSub').textContent = `${traded.length} objet${traded.length > 1 ? 's' : ''} · plus ancienne ${ago(oldest)}`;
+    } else { $('kTrade').textContent = '—'; $('kTradeSub').textContent = 'aucune estimation (fiche d\'un rare)'; }
+    renderFresh();
+    // Les plus précieux
+    const top = items.filter(i => val(i) > 0).sort((a, b) => val(b) - val(a)).slice(0, 12);
+    $('topWrap').hidden = !top.length;
+    $('top').innerHTML = top.map(i => `<button class="chip" data-i="${i.idx}" title="${esc(i.label)} — ${esc(i.tabN)}">
+      <img src="${esc(i.raw.icon)}" alt=""><span><div class="t r${i.rarity}">${esc(i.name || i.type)}</div><div class="p">${i.trade ? '<span class="tbadge">trade</span>' : ''}${esc(fmt(val(i)))}</div></span></button>`).join('');
+    $('top').querySelectorAll('.chip').forEach(c => c.onclick = () => focusItem(Number(c.dataset.i)));
+  }
+  function renderFresh() {
+    if (!data) return;
+    const sAt = data.scannedAt ? Date.parse(data.scannedAt) : 0;
+    $('kScan').textContent = ago(sAt);
+    $('kPrices').textContent = prices ? ago(prices.fetchedAt) : '—';
+    $('kPrices').className = prices && Date.now() - prices.fetchedAt > 3600000 ? 'old' : '';
+  }
+  setInterval(renderFresh, 30000);
+
+  function focusItem(idx) {
+    const i = items[idx];
+    activeTab = i.tabI ?? null;
+    ['q'].forEach(id => ($(id).value = ''));
+    $('rarity').value = ''; $('links').value = '0';
+    ['priced','corr','unid'].forEach(id => ($(id).checked = false));
+    shown = Infinity;
+    renderTabs(); render(); select(idx);
+    const el = document.querySelector(`#view [data-i="${idx}"]`);
+    if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    shown = PAGE;
+  }
+
+  // =================== Onglets ===================
+  function renderTabs() {
+    const counts = new Map(), values = new Map();
+    items.forEach(i => { counts.set(i.tabI, (counts.get(i.tabI) || 0) + 1); const v = val(i); if (v) values.set(i.tabI, (values.get(i.tabI) || 0) + v); });
+    const allVal = [...values.values()].reduce((a, b) => a + b, 0);
+    const maxVal = Math.max(1, ...values.values());
+    const btn = (key, label, n, v, colour, bar) => `<button class="tab${activeTab === key ? ' active' : ''}" data-k="${key ?? ''}">
+      <div class="tr1"><span class="sw" style="background:${colour}"></span><span class="nm">${esc(label)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
+      <div class="tr2"><span class="ct">${n} obj.</span><span class="bar"><div style="width:${bar}%"></div></span></div></button>`;
+    $('tabList').innerHTML = btn(null, 'Tous les onglets', items.length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
+      tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('');
+    $('tabList').querySelectorAll('.tab').forEach(b => b.onclick = () => {
+      activeTab = b.dataset.k === '' ? null : Number(b.dataset.k);
+      shown = PAGE; renderTabs(); render();
+    });
+  }
+
+  // =================== Filtres ===================
+  ['q','rarity','links','corr','unid','priced'].forEach(id => $(id).addEventListener('input', () => { shown = PAGE; render(); }));
+  $('vList').onclick = () => setView('list');
+  $('vGrid').onclick = () => setView('grid');
+  function setView(v) { view = v; $('vList').classList.toggle('on', v === 'list'); $('vGrid').classList.toggle('on', v === 'grid'); render(); }
+
+  function filtered() {
+    const q = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const r = $('rarity').value, l = Number($('links').value), c = $('corr').checked, u = $('unid').checked, pr = $('priced').checked;
+    return items.filter(i =>
+      (activeTab === null || i.tabI === activeTab) &&
+      (r === '' || i.rarity === Number(r)) &&
+      i.links >= l && (!c || i.corrupted) && (!u || i.unid) && (!pr || val(i) > 0) &&
+      q.every(w => i.search.includes(w)));
+  }
+
+  // =================== Rendu ===================
+  function render() {
+    if (!data) return;
+    const list = filtered();
+    const tab = tabs.find(t => t.i === activeTab);
+    const gridOk = view === 'grid' && tab && GRID_TYPES[tab.type];
+    const tot = list.reduce((s, i) => s + val(i), 0);
+    $('count').innerHTML = `<span><b>${list.length}</b> objet${list.length > 1 ? 's' : ''}</span>` + (tot ? `<span>·</span><span>valeur <b>${esc(fmt(tot))}</b></span>` : '') +
+      (view === 'grid' && !gridOk ? `<span>·</span><span>Grille disponible pour un onglet normal, premium ou quad</span>` : '');
+    if (gridOk) renderGrid(list, GRID_TYPES[tab.type]); else renderList(list);
+  }
+
+  const COLS = [['', null], ['', null], ['Objet', 'label'], ['Onglet', 'tab'], ['Pile', 'stack', 1], ['iLvl', 'ilvl', 1], ['Sockets', 'links'], ['Prix', 'price', 1]];
+  function renderList(list) {
+    const keyFn = {
+      label: i => i.label.toLowerCase(),
+      tab: i => (i.tabI || 0) * 1e6 + (i.raw.y || 0) * 1000 + (i.raw.x || 0),
+      stack: i => i.stack, ilvl: i => i.ilvl,
+      links: i => i.links * 10 + i.sockets.replace(/[ -]/g, '').length,
+      price: i => val(i) || -1,
+    }[sortKey];
+    list.sort((a, b) => { const x = keyFn(a), y = keyFn(b); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
+    if (!list.length) { $('view').innerHTML = `<div class="placeholder"><svg><use href="#i-search"/></svg>Aucun objet ne correspond à ces filtres.</div>`; return; }
+    const rows = list.slice(0, shown).map(i => `<tr class="it${selected === i.idx ? ' sel' : ''}" data-i="${i.idx}">
+      <td class="st-c">${i.price ? `<button class="star${follow[itemKey(i)] ? ' on' : ''}" data-f="${i.idx}" title="${follow[itemKey(i)] ? 'Ne plus suivre' : 'Suivre le prix'}" aria-label="Suivre le prix">★</button>` : ''}</td>
+      <td><div class="icw"><img class="ic" loading="lazy" src="${esc(i.raw.icon)}" alt=""></div></td>
+      <td><div class="nm1 r${i.rarity}">${esc(i.name || i.type)}${i.corrupted ? '<span class="tag corr">Corrompu</span>' : ''}${i.unid ? '<span class="tag unid">Non id.</span>' : ''}</div>${i.name ? `<div class="base">${esc(i.type)}</div>` : ''}</td>
+      <td class="tab-cell">${esc(i.tabN)}</td>
+      <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
+      <td class="num">${i.ilvl || ''}</td>
+      <td>${socketsHtml(i)}</td>
+      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(change7(i.price))}</span>` : ''}</td></tr>`).join('');
+    $('view').innerHTML = `<table><thead><tr>${COLS.map(([n, key, num]) => `<th class="${num ? 'num' : ''}${key === sortKey ? ' sorted' : ''}" ${key ? `data-s="${key}"` : ''}>${n}${key === sortKey ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
+      (list.length > shown ? `<button class="btn more" id="more">Afficher ${Math.min(PAGE, list.length - shown)} de plus · ${list.length - shown} restants</button>` : '');
+    $('view').querySelectorAll('th[data-s]').forEach(th => th.onclick = () => {
+      if (sortKey === th.dataset.s) sortDir = -sortDir; else { sortKey = th.dataset.s; sortDir = ['price', 'stack', 'ilvl', 'links'].includes(sortKey) ? -1 : 1; }
+      render();
+    });
+    $('view').querySelectorAll('tr.it').forEach(tr => tr.onclick = () => select(Number(tr.dataset.i)));
+    $('view').querySelectorAll('.star').forEach(b => b.onclick = e => { e.stopPropagation(); toggleFollow(items[Number(b.dataset.f)]); });
+    const more = $('more'); if (more) more.onclick = () => { shown += PAGE; render(); };
+  }
+
+  function renderGrid(list, size) {
+    const cell = size === 24 ? 26 : 50, px = cell * size;
+    let html = `<div class="grid-wrap"><div class="grid" style="width:${px + 2}px;height:${px + 2}px">`;
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++)
+      html += `<div class="cell" style="left:${x * cell}px;top:${y * cell}px;width:${cell}px;height:${cell}px"></div>`;
+    for (const i of list) {
+      const r = i.raw;
+      const tip = i.label + (val(i) ? ` — ${fmt(val(i))}${i.trade ? ' (trade)' : ''}` : '');
+      html += `<div class="gi${selected === i.idx ? ' sel' : ''}${val(i) ? ' valued' : ''}" data-i="${i.idx}" title="${esc(tip)}"
+        style="left:${r.x * cell}px;top:${r.y * cell}px;width:${(r.w || 1) * cell}px;height:${(r.h || 1) * cell}px">
+        <img loading="lazy" src="${esc(r.icon)}" alt="">${i.stack > 1 ? `<span class="st">${i.stack}</span>` : ''}</div>`;
+    }
+    $('view').innerHTML = html + '</div></div>';
+    $('view').querySelectorAll('.gi').forEach(g => g.onclick = () => select(Number(g.dataset.i)));
+  }
+
+  // =================== Détail ===================
+  function select(idx) {
+    selected = idx;
+    document.querySelectorAll('#view .sel').forEach(e => e.classList.remove('sel'));
+    document.querySelectorAll(`#view [data-i="${idx}"]`).forEach(e => e.classList.add('sel'));
+    renderDetail(items[idx]);
+  }
+
+  function renderDetail(i) {
+    const r = i.raw;
+    const k = itemKey(i), followed = !!follow[k];
+    const sec = html => `<div class="sec">${html || ''}</div>`;
+    const mods = (arr, cls) => (arr || []).map(m => `<div class="mod ${cls}">${esc(clean(m))}</div>`).join('');
+    const props = (r.properties || []).map(p => {
+      const vals = (p.values || []).map(v => clean(v[0]));
+      let n = clean(p.name);
+      if (/%\d/.test(n)) { n = esc(n); vals.forEach((v, k) => (n = n.replace(`%${k}`, `<b>${esc(v)}</b>`))); }
+      else n = vals.length ? `${esc(n)} : <b>${esc(vals.join(', '))}</b>` : esc(n);
+      return `<div class="prop">${n}</div>`;
+    }).join('');
+    const reqs = (r.requirements || []).map(p => `${esc(clean(p.name))} <b>${esc((p.values || []).map(v => v[0]).join(''))}</b>`).join(', ');
+    const pr = i.price;
+    const big = pr && P && P.divine && pr.total >= P.divine;
+    $('detailBody').innerHTML = `<div class="card">
+      <div class="hd f${i.rarity}"><div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}</div>
+      <div class="art"><img src="${esc(r.icon)}" alt=""></div>
+      <div class="bd">
+        ${sec(props)}
+        ${sec([i.ilvl ? `<div class="prop">Niveau d'objet : <b>${i.ilvl}</b></div>` : '', reqs ? `<div class="prop">Requis : ${reqs}</div>` : '', i.groups.length ? `<div class="prop" style="margin-top:4px">${socketsHtml(i)}</div>` : ''].join(''))}
+        ${sec(mods(r.enchantMods, 'en'))}
+        ${sec(mods(r.implicitMods, ''))}
+        ${sec(mods(r.fracturedMods, 'fr') + mods(r.explicitMods, '') + mods(r.craftedMods, 'cr'))}
+        ${sec(mods(r.utilityMods, '') + (r.flavourText ? `<div class="flav">${esc(clean(r.flavourText.join(' ')))}</div>` : '') + (r.descrText ? `<div class="prop">${esc(clean(r.descrText))}</div>` : ''))}
+        ${sec((i.corrupted ? '<div class="corrtxt">Corrompu</div>' : '') + (i.unid ? '<div class="prop">Non identifié</div>' : '') + (r.note ? `<div class="prop">Note : <b>${esc(r.note)}</b></div>` : ''))}
+      </div></div>
+      <div class="pricebox${pr ? '' : ' none'}"${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div>${pr ? `<button class="btn follow${followed ? ' on' : ''}" id="followBtn">★ ${followed ? 'Suivi' : 'Suivre'}</button>` : ''}</div>${pr
+        ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
+           <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(change7(pr))}</div>
+           ${pr.approx ? '<div class="s">Plusieurs variantes à des prix différents : la moins chère est retenue.</div>' : ''}`
+        : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
+      ${pr ? chartSection(i, k, pr, followed) : ''}
+      ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
+      <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
+    const fb = $('followBtn');
+    if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
+    wireChart();
+    wireTrade(i);
+    $('detail').classList.add('show');
+  }
+
+  // =================== Estimation trade ===================
+  const CUR = { chaos: 'c', divine: 'div', exalted: 'ex', alch: 'alch', fusing: 'fus', chrome: 'chrom', alt: 'alt', vaal: 'vaal', regal: 'regal', chance: 'chance', gcp: 'gcp', mirror: 'mirror' };
+  const INDEXED = [['1day', '1 jour'], ['3days', '3 jours'], ['1week', '1 semaine'], ['2weeks', '2 semaines'], ['1month', '1 mois'], ['any', 'toutes']];
+  function tradeSection(i) {
+    const id = i.raw.id, rec = trades[id], busy = tradeBusy.has(id);
+    const idxSel = `<select id="tradeIdx" title="Ancienneté maximale des annonces">${INDEXED.map(([v, l]) => `<option value="${v}"${(settings.tradeIndexed || '1week') === v ? ' selected' : ''}>annonces &lt; ${l}</option>`).join('')}</select>`;
+    const go = `<button class="btn primary" id="tradeGo"${!bridge || busy ? ' disabled' : ''}>${busy ? 'Estimation en cours…' : rec ? 'Ré-estimer' : 'Estimer sur le trade'}</button>`;
+    if (!rec) return `<div class="tradebox"><div class="head"><span class="lb">Estimation trade</span></div>
+      <div class="s">Pas de prix poe.ninja pour cet objet. Le trade cherche la même base avec des mods proches (au moins 85 % de tes valeurs), récupère jusqu'à 50 annonces et en fait la moyenne.</div>
+      <div class="acts">${go}${idxSel}</div>${bridge ? '' : '<div class="warn">Nécessite le script Violentmonkey.</div>'}</div>`;
+    const shownN = lstShown[id] || 20;
+    const ls = [...rec.listings].sort((a, b) => (a.chaos ?? 1e12) - (b.chaos ?? 1e12));
+    const used = rec.mods.filter(m => m.enabled && m.id).length;
+    const TYPES = { pseudo: 'total', explicit: 'explicite', implicit: 'implicite', crafted: 'crafté', fractured: 'fracturé', enchant: 'enchant' };
+    return `<div class="tradebox"><div class="head"><span class="lb">Estimation trade</span><span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span></div>
+      ${rec.estimate ? `<div class="v">≈ ${esc(fmt(rec.estimate))}</div>
+      <div class="s">moyenne de ${rec.n} annonces (10 % extrêmes retirés) · médiane ${esc(fmt(rec.median))} · de ${esc(fmt(rec.min))} à ${esc(fmt(rec.max))}</div>
+      <div class="s">${rec.total} annonce${rec.total > 1 ? 's' : ''} correspondante${rec.total > 1 ? 's' : ''} sur le trade${rec.countMin ? ` · recherche assouplie (${rec.countMin} mods sur ${rec.nMods})` : ''}</div>
+      ${rec.n < 5 ? '<div class="warn">Peu d\'annonces : estimation peu fiable.</div>' : ''}` : '<div class="warn">Aucune annonce trouvée avec ces filtres. Décoche des mods ou élargis l\'ancienneté.</div>'}
+      <details class="mods"><summary>Mods utilisés (${used} sur ${rec.mods.length}) : coche ou décoche, puis ré-estime</summary>
+        ${rec.mods.map((m, k) => `<label class="${m.enabled && m.id ? '' : 'off'}"><input type="checkbox" data-m="${k}"${m.enabled && m.id ? ' checked' : ''}${m.id ? '' : ' disabled'}><span class="mt">${esc(TYPES[m.type] || m.type)}</span><span>${esc(m.text)}${m.id ? '' : ' (non reconnu)'}</span>${m.id && m.value > 0 ? `<span class="mv">≥ ${nf(Math.floor(m.value * 0.85 * 100) / 100, 0)}</span>` : ''}</label>`).join('')}
+      </details>
+      <div class="acts">${go}${idxSel}${rec.queryId ? `<a class="btn ghost" href="https://www.pathofexile.com/trade/search/${encodeURIComponent(rec.league)}/${encodeURIComponent(rec.queryId)}" target="_blank" rel="noopener">Voir sur le trade ↗</a>` : ''}<button class="btn ghost" id="tradeDel">Oublier</button></div>
+      ${ls.length ? `<div class="lst-wrap">${ls.slice(0, shownN).map(l => `<div class="lst" title="${esc([l.item.name, l.item.typeLine, l.item.ilvl ? `iLvl ${l.item.ilvl}` : '', ...l.item.mods, l.item.corrupted ? 'Corrompu' : ''].filter(Boolean).join('\n'))}">
+        <span class="lp">${esc(nf(l.amount, l.amount % 1 ? 1 : 0))} ${esc(CUR[l.currency] || l.currency)}</span><span class="lc">${l.chaos ? '≈ ' + esc(fmt(l.chaos)) : '?'}</span>
+        <span class="ls">${esc(l.seller || '?')}</span><span class="la">${esc(ago(Date.parse(l.indexed)))}</span></div>`).join('')}
+        ${ls.length > shownN ? `<button class="btn lst-more" id="lstMore">Afficher ${Math.min(20, ls.length - shownN)} de plus · ${ls.length - shownN} restantes</button>` : ''}</div>` : ''}
+    </div>`;
+  }
+  function wireTrade(i) {
+    const id = i.raw && i.raw.id;
+    if (!id || !$('tradeGo')) return;
+    $('tradeIdx').onchange = () => { settings.tradeIndexed = $('tradeIdx').value; cmd('settings', { tradeIndexed: settings.tradeIndexed }); };
+    document.querySelectorAll('.mods input[data-m]').forEach(cb => cb.onchange = () => { const m = trades[id].mods[Number(cb.dataset.m)]; m.enabled = cb.checked; cb.parentElement.classList.toggle('off', !cb.checked); });
+    $('tradeGo').onclick = () => {
+      const rec = trades[id];
+      tradeBusy.add(id);
+      cmd('trade', { itemId: id, item: i.raw, mods: rec ? rec.mods : null });
+      status('Estimation trade lancée…', false, true);
+      select(i.idx);
+    };
+    if ($('tradeDel')) $('tradeDel').onclick = () => { delete trades[id]; cmd('trade-delete', { itemId: id }); applyPrices(); };
+    if ($('lstMore')) $('lstMore').onclick = () => { lstShown[id] = (lstShown[id] || 20) + 20; select(i.idx); };
+  }
+
+  function chartSection(i, k, pr, followed) {
+    const nin = ninjaSeries(pr);
+    const rec = (history[k] || []).map(p => [p[0], p[1]]);
+    const series = [{ pts: nin, cls: 'l0' }, { pts: rec, cls: 'l1' }];
+    const svg = chartHtml(series);
+    const legend = `<span class="legend">${nin.length ? '<span><i class="dash"></i>7 j poe.ninja</span>' : ''}${rec.length ? '<span><i></i>suivi</span>' : ''}</span>`;
+    const hint = followed
+      ? (rec.length < 2 ? 'Le suivi enregistre un point à chaque mise à jour des prix (toutes les 15 min, page ouverte).' : `${rec.length} relevés depuis le ${new Date(rec[0][0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}`)
+      : 'Clique sur ★ Suivre pour enregistrer l\'historique de cet objet.';
+    return `<div class="chartbox"><div class="lb"><span>Prix unitaire</span>${legend}</div>
+      ${svg ? `<div class="chart" id="chart">${svg}</div>` : '<div class="chartempty">Pas encore assez de données pour tracer une courbe.</div>'}
+      <div class="chartinfo" id="chartInfo">${esc(hint)}</div></div>`;
+  }
+
+  // =================== Exports ===================
+  function save(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+  const slug = () => (data.league || 'poe').replace(/[^\w-]+/g, '_');
+  $('exportJson').onclick = () => save(new Blob([JSON.stringify(data)], { type: 'application/json' }), `coffres_${slug()}.json`);
+  $('exportCsv').onclick = () => {
+    const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const num = v => (v ? String(Math.round(v * 100) / 100).replace('.', ',') : '');
+    const head = ['Onglet','Nom','Type','Base','Rareté','Pile','iLvl','Sockets','Liens','Corrompu','Identifié','Prix unitaire (c)','Prix total (c)','Note','Mods'];
+    const lines = filtered().map(i => [i.tabN, i.name, i.type, i.base, RARITY[i.rarity] || i.rarity, i.stack, i.ilvl, i.sockets, i.links,
+      i.corrupted ? 'oui' : 'non', i.unid ? 'non' : 'oui', num(i.price?.unit), num(i.price?.total), i.raw.note,
+      [...(i.raw.implicitMods || []), ...(i.raw.explicitMods || []), ...(i.raw.craftedMods || [])].map(clean).join(' | ')].map(q).join(';'));
+    save(new Blob(['﻿' + [head.map(q).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' }), `coffres_${slug()}.csv`);
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $('detail').classList.remove('show');
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('q').focus(); }
+  });
+})();
+</script>
+</body>
+</html>
