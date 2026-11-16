@@ -1276,10 +1276,62 @@
     if (pts.length > VH_MAX) pts.splice(0, pts.length - VH_MAX);
     try { localStorage.setItem('poeValueHist', JSON.stringify(all)); } catch {}
   }
+  // Reconstitution des trous : quantités du dernier scan × historique des prix publié par le dépôt
+  const recon = { sig: '', pts: [], busy: false };
+  function loadShard(sh, recent) {
+    const key = `${recent ? 'r:' : ''}${repoPricesFile}/${sh}`;
+    if (hist[key]) return Promise.resolve();
+    if (!histReq[key]) histReq[key] = getJson(`data/${recent ? 'history-recent' : 'history'}/${repoPricesFile}/${sh}.json`).then(j => { hist[key] = j || {}; });
+    return histReq[key];
+  }
+  function shardSeries(k, recent) {
+    const e = (hist[`${recent ? 'r:' : ''}${repoPricesFile}/${shardOf(k)}`] || {})[k];
+    if (!e) return null;
+    let t = e[0];
+    return e[2].map((v, i) => { if (i) t += e[1][i - 1]; return [t * 60000, v]; });
+  }
+  async function buildRecon() {
+    if (!ONLINE || !data || !P || !repoPricesFile) return;
+    const recent = vhRange !== 0 && vhRange <= 168;
+    const sig = `${data.scannedAt}|${prices.fetchedAt}|${repoPricesFile}|${recent}`;
+    if (recon.sig === sig || recon.busy) return;
+    recon.busy = true;
+    try {
+      const qty = new Map(), unit = new Map();
+      let fixed = 0;
+      for (const i of items) {
+        if (i.price && i.price.hk) { qty.set(i.price.hk, (qty.get(i.price.hk) || 0) + i.stack); unit.set(i.price.hk, i.price.unit); }
+        else if (i.price) fixed += i.price.total;
+        else if (i.trade) fixed += i.trade.estimate;
+      }
+      await Promise.all([...new Set([...qty.keys()].map(shardOf))].map(sh => loadShard(sh, recent)));
+      const series = [];
+      let t0 = Infinity;
+      for (const [k, q] of qty) {
+        const h = shardSeries(k, recent);
+        if (h && h.length) { series.push({ q, h, i: 0 }); t0 = Math.min(t0, h[0][0]); }
+        else fixed += q * unit.get(k);
+      }
+      const out = [];
+      if (isFinite(t0)) for (let t = Math.ceil(t0 / VH_SLOT) * VH_SLOT; t <= Date.now(); t += VH_SLOT) {
+        let v = fixed;
+        for (const sr of series) { while (sr.i + 1 < sr.h.length && sr.h[sr.i + 1][0] <= t) sr.i++; v += sr.q * sr.h[sr.i][1]; }
+        out.push([t, Math.round(v), 0, 0, 1]);
+      }
+      recon.pts = out; recon.sig = sig;
+    } finally { recon.busy = false; }
+    drawValueChart();
+  }
+
   function drawValueChart() {
     const box = $('vhChart'), k = vhKey();
     document.querySelectorAll('.hc-rng button').forEach(b => b.classList.toggle('on', Number(b.dataset.r) === vhRange));
-    let pts = (k && vhLoad()[k]) || [];
+    buildRecon();
+    // relevés réels prioritaires, reconstitution pour les créneaux manquants
+    const real = (k && vhLoad()[k]) || [];
+    const bySlot = new Map(recon.pts.map(p => [p[0], p]));
+    for (const p of real) bySlot.set(p[0], p);
+    let pts = [...bySlot.values()].sort((a, b) => a[0] - b[0]);
     if (vhRange) pts = pts.filter(p => p[0] >= Date.now() - vhRange * 3600000);
     if (pts.length < 2) {
       box.innerHTML = `<div class="hc-empty">${pts.length ? 'Premier relevé enregistré : la courbe apparaît au suivant (dans 15 min).' : 'Collecte en cours : un relevé toutes les 15 min tant que la page est ouverte.'}</div>`;
@@ -1294,7 +1346,8 @@
       <path class="ha" d="${d}L100,100L0,100Z"/><path class="hl" d="${d}"/><line class="hv" id="vhV" x1="0" x2="0" y1="0" y2="100" visibility="hidden"/></svg><span class="hd" id="vhDot"></span>`;
     const first = pts[0][1], last = pts[pts.length - 1][1], chg = first ? last / first - 1 : 0;
     const per = vhRange === 24 ? '24 h' : vhRange === 168 ? '7 j' : 'depuis le début';
-    const def = `${chgHtml(chg)} <span>sur ${per} · ${pts.length} relevés</span>`;
+    const nReal = pts.filter(p => !p[4]).length;
+    const def = `${chgHtml(chg)} <span>${vhRange ? 'sur ' : ''}${per} · ${nReal} relevés${pts.length > nReal ? ` + ${pts.length - nReal} reconstitués` : ''}</span>`;
     $('vhInfo').innerHTML = def;
     const svg = box.querySelector('svg'), dot = $('vhDot'), vl = $('vhV');
     svg.addEventListener('mousemove', e => {
@@ -1303,13 +1356,14 @@
       for (const p of pts) if (Math.abs(X(p[0]) - x) < Math.abs(X(best[0]) - x)) best = p;
       vl.setAttribute('x1', X(best[0])); vl.setAttribute('x2', X(best[0])); vl.setAttribute('visibility', 'visible');
       dot.style.display = 'block'; dot.style.left = `${X(best[0])}%`; dot.style.top = `${Y(best[1])}%`;
-      $('vhInfo').innerHTML = `<b>${esc(fmt(best[1]))}</b> · ${esc(new Date(best[0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))}${best[3] ? ` · dont trade ${esc(fmt(best[3]))}` : ''}`;
+      $('vhInfo').innerHTML = `<b>${esc(fmt(best[1]))}</b> · ${esc(new Date(best[0]).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))}${best[4] ? ' · reconstitué' : best[3] ? ` · dont trade ${esc(fmt(best[3]))}` : ''}`;
     });
     svg.addEventListener('mouseleave', () => { dot.style.display = 'none'; vl.setAttribute('visibility', 'hidden'); $('vhInfo').innerHTML = def; });
   }
   document.querySelectorAll('.hc-rng button').forEach(b => b.onclick = () => {
     vhRange = Number(b.dataset.r);
     try { localStorage.setItem('poeVhRange', String(vhRange)); } catch {}
+    recon.sig = '';
     drawValueChart();
   });
   setInterval(() => { if (data && P) renderKpis(); }, 60000);

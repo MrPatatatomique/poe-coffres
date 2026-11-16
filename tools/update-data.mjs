@@ -115,7 +115,7 @@ export function decodeShard(o) {
   return h;
 }
 
-async function updateHistory(dir, prices) {
+async function updateHistory(dir, prices, recentDir) {
   const now = Math.floor(prices.fetchedAt / 60000);
   const snap = new Map();
   const add = (k, v, always) => { if (k && v > 0 && (always || v >= MIN_HISTORY_CHAOS) && !snap.has(k)) snap.set(k, round(v)); };
@@ -142,6 +142,13 @@ async function updateHistory(dir, prices) {
     const txt = JSON.stringify(encodeShard(h));
     bytes += txt.length;
     await writeFile(file, txt);
+    if (recentDir) {
+      // version courte : 7 derniers jours seulement (vues 24 h / 7 j de la page)
+      const r = {};
+      for (const [k, pts] of Object.entries(h)) { const kept = pts.filter(p => p[0] >= now - 7 * 1440); if (kept.length) r[k] = kept; }
+      await mkdir(recentDir, { recursive: true });
+      await writeFile(join(recentDir, `${s}.json`), JSON.stringify(encodeShard(r)));
+    }
   }
   return { series: snap.size, points, bytes };
 }
@@ -232,12 +239,14 @@ async function main() {
     const nLines = Object.values(p.items).reduce((a, l) => a + l.length, 0) + Object.values(p.exchange).reduce((a, l) => a + l.length, 0);
     if (nLines < 50) { console.warn(`${lg.id} : trop peu de lignes (${nLines}), ignorée`); continue; }
     await writeFile(join(OUT, 'prices', `${slug(lg.id)}.json`), JSON.stringify(p));
-    const st = await updateHistory(join(OUT, 'history', slug(lg.id)), p);
+    const st = await updateHistory(join(OUT, 'history', slug(lg.id)), p, join(OUT, 'history-recent', slug(lg.id)));
     keepDirs.add(slug(lg.id));
     console.log(`${lg.id} : ${nLines} lignes, historique ${st.series} séries / ${st.points} points / ${(st.bytes / 1e6).toFixed(1)} Mo, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   // les ligues terminées disparaissent de poe.ninja : on retire leurs fichiers
-  if (existsSync(join(OUT, 'history'))) for (const d of await readdir(join(OUT, 'history'))) if (!keepDirs.has(d) && keepDirs.size) await rm(join(OUT, 'history', d), { recursive: true });
+  for (const base of ['history', 'history-recent']) {
+    if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d) && keepDirs.size) await rm(join(OUT, base, d), { recursive: true });
+  }
   await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
   const nu = await updateUniques(OUT);
   console.log(`uniques : ${nu}`);
