@@ -80,6 +80,15 @@
   .kpi.hero{border-color:var(--gold3);background:radial-gradient(400px 160px at 0% 0%,#3a2a12aa,transparent 70%),linear-gradient(160deg,#1f1810,#14100b)}
   .cur{width:26px;height:26px;object-fit:contain;flex:none}
   .kpi.hero .cur{width:34px;height:34px}
+  .kpi.gain .gh-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .kpi.gain .gh-head .lb{margin:0}
+  .gh-per{font-size:10.5px;color:var(--muted)}
+  .kpi.gain .vl.up{color:var(--ok)} .kpi.gain .vl.down{color:var(--err)}
+  .gh{position:relative;display:flex;align-items:flex-end;gap:2px;height:34px;margin-top:8px}
+  .gh i{flex:1;min-width:2px;border-radius:2px 2px 0 0;background:#2a241b;transition:filter .1s}
+  .gh i.p{background:#5f8f4e} .gh i.n{background:#9a4a3f}
+  .gh i:hover{filter:brightness(1.5)}
+  .gh .gz{position:absolute;left:0;right:0;height:1px;background:#3e3324}
   .kpi.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;align-items:stretch}
   .hero-l{min-width:0}
   .hero-r{display:flex;flex-direction:column;min-width:0;border-left:1px solid #3e332455;padding-left:16px}
@@ -487,10 +496,11 @@
       <div class="vl" id="kTrade">—</div>
       <div class="sb" id="kTradeSub">aucune estimation</div>
     </div>
-    <div class="kpi">
-      <div class="lb">Divine Orb</div>
-      <div class="vl" id="kDiv">—</div>
-      <div class="sb" id="kDivSub">poe.ninja</div>
+    <div class="kpi gain">
+      <div class="gh-head"><span class="lb">Gain / h</span><span class="gh-per" id="ghPer">3 dernières h</span></div>
+      <div class="vl" id="kGain">—</div>
+      <div class="sb" id="kGainSub">calcul au 2ᵉ scan</div>
+      <div class="gh" id="ghChart"></div>
     </div>
     <div class="topwrap" id="topWrap" hidden>
       <span class="treasure" title="Les plus précieux" aria-label="Les plus précieux" role="img"><svg><defs><linearGradient id="gT" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffe7a8"/><stop offset="1" stop-color="#b48a3c"/></linearGradient></defs><use href="#i-treasure" stroke="url(#gT)"/></svg></span>
@@ -1261,6 +1271,76 @@
   }
 
   // =================== KPI ===================
+  // =================== Gain / h : variation du contenu du coffre entre deux scans, aux mêmes prix ===================
+  function farmLoad() { try { return JSON.parse(localStorage.getItem('poeFarm') || '{}'); } catch { return {}; } }
+  function farmSave(f) { try { localStorage.setItem('poeFarm', JSON.stringify(f)); } catch {} }
+  const pkey = i => i.price.hk || `n|${i.type}`;
+  // contenu d'un scan : identifiant de l'objet → [clé de prix, quantité, valeur unitaire]
+  function scanContent() {
+    const ids = {};
+    for (const i of items) {
+      const id = i.raw.id;
+      if (!id) continue;
+      ids[id] = [i.price ? pkey(i) : '', i.stack, i.price ? Math.round(i.price.unit * 100) / 100 : i.trade ? Math.round(i.trade.estimate) : 0];
+    }
+    return { ids };
+  }
+  function processFarm() {
+    const k = vhKey();
+    if (!k || !P || !data.scannedAt) return;
+    const all = farmLoad(), f = all[k] || (all[k] = { log: [] });
+    const t = Date.parse(data.scannedAt);
+    if (f.lastT && t <= f.lastT) return;
+    const tabsSig = (data.tabs || []).map(x => x.i).sort((a, b) => a - b).join(',');
+    const cur = scanContent();
+    if (f.last && f.last.ids && f.tabsSig === tabsSig) {
+      const unitNow = new Map();
+      for (const i of items) if (i.price) unitNow.set(pkey(i), i.price.unit);
+      let d = 0;
+      for (const [id, [, n, u]] of Object.entries(cur.ids)) {
+        const o = f.last.ids[id];
+        if (!o) d += n * u;                       // objet arrivé
+        else if (n !== o[1]) d += (n - o[1]) * u; // pile modifiée
+      }
+      for (const [id, [pk, n, u]] of Object.entries(f.last.ids)) {
+        if (!cur.ids[id]) d -= n * (pk && unitNow.has(pk) ? unitNow.get(pk) : u); // objet parti
+      }
+      f.log.push([t, Math.round(d), Math.round((t - f.lastT) / 60000)]);
+      if (f.log.length > 5000) f.log.splice(0, f.log.length - 5000);
+    }
+    f.last = cur; f.lastT = t; f.tabsSig = tabsSig;
+    farmSave(all);
+  }
+  function drawGain() {
+    const k = vhKey(), f = k && farmLoad()[k];
+    const log = (f && f.log) || [];
+    const now = Date.now(), H = 3600000;
+    const recent = log.filter(e => e[0] >= now - 3 * H);
+    const gain3 = recent.reduce((a, e) => a + e[1], 0);
+    const el = $('kGain');
+    if (!f || !f.lastT) { el.textContent = '—'; $('kGainSub').textContent = 'calcul au 2ᵉ scan'; }
+    else if (!log.length) { el.textContent = '—'; $('kGainSub').textContent = 'en attente du prochain scan'; }
+    else {
+      const perH = gain3 / 3;
+      el.textContent = `${perH >= 0 ? '+' : '−'}${fmt(Math.abs(perH)) || '0 c'} / h`;
+      el.className = `vl ${perH > 0 ? 'up' : perH < 0 ? 'down' : ''}`;
+      const day = log.filter(e => e[0] >= now - 24 * H);
+      const g24 = day.reduce((a, e) => a + e[1], 0);
+      const active = new Set(day.filter(e => e[1] !== 0).map(e => Math.floor(e[0] / H))).size;
+      $('kGainSub').textContent = `${g24 >= 0 ? '+' : '−'}${fmt(Math.abs(g24)) || '0 c'} sur 24 h · ${active} h active${active > 1 ? 's' : ''}`;
+    }
+    // barres : gain par heure sur les 24 dernières heures
+    const buckets = Array.from({ length: 24 }, (_, j) => ({ t: (Math.floor(now / H) - 23 + j) * H, v: 0, n: 0 }));
+    for (const e of log) { const j = Math.floor(e[0] / H) - (Math.floor(now / H) - 23); if (j >= 0 && j < 24) { buckets[j].v += e[1]; buckets[j].n++; } }
+    const mx = Math.max(1, ...buckets.map(b => Math.abs(b.v)));
+    const hasNeg = buckets.some(b => b.v < 0);
+    $('ghChart').innerHTML = buckets.map(b => {
+      const h = b.n ? Math.max(2, (Math.abs(b.v) / mx) * (hasNeg ? 50 : 100)) : 2;
+      const lbl = `${new Date(b.t).toLocaleTimeString('fr-FR', { hour: '2-digit' })}–${new Date(b.t + H).toLocaleTimeString('fr-FR', { hour: '2-digit' })} : ${b.n ? `${b.v >= 0 ? '+' : '−'}${fmt(Math.abs(b.v)) || '0 c'}` : 'pas de scan'}`;
+      return `<i class="${b.v > 0 ? 'p' : b.v < 0 ? 'n' : ''}" style="height:${h}%;${hasNeg ? (b.v < 0 ? 'align-self:flex-start;margin-top:17px' : 'margin-bottom:17px') : ''}" title="${esc(lbl)}"></i>`;
+    }).join('') + (hasNeg ? '<span class="gz" style="top:50%"></span>' : '');
+  }
+
   // =================== Historique de la valeur totale (toutes les 15 min) ===================
   const VH_SLOT = 15 * 60000, VH_MAX = 60 * 96; // 60 jours de relevés
   let vhRange = 24; try { vhRange = Number(localStorage.getItem('poeVhRange') ?? 24); } catch {}
@@ -1379,12 +1459,13 @@
       const big = money(sum, 'kTotal');
       $('kTotalSub').textContent = `${big ? `${fmtC(sum)} chaos · ` : ''}${safe.length + traded.length} objets valorisés sur ${items.length}`;
       money(sSafe, 'kSafe');
-      $('kDiv').innerHTML = P.divine ? `${curImg('divine')}${nf(Math.round(P.divine), 0)} c` : '—';
-      $('kDivSub').textContent = `ligue poe.ninja : ${prices.league}`;
+      if (P.divine) $('kTotalSub').textContent += ` · 1 div = ${nf(Math.round(P.divine), 0)} c`;
+      processFarm();
+      drawGain();
     } else {
       $('kTotal').textContent = '—'; $('kSafe').textContent = '—';
       $('kTotalSub').textContent = bridge ? 'chargement des prix…' : 'prix indisponibles sans le script';
-      $('kDiv').textContent = '—';
+
     }
     $('kSafeSub').textContent = `${safe.length} objets cotés sur ${items.length}`;
     $('kPricedBar').style.width = items.length ? `${(safe.length / items.length) * 100}%` : '0';
