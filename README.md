@@ -6,9 +6,9 @@ Scanne tes coffres Path of Exile 1, estime leur valeur et suit l'évolution des 
 - **Prix sûrs** issus de [poe.ninja] pour les objets à stats fixes : uniques, gemmes, currency, fragments, cartes, essences, scarabées, cartes d'Atlas…
 - **Estimations trade** des rares et des magiques : recherche sur le site de trade officiel avec tes mods, moyenne de 50 annonces, conservée avec sa date
 - **Trois totaux** : valeur sûre, valeur estimée par le trade, et total global
-- **Rolls des uniques** comparés aux plages du wiki (poewiki) ou de poe.ninja : barre par mod et note globale
+- **Rolls des uniques** comparés aux plages de Path of Building (complétées par poe.ninja) : barre par mod et note globale
 - **Influences** et marques spéciales (Shaper, Elder, conquérants, Searing Exarch, Eater of Worlds, fracturé, synthétisé…) affichées et utilisables comme critères de recherche
-- **Suivi des prix** des objets de ton choix, avec courbe sur 7 jours (poe.ninja) et historique personnel
+- **Historique des prix sur toute la ligue** pour tous les objets cotés (relevé toutes les 30 min), et suivi des objets de ton choix
 - Vue liste ou grille, recherche, filtres, export CSV et JSON
 
 Page : **https://mrpatatatomique.github.io/poe-coffres/**
@@ -38,6 +38,17 @@ Sous Chrome ou Edge, tu peux installer la page comme une application : icône d'
 
 Les estimations trade se font objet par objet : le site de trade limite fortement le nombre de recherches (environ 5 par 10 s et 30 par 5 min). Le script fait les pauses tout seul.
 
+## Données partagées
+
+Une tâche GitHub Actions (`.github/workflows/data.yml`) tourne toutes les 30 min. Elle :
+
+- récupère les prix poe.ninja des ligues actives (une seule fois pour tous les utilisateurs) ;
+- ajoute un relevé à l'historique : 30 min de précision sur 7 jours, 2 h jusqu'à 30 jours, 6 h au-delà, pour tout ce qui vaut au moins 1 chaos ;
+- reconstruit chaque jour la base des uniques depuis les données de [Path of Building](https://github.com/PathOfBuildingCommunity/PathOfBuilding) ;
+- publie le tout avec la page sur GitHub Pages.
+
+Les données sont stockées dans la branche `data`, réécrite à chaque passage (un seul commit, l'historique Git ne grossit pas).
+
 ## Données et confidentialité
 
 - Tout reste **dans ton navigateur**, dans le stockage de Violentmonkey : scans, prix, historique, estimations. Rien n'est envoyé ailleurs que sur pathofexile.com et poe.ninja.
@@ -48,7 +59,7 @@ Les estimations trade se font objet par objet : le site de trade limite fortemen
 
 - **« Script non détecté »** : vérifie que Violentmonkey est activé et que le script l'est aussi, puis recharge la page. Le fichier de la page doit garder un nom commençant par `coffres-poe1`.
 - **« Accès refusé » au scan** : reconnecte-toi sur pathofexile.com dans le même navigateur.
-- **Pas de rolls sur les uniques** : la base est construite depuis poewiki.net, qui peut demander une vérification anti-robot. Ouvre https://www.poewiki.net une fois dans le navigateur, puis clique sur **Construire la base** dans la fiche d'un unique.
+- **Bandeau « script trop ancien »** : dans Violentmonkey, ouvre le tableau de bord et lance la vérification des mises à jour, ou réinstalle le script depuis le lien ci-dessus.
 - **Pas de prix** : poe.ninja ne connaît pas encore la ligue, ou l'objet a des mods variables (dans ce cas, utilise l'estimation trade).
 
 ## Mises à jour

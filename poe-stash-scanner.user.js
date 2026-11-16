@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.4.0
+// @version      2.5.0
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -248,7 +248,9 @@
     const c = GM_getValue('tradeStats', null);
     if (c && Date.now() - c.at < 86400000) return c;
     report({ msg: 'Chargement de la liste des mods du trade…' });
-    const j = await tradeReq('data', `${TRADE}/data/stats`);
+    let j;
+    try { j = await tradeReq('data', `${TRADE}/data/stats`); }
+    catch (e) { throw new Error(/JSON|Unexpected/.test(e.message) ? 'le site de trade a renvoyé une page au lieu des données (vérification Cloudflare ?). Ouvre pathofexile.com/trade une fois, puis réessaie.' : e.message); }
     const map = {}, ids = {};
     for (const g of j.result || []) for (const e of g.entries || []) {
       ids[e.id] = e.text;
@@ -465,14 +467,13 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.4.0' });
+      send('ready', { version: '2.5.0' });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);
-      if (!u || Date.now() - u.at > 7 * 86400000) loadUniqueDb(report).then(pushUniques).catch(e => send('uniques-error', { msg: e.message }));
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
-      if (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== getSettings().league) pushPrices(await loadPrices(false, report));
+      if (!getSettings().ninjaRemote && (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== getSettings().league)) pushPrices(await loadPrices(false, report));
     }
 
     window.addEventListener('message', async ev => {
@@ -482,18 +483,23 @@
       try {
         if (m.cmd === 'hello') {
           await greet();
+        } else if (m.cmd === 'prices-set') {
+          GM_setValue('ninjaPrices', { ...m.data, gggLeague: getSettings().league });
+          if (!getSettings().ninjaRemote) setSettings({ ninjaRemote: true });
         } else if (m.cmd === 'scan') {
           await runScan(report);
           pushScan();
-          pushPrices(await loadPrices(false, report));
+          if (!getSettings().ninjaRemote) pushPrices(await loadPrices(false, report));
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report));
         } else if (m.cmd === 'uniques-refresh') {
           pushUniques(await loadUniqueDb(report, true));
         } else if (m.cmd === 'trade-prepare') {
           const { itemId, item } = m.data;
-          const stats = await loadStats(report);
-          send('trade-draft', JSON.stringify({ itemId, mods: parseMods(item, stats), extras: itemExtras(item) }));
+          try {
+            const stats = await loadStats(report);
+            send('trade-draft', JSON.stringify({ itemId, mods: parseMods(item, stats), extras: itemExtras(item) }));
+          } catch (e) { send('trade-draft-error', { itemId, msg: `Liste des mods du trade indisponible : ${e.message}` }); throw e; }
         } else if (m.cmd === 'trade') {
           const { itemId, item, mods, extras } = m.data;
           tradeQueue = tradeQueue.then(() => tradeEstimate(itemId, item, mods, extras, report))
@@ -524,7 +530,7 @@
     let pricesBusy = false;
     setInterval(async () => {
       const p = GM_getValue('ninjaPrices', null);
-      if (pricesBusy || (p && p.gggLeague === getSettings().league && Date.now() - p.fetchedAt < NINJA_TTL)) return;
+      if (getSettings().ninjaRemote || pricesBusy || (p && p.gggLeague === getSettings().league && Date.now() - p.fetchedAt < NINJA_TTL)) return;
       pricesBusy = true;
       try { pushPrices(await loadPrices(false, () => {})); }
       catch (e) { report({ msg: `Prix poe.ninja : ${e.message}`, error: true }); }

@@ -281,6 +281,9 @@
   .xchip.on{border-color:var(--trade);background:#173540;color:#e3f2f7}
   .tsub{font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
 
+  .updbar{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:30;margin-top:8px;padding:9px 16px;border:1px solid #a5443a;border-radius:10px;background:#2a1512f2;color:#ffd2c8;font-size:13px;box-shadow:0 10px 30px #000c}
+  .updbar a{color:var(--gold2)}
+
   /* ---------- Trésor ---------- */
   .treasure{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--gold3);border-radius:10px;background:radial-gradient(circle at 50% 40%,#4a3515,#1a140c 75%);box-shadow:0 0 18px #c8a35a30,inset 0 0 10px #00000080}
   .treasure svg{width:24px;height:24px;filter:drop-shadow(0 0 4px #c8a35a80)}
@@ -440,6 +443,7 @@
   </div>
 </div>
 
+<div class="updbar" id="updBar" hidden></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
 
 <script>
@@ -458,7 +462,11 @@
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
   let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
-  let drafts = {}, draftReq = new Set(), uniqueDb = null, uniqueErr = '';
+  let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
+  const REQ_SCRIPT = '2.5.0';
+  const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
+  const ONLINE = location.protocol.startsWith('http');
+  let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, hist = {}, histReq = {}, scriptVersion = '';
   const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   try { const j = JSON.parse(localStorage.getItem('poeTracking') || '{}'); follow = j.follow || {}; history = j.history || {}; } catch {}
 
@@ -483,8 +491,14 @@
       case 'ready':
         if (bridge) return;
         bridge = true;
+        scriptVersion = m.data.version;
         $('dot').classList.add('on');
         $('bridge').textContent = `Script v${m.data.version}`;
+        if (vnum(m.data.version) < vnum(REQ_SCRIPT)) {
+          $('updBar').hidden = false;
+          $('updBar').innerHTML = `Ton script Violentmonkey (v${esc(m.data.version)}) est trop ancien pour cette page (v${REQ_SCRIPT} requise). <a href="poe-stash-scanner.user.js">Mettre à jour le script</a>, puis recharge la page.`;
+        }
+        if (prices && prices.fromRepo) cmd('prices-set', prices);
         $('scanBtn').hidden = $('pricesBtn').hidden = false;
         $('dropTitle').textContent = 'Aucun scan enregistré';
         $('dropText').textContent = 'Lance un premier scan depuis pathofexile.com (bouton « Coffres » en bas à droite). Il apparaîtra ici automatiquement.';
@@ -503,11 +517,15 @@
           applyPrices();
         } catch {}
         break;
+      case 'trade-draft-error':
+        draftErr[m.data.itemId] = m.data.msg; draftReq.delete(m.data.itemId);
+        if (selected !== null) select(selected);
+        break;
       case 'trade-draft':
         try { const d = JSON.parse(m.data); drafts[d.itemId] = { mods: d.mods, extras: d.extras }; draftReq.delete(d.itemId); if (selected !== null) select(selected); } catch {}
         break;
       case 'uniques':
-        try { uniqueDb = JSON.parse(m.data); uniqueErr = ''; applyPrices(); } catch {}
+        try { if (!uniqueDb) { uniqueDb = JSON.parse(m.data); uniqueErr = ''; applyPrices(); } } catch {}
         break;
       case 'uniques-error':
         uniqueErr = m.data.msg || 'erreur';
@@ -532,7 +550,7 @@
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
         break;
       case 'prices':
-        try { setPrices(JSON.parse(m.data)); } catch (e) { status('Prix reçus illisibles : ' + e.message, true); }
+        try { const np = JSON.parse(m.data); if (!prices || np.fetchedAt > prices.fetchedAt) setPrices(np); } catch (e) { status('Prix reçus illisibles : ' + e.message, true); }
         break;
       case 'status': {
         const d = m.data || {};
@@ -564,6 +582,46 @@
   $('scanBtn').onclick = () => { setBusy('scanBtn', true); status('Scan demandé…', false, true); cmd('scan'); };
   $('pricesBtn').onclick = () => { setBusy('pricesBtn', true); status('Actualisation des prix…', false, true); cmd('prices'); };
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
+
+  // =================== Données partagées du dépôt (GitHub Actions) ===================
+  async function getJson(url) {
+    try { const r = await fetch(url, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; }
+  }
+  async function loadRepoUniques() {
+    if (!ONLINE) return;
+    const j = await getJson('data/uniques.json');
+    if (j && j.db) { uniqueDb = j.db; uniqueSrc = j.source || 'Path of Building'; uniqueErr = ''; applyPrices(); }
+  }
+  function pickLeagueFile(gggLeague) {
+    if (!repoLeagues) return null;
+    const g = (gggLeague || '').toLowerCase(), L = repoLeagues.leagues;
+    const exact = L.find(l => l.id.toLowerCase() === g || (l.name || '').toLowerCase() === g);
+    if (exact) return exact.file;
+    const pref = L.filter(l => g.startsWith(l.id.toLowerCase()) || l.id.toLowerCase().startsWith(g)).sort((a, b) => b.id.length - a.id.length);
+    return pref[0] ? pref[0].file : null;
+  }
+  async function loadRepoPrices() {
+    if (!ONLINE || !data) return;
+    if (!repoLeagues) repoLeagues = await getJson('data/leagues.json');
+    const f = pickLeagueFile(data.league);
+    if (!f) return;
+    const p = await getJson(`data/prices/${f}.json`);
+    if (!p || !p.fetchedAt) return;
+    repoPricesFile = f;
+    if (!prices || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
+  }
+  function shardOf(key) { let h = 5381; for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0; return h % (repoLeagues ? repoLeagues.shards : 64); }
+  function repoHistory(k) {
+    if (!k || !repoPricesFile) return null;
+    const sh = shardOf(k), key = `${repoPricesFile}/${sh}`;
+    if (hist[key]) { const e = hist[key][k]; if (!e) return []; let t = e[0]; return e[2].map((v, i) => { if (i) t += e[1][i - 1]; return [t * 60000, v]; }); }
+    if (!histReq[key]) histReq[key] = getJson(`data/history/${key}.json`).then(j => { hist[key] = j || {}; renderFollow(); if (selected !== null) select(selected); });
+    return null;
+  }
+  if (ONLINE) {
+    loadRepoUniques();
+    setInterval(loadRepoPrices, 10 * 60000);
+  }
 
   // =================== Chargement manuel ===================
   $('openBtn').onclick = $('openBtn2').onclick = () => $('file').click();
@@ -598,6 +656,7 @@
     $('exportCsv').hidden = $('exportJson').hidden = false;
     $('detailBody').innerHTML = EMPTY_DETAIL;
     applyPrices();
+    loadRepoPrices();
   }
 
   function enrich(it, idx) {
@@ -643,9 +702,9 @@
     if (p.core && p.core.rates && p.core.rates.divine) divine = p.core.primary === 'chaos' ? 1 / p.core.rates.divine : 0;
     const toChaos = v => (p.core && p.core.primary === 'divine' && divine) ? v * divine : v;
     const byName = new Map();
-    const put = (name, chaos, src, sp) => { if (!name || !(chaos > 0)) return; const k = name.toLowerCase(); if (!byName.has(k)) byName.set(k, { chaos, src, sp }); };
-    for (const [t, lines] of Object.entries(p.exchange || {})) lines.forEach(l => put(l.name, toChaos(l.v), t, l.sp));
-    for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp));
+    const put = (name, chaos, src, sp, hk) => { if (!name || !(chaos > 0)) return; const k = name.toLowerCase(); if (!byName.has(k)) byName.set(k, { chaos, src, sp, hk }); };
+    for (const [t, lines] of Object.entries(p.exchange || {})) lines.forEach(l => put(l.name, toChaos(l.v), t, l.sp, l.k));
+    for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp, l.k));
     put('Chaos Orb', 1, 'Currency');
     if (!divine) divine = byName.get('divine orb')?.chaos || 0;
     const byItem = new Map();
@@ -661,7 +720,7 @@
   function pick(lines, src) {
     if (!lines.length) return null;
     const s = [...lines].sort((a, b) => a.v - b.v);
-    return { unit: s[0].v, approx: s.length > 1 && s[s.length - 1].v > s[0].v * 1.2, src: src || s[0].t, variant: s[0].variant, listings: s[0].listings, sp: s[0].sp };
+    return { unit: s[0].v, approx: s.length > 1 && s[s.length - 1].v > s[0].v * 1.2, src: src || s[0].t, variant: s[0].variant, listings: s[0].listings, sp: s[0].sp, hk: s[0].k };
   }
 
   function priceItem(i) {
@@ -686,7 +745,7 @@
       }
     } else {
       const hit = P.byName.get(typeK) || P.byName.get(baseK);
-      if (hit) r = { unit: hit.chaos, src: hit.src, sp: hit.sp };
+      if (hit) r = { unit: hit.chaos, src: hit.src, sp: hit.sp, hk: hit.hk };
       else if (i.rarity <= 2) {
         let c = (P.byItem.get(baseK) || P.byItem.get(typeK) || []).filter(l => !/^Unique|SkillGem/.test(l.t));
         if (i.mapTier) { const t = c.filter(l => !l.mapTier || l.mapTier === i.mapTier); if (t.length) c = t; }
@@ -704,7 +763,7 @@
   function uniqueRanges(i) {
     const vs = uniqueDb && uniqueDb[i.name];
     const v = vs && (vs.find(x => x.b === i.base && x.d) || vs.find(x => x.b === i.base) || vs.find(x => x.d) || vs[0]);
-    if (v) return { e: v.e, i: v.i, src: 'poewiki' };
+    if (v) return { e: v.e, i: v.i, src: uniqueSrc };
     if (P) {
       const l = (P.byItem.get(i.name.toLowerCase()) || []).find(l => (l.ranges && l.ranges.length) || (l.iranges && l.iranges.length));
       if (l) return { e: l.ranges || [], i: l.iranges || [], src: 'poe.ninja' };
@@ -825,7 +884,8 @@
     $('followList').innerHTML = keys.map(k => {
       const f = follow[k], pr = P ? priceItem(f.probe) : null;
       const rec = history[k] || [];
-      const pts = rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
+      const repo = pr ? repoHistory(pr.hk) : null;
+      const pts = repo && repo.length >= 3 ? repo.filter(p => p[0] > Date.now() - 7 * 86400000) : rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
       return `<button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
         <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(change7(pr))}</span></span>${miniSpark(pts)}</button>`;
     }).join('');
@@ -1104,7 +1164,7 @@
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${pr ? chartSection(i, k, pr, followed) : ''}
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
-      ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni sur poewiki, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : 'Base des uniques en cours de construction…'}${bridge && (!uniqueDb || uniqueErr) ? ' <button class="btn ghost" id="uniBuild">Construire la base</button>' : ''}</div>` : ''}
+      ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}${bridge && !ONLINE && !uniqueDb ? ' <button class="btn ghost" id="uniBuild">Construire depuis poewiki</button>' : ''}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
@@ -1123,7 +1183,13 @@
     const d = drafts[id];
     const head = `<div class="head"><span class="lb">Estimation trade</span>${rec ? `<span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span>` : ''}</div>`;
     if (!d) {
-      if (bridge && !draftReq.has(id)) { draftReq.add(id); cmd('trade-prepare', { itemId: id, item: i.raw }); }
+      if (draftErr[id]) return `<div class="tradebox">${head}<div class="warn">${esc(draftErr[id])}</div><div class="acts"><button class="btn primary" id="draftRetry">Réessayer</button></div></div>`;
+      if (bridge && vnum(scriptVersion) < vnum(REQ_SCRIPT)) return `<div class="tradebox">${head}<div class="warn">Mets à jour le script Violentmonkey (v${REQ_SCRIPT} requise) pour utiliser l'estimation trade.</div></div>`;
+      if (bridge && !draftReq.has(id)) {
+        draftReq.add(id);
+        cmd('trade-prepare', { itemId: id, item: i.raw });
+        setTimeout(() => { if (!drafts[id] && draftReq.has(id)) { draftReq.delete(id); draftErr[id] = 'Le script ne répond pas. Vérifie qu\'il est à jour et activé, puis réessaie.'; if (selected !== null) select(selected); } }, 25000);
+      }
       return `<div class="tradebox">${head}<div class="s">${bridge ? 'Préparation des critères de recherche…' : 'Nécessite le script Violentmonkey.'}</div></div>`;
     }
     const TYPES = { pseudo: 'total', explicit: 'explicite', implicit: 'implicite', crafted: 'crafté', fractured: 'fracturé', enchant: 'enchant' };
@@ -1164,6 +1230,7 @@
   }
   function wireTrade(i) {
     const id = i.raw && i.raw.id;
+    if (id && $('draftRetry')) $('draftRetry').onclick = () => { delete draftErr[id]; select(i.idx); };
     if (!id || !$('tradeGo')) return;
     const d = drafts[id];
     const rerender = () => { const sc = $('detail').scrollTop; select(i.idx); $('detail').scrollTop = sc; };
@@ -1195,6 +1262,14 @@
   }
 
   function chartSection(i, k, pr, followed) {
+    const repo = repoHistory(pr.hk);
+    if (repo && repo.length >= 2) {
+      const svg = chartHtml([{ pts: repo, cls: 'l1' }]);
+      const first = repo[0][0];
+      return `<div class="chartbox"><div class="lb"><span>Prix unitaire</span><span class="legend"><span><i></i>historique de la ligue</span></span></div>
+        <div class="chart" id="chart">${svg}</div>
+        <div class="chartinfo" id="chartInfo">${repo.length} relevés depuis le ${esc(new Date(first).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }))} · toutes les 30 min</div></div>`;
+    }
     const nin = ninjaSeries(pr);
     const rec = (history[k] || []).map(p => [p[0], p[1]]);
     const series = [{ pts: nin, cls: 'l0' }, { pts: rec, cls: 'l1' }];
