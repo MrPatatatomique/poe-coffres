@@ -33,8 +33,11 @@ Sous Chrome ou Edge, tu peux installer la page comme une application : icône d'
 | Rescanner | bouton **Rescanner** de la page, ou panneau **Coffres** sur pathofexile.com |
 | Rescan automatique | case **Fraîcheur** de la page, ou panneau **Coffres** |
 | Mettre à jour les prix | automatique toutes les 15 min, ou bouton **Prix** |
+| Ouvrir la recherche d'un objet sur le trade ou sa fiche poe.ninja | liens sous le nom, dans la fiche de l'objet |
 | Estimer un rare | fiche de l'objet → choisis les mods (clic) et leur % de correspondance (50 à 100 %), puis **Rechercher** |
 | Suivre un prix | ★ dans le tableau ou sur la fiche |
+
+**Garde un onglet pathofexile.com ouvert** (n'importe quelle page du site) : le site est protégé par Cloudflare, et c'est cet onglet qui exécute pour la page les recherches trade et les rescans.
 
 Les estimations trade se font objet par objet : le site de trade limite fortement le nombre de recherches (environ 5 par 10 s et 30 par 5 min). Le script fait les pauses tout seul.
 

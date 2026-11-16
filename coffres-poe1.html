@@ -217,7 +217,25 @@
 
   /* ---------- Trade ---------- */
   :root{--trade:#7fb8cc;--trade2:#3c6a7a}
-  .kpis{grid-template-columns:minmax(250px,1.3fr) repeat(4,minmax(150px,1fr))}
+  .kpis{grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(160px,1fr))}
+  header .fresh{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);padding:4px 12px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;white-space:nowrap}
+  header .fresh b{color:var(--text2);font-weight:500}
+  header .fresh b.old{color:var(--err)}
+  header .fresh select{padding:1px 4px;font-size:12px;border-radius:5px;margin-left:3px}
+  .menu{position:relative}
+  .menu-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:25;min-width:250px;padding:6px;border:1px solid var(--line3);border-radius:10px;background:#18140fF5;box-shadow:0 12px 30px #000c}
+  .menu-pop button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:8px 10px;color:var(--text);cursor:pointer}
+  .menu-pop button:hover:not(:disabled){background:var(--panel3)}
+  .menu-pop button:disabled{opacity:.4;cursor:default}
+  .menu-pop svg{width:15px;height:15px;margin-top:2px;color:var(--gold)}
+  .menu-pop b{display:block;font-weight:600;font-size:13px}
+  .menu-pop small{display:block;color:var(--muted);font-size:11.5px}
+  .hdlinks{display:flex;justify-content:center;gap:6px;margin-top:9px}
+  .hdlinks a{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2);text-decoration:none;padding:3px 9px;border:1px solid #ffffff22;border-radius:999px;background:#00000045}
+  .hdlinks a:hover{color:var(--gold2);border-color:var(--gold3)}
+  .hdlinks svg{width:12px;height:12px}
+  .tradebox .live{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px;margin-top:8px}
+  .tradebox .live .spinner{width:12px;height:12px;border:2px solid var(--trade2);border-top-color:var(--trade);border-radius:50%;animation:spin .8s linear infinite}
   .kpi.trade .vl{color:var(--trade)}
   .kpi.safe .vl{color:var(--gold2)}
   .tbadge{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--trade);border:1px solid var(--trade2);border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
@@ -356,13 +374,22 @@
     </div>
     <div class="who" id="who"></div>
     <span class="spacer"></span>
+    <div class="fresh" id="fresh" hidden>
+      <span title="Dernier scan des coffres">Scan <b id="kScan">—</b></span>
+      <span title="Prix poe.ninja (mis à jour toutes les 30 min par le dépôt)">Prix <b id="kPrices">—</b></span>
+      <label title="Rescan automatique des coffres">Auto <select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
+    </div>
     <span class="pill" title="Liaison avec le script Violentmonkey"><span class="dot" id="dot"></span><span id="bridge">Recherche du script…</span></span>
     <div class="actions">
       <button class="btn primary" id="scanBtn" hidden><svg><use href="#i-refresh"/></svg>Rescanner</button>
-      <button class="btn" id="pricesBtn" hidden><svg><use href="#i-coin"/></svg>Prix</button>
-      <button class="btn ghost" id="exportJson" hidden title="Exporter le scan en JSON"><svg><use href="#i-down"/></svg>JSON</button>
-      <button class="btn ghost" id="exportCsv" hidden title="Exporter la vue filtrée en CSV"><svg><use href="#i-down"/></svg>CSV</button>
-      <button class="btn ghost" id="openBtn" title="Ouvrir un fichier de scan"><svg><use href="#i-open"/></svg>Ouvrir</button>
+      <div class="menu">
+        <button class="btn ghost" id="filesBtn" aria-haspopup="true" aria-expanded="false"><svg><use href="#i-down"/></svg>Fichiers ▾</button>
+        <div class="menu-pop" id="filesPop" hidden role="menu">
+          <button role="menuitem" id="exportJson" disabled><svg><use href="#i-down"/></svg><span><b>Exporter le scan</b><small>JSON complet, réimportable</small></span></button>
+          <button role="menuitem" id="exportCsv" disabled><svg><use href="#i-down"/></svg><span><b>Exporter la vue</b><small>CSV des objets filtrés, pour Excel</small></span></button>
+          <button role="menuitem" id="openBtn"><svg><use href="#i-open"/></svg><span><b>Ouvrir un scan</b><small>Fichier JSON exporté auparavant</small></span></button>
+        </div>
+      </div>
     </div>
     <input type="file" id="file" accept=".json,application/json" hidden>
   </header>
@@ -388,14 +415,6 @@
       <div class="lb">Divine Orb</div>
       <div class="vl" id="kDiv">—</div>
       <div class="sb" id="kDivSub">poe.ninja</div>
-    </div>
-    <div class="kpi">
-      <div class="lb">Fraîcheur</div>
-      <div class="fresh">
-        <span>Scan</span><span id="kScan">—</span>
-        <span>Prix</span><span id="kPrices">—</span>
-        <span>Auto</span><span><select id="auto" aria-label="Rescan automatique"><option value="0">désactivé</option><option value="15">toutes les 15 min</option><option value="30">toutes les 30 min</option><option value="60">toutes les heures</option></select></span>
-      </div>
     </div>
     <div class="topwrap" id="topWrap" hidden>
       <span class="treasure" title="Les plus précieux" aria-label="Les plus précieux" role="img"><svg><defs><linearGradient id="gT" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffe7a8"/><stop offset="1" stop-color="#b48a3c"/></linearGradient></defs><use href="#i-treasure" stroke="url(#gT)"/></svg></span>
@@ -471,8 +490,9 @@
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
   let trades = {}, tradeBusy = new Set(), settings = {}, lstShown = {};
+  let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.5.1';
+  const REQ_SCRIPT = '2.6.0';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, hist = {}, histReq = {}, scriptVersion = '';
@@ -508,7 +528,7 @@
           $('updBar').innerHTML = `Ton script Violentmonkey (v${esc(m.data.version)}) est trop ancien pour cette page (v${REQ_SCRIPT} requise). <a href="poe-stash-scanner.user.js">Mettre à jour le script</a>, puis recharge la page.`;
         }
         if (prices && prices.fromRepo) cmd('prices-set', prices);
-        $('scanBtn').hidden = $('pricesBtn').hidden = false;
+        $('scanBtn').hidden = false;
         $('dropTitle').textContent = 'Aucun scan enregistré';
         $('dropText').textContent = 'Lance un premier scan depuis pathofexile.com (bouton « Coffres » en bas à droite). Il apparaîtra ici automatiquement.';
         break;
@@ -566,7 +586,7 @@
         const busy = !d.done && !d.error && /…|\(\d+\/\d+\)|Onglet \d/.test(d.msg || '');
         status(d.msg || '', !!d.error, busy);
         if (d.done || d.error) setBusy('scanBtn', false);
-        if (/^Prix poe\.ninja à jour/.test(d.msg || '') || d.error) setBusy('pricesBtn', false);
+        if (tradeBusy.size) { tradeLive = d.msg || ''; if (d.error) { tradeBusy.clear(); } if (selected !== null) select(selected); }
         break;
       }
     }
@@ -589,7 +609,9 @@
 
   function setBusy(id, on) { $(id).disabled = on; $(id).classList.toggle('spin', on); }
   $('scanBtn').onclick = () => { setBusy('scanBtn', true); status('Scan demandé…', false, true); cmd('scan'); };
-  $('pricesBtn').onclick = () => { setBusy('pricesBtn', true); status('Actualisation des prix…', false, true); cmd('prices'); };
+  $('filesBtn').onclick = e => { e.stopPropagation(); const h = !$('filesPop').hidden; $('filesPop').hidden = h; $('filesBtn').setAttribute('aria-expanded', String(!h)); };
+  document.addEventListener('click', e => { if (!e.target.closest('.menu')) { $('filesPop').hidden = true; $('filesBtn').setAttribute('aria-expanded', 'false'); } });
+  $('filesPop').addEventListener('click', e => { if (e.target.closest('button')) $('filesPop').hidden = true; });
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
 
   // =================== Données partagées du dépôt (GitHub Actions) ===================
@@ -663,7 +685,7 @@
     $('who').innerHTML = `<span class="pill">${esc(json.account || '?')}</span><span class="pill">${esc(json.league || '?')}</span>` +
       (json.failedTabs?.length ? `<span class="pill" style="color:var(--err)" title="${esc(json.failedTabs.map(f => f.n).join(', '))}">${json.failedTabs.length} onglet(s) en échec</span>` : '');
     $('emptyView').hidden = true; $('mainView').hidden = false; $('kpis').hidden = false;
-    $('exportCsv').hidden = $('exportJson').hidden = false;
+    $('exportCsv').disabled = $('exportJson').disabled = false;
     $('detailBody').innerHTML = EMPTY_DETAIL;
     applyPrices();
     loadRepoPrices();
@@ -952,6 +974,54 @@
     svg.addEventListener('mouseleave', () => { svg.querySelector('#mk').setAttribute('cx', -10); svg.querySelector('#vl').setAttribute('x1', -10); svg.querySelector('#vl').setAttribute('x2', -10); info.innerHTML = def; });
   }
 
+  // =================== Liens externes d'un objet ===================
+  const NINJA_CAT = t => t === 'Currency' ? 'currency' : t === 'Viscera' ? 'viscera' : t.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/y$/, 'ie') + 's';
+  function ninjaUrl(pr) {
+    if (!pr || !pr.hk || !prices) return null;
+    const parts = pr.hk.split('|');
+    const L = String(prices.league || '');
+    const lg = /^Hardcore\s+\S/i.test(L) ? L.replace(/^Hardcore\s+/i, '').toLowerCase().replace(/\s+/g, '') + 'hc' : L.toLowerCase().replace(/\s+/g, '');
+    if (parts[0] === 'i') return `https://poe.ninja/poe1/economy/${lg}/${NINJA_CAT(parts[1])}/${parts[2]}`;
+    if (parts[0] === 'x' || parts[0] === 'c') return `https://poe.ninja/poe1/economy/${lg}/${NINJA_CAT(pr.src)}/${parts[1]}`;
+    return null;
+  }
+  function tradeQueryFor(i) {
+    const r = i.raw, q = { query: { status: { option: 'online' }, stats: [{ type: 'and', filters: [] }], filters: {} }, sort: { price: 'asc' } };
+    const misc = {};
+    if (i.rarity === 3 || i.rarity === 9) {
+      if (i.name) q.query.name = i.name;
+      q.query.type = i.base;
+      if (i.links >= 5) q.query.filters.socket_filters = { filters: { links: { min: i.links } } };
+    } else if (i.rarity === 4) {
+      q.query.type = i.type;
+      misc.gem_level = { min: i.gemLevel };
+      if (i.gemQuality) misc.quality = { min: i.gemQuality };
+      misc.corrupted = { option: i.corrupted ? 'true' : 'false' };
+    } else if ((i.rarity === 1 || i.rarity === 2) && r.id) {
+      q.query.type = i.base;
+      q.query.filters.type_filters = { filters: { rarity: { option: i.rarity === 1 ? 'magic' : 'nonunique' } } };
+      let d = drafts[r.id];
+      if (!d && tradeStats) d = drafts[r.id] = { mods: parseModsLocal(r, tradeStats), extras: itemExtrasLocal(r) };
+      if (d) {
+        q.query.stats[0].filters = d.mods.filter(m => m.enabled && m.id).map(m => ({ id: m.id, value: m.value === null || m.value === undefined || m.value < 0 ? {} : { min: Math.floor(m.value * (m.pct || 85) / 100 * 100) / 100 } }));
+        for (const e of d.extras) {
+          if (!e.enabled) continue;
+          if (e.kind === 'stat') q.query.stats[0].filters.push({ id: e.id, value: {} });
+          else if (e.kind === 'misc') misc[e.id] = { option: e.value || 'true' };
+          else if (e.kind === 'ilvl') misc.ilvl = { min: e.value };
+        }
+      }
+      const idx = settings.tradeIndexed || '1week';
+      q.query.filters.trade_filters = { filters: { sale_type: { option: 'priced' }, ...(idx === 'any' ? {} : { indexed: { option: idx } }) } };
+    } else {
+      q.query.type = i.type;
+      if (i.mapTier) misc.map_tier = { min: i.mapTier, max: i.mapTier };
+    }
+    if (Object.keys(misc).length) q.query.filters.misc_filters = { filters: misc };
+    return q;
+  }
+  const tradeUrlFor = i => `https://www.pathofexile.com/trade/search/${encodeURIComponent((data && data.league) || 'Standard')}?q=${encodeURIComponent(JSON.stringify(tradeQueryFor(i)))}`;
+
   // =================== Formatage ===================
   const nf = (v, d) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
   const fmtC = c => c >= 100 ? nf(Math.round(c), 0) : c >= 10 ? nf(c, 1) : nf(c, 2);
@@ -1012,8 +1082,14 @@
     $('kScan').textContent = ago(sAt);
     $('kPrices').textContent = prices ? ago(prices.fetchedAt) : '—';
     $('kPrices').className = prices && Date.now() - prices.fetchedAt > 3600000 ? 'old' : '';
+    $('fresh').hidden = false;
   }
   setInterval(renderFresh, 30000);
+  $('top').addEventListener('wheel', e => {
+    if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+    e.preventDefault();
+    $('top').scrollBy({ left: e.deltaY * 1.5, behavior: 'smooth' });
+  }, { passive: false });
 
   function focusItem(idx) {
     const i = items[idx];
@@ -1156,7 +1232,7 @@
     const pr = i.price;
     const big = pr && P && P.divine && pr.total >= P.divine;
     $('detailBody').innerHTML = `<div class="card">
-      <div class="hd f${i.rarity}">${pr ? `<button class="star hdstar${followed ? ' on' : ''}" id="followBtn" title="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}" aria-label="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}">★</button>` : ''}<div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}${badges ? `<div class="infl">${badges}</div>` : ''}${rollPill}</div>
+      <div class="hd f${i.rarity}">${pr ? `<button class="star hdstar${followed ? ' on' : ''}" id="followBtn" title="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}" aria-label="${followed ? 'Ne plus suivre le prix' : 'Suivre le prix'}">★</button>` : ''}<div class="n r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="t r${i.rarity}">${esc(i.type)}</div>` : ''}${badges ? `<div class="infl">${badges}</div>` : ''}${rollPill}${i.ghost ? '' : `<div class="hdlinks"><a href="#" id="lnkItemTrade" title="Ouvre le site de trade avec cette recherche, modifiable"><svg><use href="#i-ext"/></svg>Trade</a>${ninjaUrl(pr) ? `<a href="${esc(ninjaUrl(pr))}" target="_blank" rel="noopener" title="Fiche de l'objet sur poe.ninja"><svg><use href="#i-ext"/></svg>poe.ninja</a>` : ''}</div>`}</div>
       <div class="art"><img src="${esc(r.icon)}" alt=""></div>
       <div class="bd">
         ${sec(props)}
@@ -1180,6 +1256,7 @@
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
     wireChart();
     wireTrade(i);
+    if ($('lnkItemTrade')) $('lnkItemTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
     if ($('uniBuild')) $('uniBuild').onclick = () => { uniqueErr = ''; status('Construction de la base des uniques…', false, true); cmd('uniques-refresh'); };
     $('detail').classList.add('show');
   }
@@ -1270,6 +1347,7 @@
     const chips = d.extras.map((e, k) => `<button class="xchip${e.enabled ? ' on' : ''}" data-x="${k}">${esc(e.label)}</button>`).join('');
     const idxSel = `<select id="tradeIdx" title="Ancienneté maximale des annonces">${INDEXED.map(([v, l]) => `<option value="${v}"${(settings.tradeIndexed || '1week') === v ? ' selected' : ''}>annonces &lt; ${l}</option>`).join('')}</select>`;
     const go = `<button class="btn primary" id="tradeGo"${!bridge || busy || !nSel ? ' disabled' : ''}>${busy ? 'Recherche en cours…' : `${rec ? 'Relancer' : 'Rechercher'} · ${nSel} critère${nSel > 1 ? 's' : ''}`}</button>`;
+    const live = busy ? `<div class="live"><span class="spinner"></span><span>${esc(tradeLive || 'Envoi de la recherche…')}</span></div>` : '';
     let res = '';
     if (rec) {
       const shownN = lstShown[id] || 20;
@@ -1289,6 +1367,7 @@
       <div class="tglob"><span style="white-space:nowrap">Tous les mods</span><input type="range" min="50" max="100" step="5" value="${avg}" id="tAll" aria-label="Correspondance de tous les mods"><span id="tAllV">${avg} %</span></div>
       <div class="tms">${rows}</div>
       ${chips ? `<div class="xchips">${chips}</div>` : ''}
+      ${live}
       <div class="acts">${go}${idxSel}${rec && rec.queryId ? `<a class="btn ghost" href="https://www.pathofexile.com/trade/search/${encodeURIComponent(rec.league)}/${encodeURIComponent(rec.queryId)}" target="_blank" rel="noopener">Voir sur le trade ↗</a>` : ''}${rec ? '<button class="btn ghost" id="tradeDel">Oublier</button>' : ''}</div>
       ${rec && res.includes('<div class="lst-wrap">') ? '<div class="tsub">Annonces</div><div class="lst-wrap">' + res.split('<div class="lst-wrap">')[1] : ''}
     </div>`;
@@ -1317,7 +1396,8 @@
     $('tAll').oninput = () => { const v = Number($('tAll').value); $('tAllV').textContent = `${v} %`; d.mods.forEach((m, k) => { if (m.enabled && m.id && m.value > 0) setPct(k, v); }); };
     document.querySelectorAll('.xchip').forEach(c => c.onclick = () => { const e = d.extras[Number(c.dataset.x)]; e.enabled = !e.enabled; rerender(); });
     $('tradeGo').onclick = () => {
-      tradeBusy.add(id);
+      tradeBusy.add(id); tradeLive = ''; tradeStarted[id] = Date.now();
+      setTimeout(() => { if (tradeBusy.has(id) && Date.now() - tradeStarted[id] >= 180000) { tradeBusy.delete(id); status('La recherche trade n\'a pas abouti en 3 minutes. Ouvre un onglet pathofexile.com (il sert de relais au script), puis relance.', true); if (selected !== null) select(selected); } }, 180000);
       cmd('trade', { itemId: id, item: i.raw, mods: d.mods, extras: d.extras });
       status('Recherche sur le trade…', false, true);
       rerender();

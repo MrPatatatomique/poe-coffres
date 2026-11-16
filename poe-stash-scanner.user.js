@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.5.1
+// @version      2.6.0
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -16,6 +16,7 @@
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_addValueChangeListener
+// @grant        GM_deleteValue
 // @connect      www.pathofexile.com
 // @connect      poe.ninja
 // @connect      www.poewiki.net
@@ -37,12 +38,38 @@
   const setSettings = patch => GM_setValue('settings', { ...getSettings(), ...patch });
 
   // ---------- HTTP : fetch sur le site GGG, GM_xmlhttpRequest ailleurs ----------
+  const IS_GGG_URL = u => u.startsWith('https://www.pathofexile.com/');
+  const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(`${what} : pas de réponse après ${ms / 1000} s`)), ms))]);
+  function ggFetch(url, method, body) {
+    const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+    if (body) headers['Content-Type'] = 'application/json';
+    return fetch(url, { method, credentials: 'include', headers, body })
+      .then(async r => { const h = {}; r.headers.forEach((v, k) => (h[k.toLowerCase()] = v)); return { status: r.status, headers: h, text: await r.text() }; });
+  }
+  const wrap = r => ({ status: r.status, header: n => (r.headers || {})[n.toLowerCase()] ?? null, text: r.text, error: r.error });
+
+  // Relais : un onglet pathofexile.com ouvert exécute les requêtes GGG de la page (même origine, mêmes cookies)
+  const relayWait = new Map();
+  function relayAlive() { return Date.now() - GM_getValue('gggAlive', 0) < 15000; }
+  function viaRelay(url, method, body) {
+    const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    return withTimeout(new Promise(resolve => {
+      relayWait.set(id, resolve);
+      GM_setValue(`relayReq_${id}`, { url, method, body });
+      GM_setValue('relayPing', id);
+    }), 60000, 'Relais pathofexile.com').finally(() => { relayWait.delete(id); GM_deleteValue(`relayReq_${id}`); GM_deleteValue(`relayRes_${id}`); });
+  }
+  if (!ON_GGG) GM_addValueChangeListener('relayDone', (k, o, id) => {
+    const res = relayWait.get(id);
+    if (res) res(GM_getValue(`relayRes_${id}`, { status: 0, headers: {}, text: '' }));
+  });
+
   function http(url, method = 'GET', body = null) {
     const headers = { 'X-Requested-With': 'XMLHttpRequest' };
     if (body) headers['Content-Type'] = 'application/json';
-    if (ON_GGG && url.startsWith('https://www.pathofexile.com/')) {
-      return fetch(url, { method, credentials: 'include', headers, body })
-        .then(async r => ({ status: r.status, header: n => r.headers.get(n), text: await r.text() }));
+    if (IS_GGG_URL(url)) {
+      if (ON_GGG) return withTimeout(ggFetch(url, method, body), 45000, 'pathofexile.com').then(wrap);
+      if (relayAlive()) return viaRelay(url, method, body).then(wrap);
     }
     return new Promise((resolve, reject) => GM_xmlhttpRequest({
       url, method, headers, data: body || undefined,
@@ -52,8 +79,9 @@
         (r.responseHeaders || '').split(/\r?\n/).forEach(l => { const i = l.indexOf(':'); if (i > 0) h[l.slice(0, i).trim().toLowerCase()] = l.slice(i + 1).trim(); });
         resolve({ status: r.status, header: n => h[n.toLowerCase()] ?? null, text: r.responseText });
       },
-      onerror: () => reject(new Error(`Erreur réseau sur ${url}`)),
-      ontimeout: () => reject(new Error(`Délai dépassé sur ${url}`)),
+      onerror: () => reject(new Error(IS_GGG_URL(url) ? 'pathofexile.com injoignable depuis cette page : ouvre un onglet pathofexile.com (il sert de relais), puis réessaie.' : `Erreur réseau sur ${url}`)),
+      ontimeout: () => reject(new Error(IS_GGG_URL(url) ? 'pathofexile.com ne répond pas depuis cette page : ouvre un onglet pathofexile.com (il sert de relais), puis réessaie.' : `Délai dépassé sur ${url}`)),
+      onabort: () => reject(new Error(`Requête annulée : ${url}`)),
     }));
   }
 
@@ -83,6 +111,7 @@
       const wait = nextAllowed - Date.now();
       if (wait > 0) { if (wait > 3000 && onWait) onWait(wait); await sleep(wait); }
       const res = await http(url.toString(), method);
+      if (!res.status) throw new Error(res.error || 'pathofexile.com injoignable');
       throttle(res);
       if (res.status === 429) { nextAllowed = Date.now() + ((Number(res.header('Retry-After')) || 60) * 1000 + 1000); continue; }
       if (res.status === 401 || res.status === 403) { const e = new Error('Accès refusé : connecte-toi sur pathofexile.com dans ce navigateur.'); e.auth = true; throw e; }
@@ -232,6 +261,7 @@
       const wait = (tradeNext[kind] || 0) - Date.now();
       if (wait > 0) { if (wait > 2000) report({ msg: `Limite du trade (${kind === 'search' ? 'recherches' : 'annonces'}) : pause ${Math.ceil(wait / 1000)} s…` }); await sleep(wait); }
       const res = await http(url, method, body);
+      if (!res.status) throw new Error(res.error || 'pathofexile.com injoignable');
       tradeNext[kind] = Date.now() + throttleDelay(res, kind === 'search' ? 1200 : 500);
       if (res.status === 429) { tradeNext[kind] = Date.now() + ((Number(res.header('Retry-After')) || 60) * 1000 + 1000); continue; }
       if (res.status < 200 || res.status >= 300) {
@@ -239,7 +269,8 @@
         try { const j = JSON.parse(res.text); if (j.error) msg += ` (${j.error.message})`; } catch {}
         throw new Error(msg);
       }
-      return JSON.parse(res.text);
+      try { return JSON.parse(res.text); }
+      catch { throw new Error('Le trade a renvoyé une page au lieu des résultats (vérification Cloudflare ?). Ouvre un onglet pathofexile.com/trade, puis réessaie.'); }
     }
     throw new Error('Trade : trop de refus (429), réessaie dans une minute.');
   }
@@ -466,7 +497,7 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.5.1' });
+      send('ready', { version: '2.6.0' });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);
@@ -536,13 +567,34 @@
       finally { pricesBusy = false; }
     }, 60000);
 
-    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); loadPrices(false, report).then(pushPrices).catch(() => {}); } }), 60000);
+    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); if (!getSettings().ninjaRemote) loadPrices(false, report).then(pushPrices).catch(() => {}); } }), 60000);
   }
 
   // =====================================================================
   // Panneau sur pathofexile.com (premier réglage + scan manuel)
   // =====================================================================
+  function gggRelay() {
+    const tab = Math.random().toString(36).slice(2);
+    const beat = () => GM_setValue('gggAlive', Date.now());
+    beat(); setInterval(beat, 5000);
+    GM_addValueChangeListener('relayPing', async (k, o, id, remote) => {
+      if (!remote || !id) return;
+      const req = GM_getValue(`relayReq_${id}`, null);
+      if (!req || GM_getValue(`relayClaim_${id}`, null)) return;
+      GM_setValue(`relayClaim_${id}`, tab);
+      await sleep(60);
+      if (GM_getValue(`relayClaim_${id}`, null) !== tab) return;
+      let res;
+      try { res = await withTimeout(ggFetch(req.url, req.method || 'GET', req.body || null), 45000, 'pathofexile.com'); }
+      catch (e) { res = { status: 0, headers: {}, text: '', error: e.message }; }
+      GM_setValue(`relayRes_${id}`, res);
+      GM_setValue('relayDone', id);
+      setTimeout(() => GM_deleteValue(`relayClaim_${id}`), 5000);
+    });
+  }
+
   function gggPanel() {
+    gggRelay();
     const host = document.createElement('div');
     host.style.cssText = 'position:fixed;z-index:2147483647;right:16px;bottom:16px;';
     document.body.appendChild(host);
@@ -674,7 +726,7 @@
       try {
         const scan = await runScan(report);
         if (getSettings().alsoDownload) download(scan);
-        loadPrices(false, () => {}).catch(() => {});
+        if (!getSettings().ninjaRemote) loadPrices(false, () => {}).catch(() => {});
       } catch (e) { setStatus(e.message, true); }
       $('scan').disabled = $('load').disabled = false;
     };
