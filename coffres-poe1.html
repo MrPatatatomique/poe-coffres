@@ -1451,13 +1451,13 @@
       const top = Object.entries(by).filter(([, b]) => Math.round(b[1])).sort((a, b) => Math.abs(b[1][1]) - Math.abs(a[1][1])).slice(0, 12);
       const det = Object.fromEntries(top.map(([nm, b]) => [nm, [b[0], Math.round(b[1])]]));
       f.icons = f.icons || {};
-      for (const [nm] of top) if (cur.icons[nm]) f.icons[nm] = cur.icons[nm];
+      for (const [nm] of top) { const ic = cur.icons[nm] || (f.last.icons || {})[nm]; if (ic) f.icons[nm] = ic; }
       const ik = Object.keys(f.icons);
       if (ik.length > 600) for (const x of ik.slice(0, ik.length - 600)) delete f.icons[x];
       f.log.push([t, Math.round(d), Math.round((t - f.lastT) / 60000), nch, det]);
       if (f.log.length > 5000) f.log.splice(0, f.log.length - 5000);
     }
-    f.last = { ids: cur.ids }; f.lastT = t; f.first = f.first || t; f.tabsSig = tabsSig;
+    f.last = { ids: cur.ids, icons: cur.icons }; f.lastT = t; f.first = f.first || t; f.tabsSig = tabsSig;
     farmSave(all);
   }
   // heure jouée : au moins un objet ajouté, retiré ou dont la pile a changé
@@ -1503,11 +1503,12 @@
   const dFmt = t => new Date(t).toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' });
   const slotLbl = (t, w) => w >= 86400000 ? dFmt(t) : `${dFmt(t)} · ${new Date(t).getHours()} h – ${new Date(t + w).getHours()} h`;
   // sign : 1 = seulement les hausses, -1 = seulement les baisses, 0 = net
+  const detName = nm => { const p = nm.split('|'); return p.length < 2 ? nm : p[0] === 'u' || p[0] === 'n' || p[0] === 'g' ? p[1] : p[0] === 'i' ? p[2] : p[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); };
   function mergeDet(entries, sign = 0) {
     const m = new Map();
     for (const e of entries) for (const [nm, [q, v]] of Object.entries(e[4] || {})) {
       if (sign && Math.sign(v) !== sign) continue;
-      const x = m.get(nm) || [0, 0]; x[0] += q; x[1] += v; m.set(nm, x);
+      const key = detName(nm), x = m.get(key) || [0, 0]; x[0] += q; x[1] += v; m.set(key, x);
     }
     return m;
   }
@@ -1656,7 +1657,7 @@
         ${sessShown.length ? `<div class="gscroll" style="max-height:220px"><table class="gtable"><thead><tr><th>Jour</th><th>Horaires</th><th class="r">Durée</th><th class="r">Gain</th><th class="r">Gain / h</th></tr></thead><tbody>${sessShown.map(x => { const d = Math.max(x.end - x.start, H / 4); return `<tr><td>${esc(dFmt(x.start))}${x === live ? ' <span class="chg up">en cours</span>' : ''}</td><td>${esc(hFmt(x.start))} – ${esc(hFmt(x.end))}</td><td class="r">${esc(durFmt(x.end - x.start))}</td><td class="r ${gcls(x.gain)}">${esc(sgn(x.gain))}</td><td class="r ${gcls(x.gain)}">${esc(sgn(x.gain / (d / H)))}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="glist"><div class="gempty">Aucune session sur cette période.</div></div>'}
         <div class="zsec"><span>Détail par heure</span><label class="gtog"><input type="checkbox" id="gAll"${gAllHours ? ' checked' : ''}> heures sans changement</label></div>
         ${hrows.length ? `<div class="gscroll"><table class="gtable"><thead><tr><th>Heure</th><th class="r">Gain</th><th class="r">Scans</th><th>Principaux mouvements</th></tr></thead><tbody>${hrows.map(s => `<tr${s.ch ? '' : ' class="off"'}><td>${esc(slotLbl(s.t, H))}</td><td class="r ${gcls(s.v)}">${esc(sgn(s.v))}</td><td class="r">${s.n}</td><td class="gt">${topOf(s) || (s.ch ? '' : 'aucun changement')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="glist"><div class="gempty">Aucune heure jouée sur cette période.</div></div>'}
-        <div class="znote">Le gain compare chaque scan au précédent, objet par objet, aux prix actuels : un objet ramassé compte en plus, un objet vendu, consommé ou sorti du coffre compte en moins. Une heure est « jouée » si au moins un objet a été ajouté, retiré ou si une pile a changé. Une session se termine après 1 h sans changement. Données stockées dans ce navigateur uniquement.</div>
+        
       </div>`;
     $('gBox').querySelectorAll('[data-gr]').forEach(b => b.onclick = () => { gRange = b.dataset.gr; try { localStorage.setItem('poeGainRange', gRange); } catch {} renderGains(); });
     $('gAll').onchange = e => { gAllHours = e.target.checked; renderGains(); };
