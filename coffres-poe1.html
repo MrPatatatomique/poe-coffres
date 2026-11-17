@@ -362,6 +362,46 @@
   .updbar{position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:30;margin-top:8px;padding:9px 16px;border:1px solid #a5443a;border-radius:10px;background:#2a1512f2;color:#ffd2c8;font-size:13px;box-shadow:0 10px 30px #000c}
   .updbar a{color:var(--gold2)}
 
+  /* ---------- Loupe et fenêtre détaillée ---------- */
+  td.zc{width:40px;padding-left:4px}
+  .loupe{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid transparent;border-radius:8px;background:none;color:#6d6455;cursor:pointer;transition:all .12s}
+  .loupe svg{width:15px;height:15px}
+  tr.it:hover .loupe{color:var(--text2);border-color:var(--line2)}
+  .loupe:hover{color:var(--gold2)!important;border-color:var(--gold3)!important;background:#2a2016}
+  .chg.flat{color:var(--muted)}
+  .modal{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:24px}
+  .mback{position:absolute;inset:0;background:#05040399;backdrop-filter:blur(3px)}
+  .mbox{position:relative;width:min(820px,100%);max-height:calc(100vh - 48px);overflow:auto;border:1px solid var(--gold3);border-radius:16px;background:radial-gradient(600px 220px at 0 0,#2e2214aa,transparent 70%),#120f0c;box-shadow:0 30px 80px #000d;animation:zin .16s ease-out}
+  @keyframes zin{from{opacity:0;transform:translateY(8px) scale(.985)}to{opacity:1;transform:none}}
+  .zh{display:flex;align-items:center;gap:14px;padding:18px 20px 14px;border-bottom:1px solid var(--line2)}
+  .zh .zi{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:12px;background:radial-gradient(circle,#ffffff12,transparent 70%)}
+  .zh .zi img{max-width:50px;max-height:50px}
+  .zh .zn{flex:1;min-width:0}
+  .zh .zn h2{margin:0;font:700 19px/1.2 var(--title);letter-spacing:.02em}
+  .zh .zn div{color:var(--muted);font-size:12.5px;margin-top:3px}
+  .zh .zx{display:flex;gap:6px;align-items:center}
+  .zh .zx a,.zh .zx button{text-decoration:none}
+  .zclose{width:34px;height:34px;padding:0;justify-content:center;font-size:16px}
+  .zb{padding:16px 20px 20px}
+  .zgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  .zt{padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:#0d0b09;min-width:0}
+  .zt .zl{display:block;font:600 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;white-space:nowrap}
+  .zt .zv{display:block;font-size:17px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .zt .zv.up{color:var(--ok)} .zt .zv.down{color:var(--err)} .zt .zv.gold{color:var(--gold2)}
+  .zt .zs{display:block;font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .zsec{display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .zrng{display:flex;gap:2px}
+  .zrng button{background:none;border:0;border-radius:5px;padding:3px 8px;font:500 11px/1 var(--body);letter-spacing:0;text-transform:none;color:var(--muted);cursor:pointer}
+  .zrng button.on{background:#3a2a12;color:var(--gold2)}
+  .zchart{position:relative;padding:58px 12px 4px;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .zchart .cv{left:12px;right:12px;top:10px}
+  .zempty{padding:28px 0;text-align:center;color:var(--muted);font-size:12.5px}
+  .zplaces{display:flex;flex-wrap:wrap;gap:6px}
+  .zplace{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line2);border-radius:999px;font-size:12px;color:var(--text2)}
+  .zplace b{color:var(--gold2);font-weight:600}
+  .znote{margin-top:12px;color:var(--muted);font-size:11.5px;line-height:1.5}
+  @media (max-width:700px){.zgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
   /* ---------- Trésor ---------- */
   .treasure{flex:none;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--gold3);border-radius:10px;background:radial-gradient(circle at 50% 40%,#4a3515,#1a140c 75%);box-shadow:0 0 18px #c8a35a30,inset 0 0 10px #00000080}
   .treasure svg{width:24px;height:24px;filter:drop-shadow(0 0 4px #c8a35a80)}
@@ -560,6 +600,10 @@
 </div>
 
 <div class="updbar" id="updBar" hidden></div>
+<div class="modal" id="zModal" hidden>
+  <div class="mback" data-close></div>
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="zTitle" id="zBox"></div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
 
 <script>
@@ -1048,6 +1092,25 @@
     });
     renderKpis(); renderTabs(); renderFollow(); render();
     if (selected !== null) select(selected);
+    ensureRecent();
+  }
+  // Historique court (7 j) des objets du coffre et des suivis : sert aux tendances 6 h
+  let recentSig = '';
+  const histAt = {};
+  function ensureRecent() {
+    if (!ONLINE || !repoPricesFile || !data || !P) return;
+    const keys = new Set(items.filter(i => i.price && i.price.hk).map(i => i.price.hk));
+    for (const f of Object.values(follow)) { const pr = priceItem(f.probe); if (pr && pr.hk) keys.add(pr.hk); }
+    const shs = [...new Set([...keys].map(shardOf))];
+    const sig = `${repoPricesFile}|${prices.fetchedAt}|${shs.join(',')}`;
+    if (sig === recentSig) return;
+    recentSig = sig;
+    for (const sh of shs) {
+      const key = `r:${repoPricesFile}/${sh}`;
+      if (hist[key] && histAt[key] !== prices.fetchedAt) { delete hist[key]; delete histReq[key]; }
+      histAt[key] = prices.fetchedAt;
+    }
+    Promise.all(shs.map(sh => loadShard(sh, true))).then(() => { renderFollow(); render(); if (selected !== null) select(selected); if (zoomIdx !== null) renderZoom(); });
   }
 
   // =================== Suivi des prix ===================
@@ -1106,7 +1169,20 @@
     if (s.length < 2 || !(s[0][1] > 0)) return null;
     return s[s.length - 1][1] / s[0][1] - 1;
   }
-  const chgHtml = c => c === null || !isFinite(c) ? '' : `<span class="chg ${c >= 0 ? 'up' : 'down'}" title="Variation sur 7 jours (poe.ninja)">${c >= 0 ? '▲' : '▼'} ${Math.abs(c * 100) < 10 ? nf(Math.abs(c * 100), 1) : nf(Math.round(Math.abs(c * 100)), 0)} %</span>`;
+  const pctFmt = c => `${Math.abs(c * 100) < 10 ? nf(Math.abs(c * 100), 1) : nf(Math.round(Math.abs(c * 100)), 0)} %`;
+  const chgHtml = (c, label = 'sur 6 h') => c === null || c === undefined || !isFinite(c) ? '' : `<span class="chg ${c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : 'flat'}" title="Variation ${label}">${c > 0.0005 ? '▲' : c < -0.0005 ? '▼' : '='} ${pctFmt(c)}</span>`;
+  // Variation sur une durée à partir d'une série [[t, prix]…] (relevés du dépôt)
+  function changeOver(pts, ms) {
+    if (!pts || pts.length < 2) return null;
+    const last = pts[pts.length - 1];
+    if (ms === Infinity) return pts[0][1] > 0 ? last[1] / pts[0][1] - 1 : null;
+    let ref = null;
+    for (const p of pts) { if (p[0] <= last[0] - ms) ref = p; else break; }
+    if (!ref) { if (last[0] - pts[0][0] >= ms * 0.5) ref = pts[0]; else return null; }
+    return ref[1] > 0 ? last[1] / ref[1] - 1 : null;
+  }
+  const seriesOf = hk => hk ? (shardSeries(hk, true) || shardSeries(hk, false)) : null;
+  const trend6 = pr => pr && pr.hk ? changeOver(seriesOf(pr.hk), 6 * 3600000) : null;
 
   function miniSpark(pts) {
     if (pts.length < 2) return '<svg></svg>';
@@ -1126,7 +1202,7 @@
       const repo = pr ? repoHistory(pr.hk) : null;
       const pts = repo && repo.length >= 3 ? repo.filter(p => p[0] > Date.now() - 7 * 86400000) : rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
       return `<div class="flw"><button class="unf" data-u="${esc(k)}" title="Ne plus suivre" aria-label="Ne plus suivre ${esc(f.label)}">✕</button><button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
-        <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(change7(pr))}</span></span>${miniSpark(pts)}</button></div>`;
+        <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(trend6(pr))}</span></span>${miniSpark(pts)}</button></div>`;
     }).join('');
     $('followCount').textContent = `(${keys.length})`;
     let hidden = false; try { hidden = localStorage.getItem('poeFollowHidden') === '1'; } catch {}
@@ -1154,10 +1230,10 @@
     renderDetail({ ...f.probe, idx: -1, key: k, label: f.label, raw: { icon: f.icon, properties: [] }, groups: [], tabN: 'plus dans le coffre', ilvl: 0, unid: false, price: P ? priceItem(f.probe) : null, ghost: true });
   }
 
-  function chartHtml(series) {
+  function chartHtml(series, W = 320, H = 150) {
     const all = series.flatMap(s => s.pts);
     if (all.length < 2) return '';
-    const W = 320, H = 150, pl = 4, pr = 4, pt = 10, pb = 20;
+    const pl = 4, pr = 4, pt = 10, pb = 20;
     let t0 = Math.min(...all.map(p => p[0])), t1 = Math.max(...all.map(p => p[0]));
     if (t1 === t0) t1 = t0 + 3600000;
     let v0 = Math.min(...all.map(p => p[1])), v1 = Math.max(...all.map(p => p[1]));
@@ -1179,14 +1255,14 @@
     const hover = all.map(p => [X(p[0]), Y(p[1]), p[0], p[1]]);
     return `<svg viewBox="0 0 ${W} ${H}" data-pts='${JSON.stringify(hover)}'><defs><linearGradient id="chartGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8a35a" stop-opacity=".28"/><stop offset="1" stop-color="#c8a35a" stop-opacity="0"/></linearGradient></defs>${g}${paths}<line class="vline" id="vl" y1="${pt}" y2="${H - pb}" x1="-999" x2="-999"/><circle class="mk" id="mk" r="4" cx="-999" cy="-999"/></svg>`;
   }
-  function wireChart() {
-    const svg = document.querySelector('#chart svg'), cv = $('cv');
+  function wireChart(boxId = 'chart', cvId = 'cv') {
+    const svg = document.querySelector(`#${boxId} svg`), cv = $(cvId);
     if (!svg || !cv) return;
     const pts = JSON.parse(svg.dataset.pts);
     const def = cv.innerHTML, mk = svg.querySelector('#mk'), vl = svg.querySelector('#vl');
     const unit = cv.dataset.unit === '1';
     svg.addEventListener('mousemove', e => {
-      const r = svg.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * 320;
+      const r = svg.getBoundingClientRect(), x = ((e.clientX - r.left) / r.width) * svg.viewBox.baseVal.width;
       let best = pts[0];
       for (const p of pts) if (Math.abs(p[0] - x) < Math.abs(best[0] - x)) best = p;
       mk.setAttribute('cx', best[0]); mk.setAttribute('cy', best[1]);
@@ -1287,6 +1363,7 @@
     }
     return { ids };
   }
+  function qtyLoad() { try { return JSON.parse(localStorage.getItem('poeQtyHist') || '{}'); } catch { return {}; } }
   function processFarm() {
     const k = vhKey();
     if (!k || !P || !data.scannedAt) return;
@@ -1295,6 +1372,16 @@
     if (f.lastT && t <= f.lastT) return;
     const tabsSig = (data.tabs || []).map(x => x.i).sort((a, b) => a - b).join(',');
     const cur = scanContent();
+    // quantité de chaque objet coté : un point seulement quand elle change
+    const qNow = {};
+    for (const [pk, n] of Object.values(cur.ids)) if (pk) qNow[pk] = (qNow[pk] || 0) + n;
+    const qa = qtyLoad(), qh = qa[k] || (qa[k] = {});
+    for (const pk of new Set([...Object.keys(qNow), ...Object.keys(qh)])) {
+      const n = qNow[pk] || 0, arr = qh[pk] || (qh[pk] = []);
+      if (!arr.length ? n > 0 : arr[arr.length - 1][1] !== n) arr.push([t, n]);
+      if (arr.length > 400) arr.splice(0, arr.length - 400);
+    }
+    try { localStorage.setItem('poeQtyHist', JSON.stringify(qa)); } catch {}
     if (f.last && f.last.ids && f.tabsSig === tabsSig) {
       const unitNow = new Map();
       for (const i of items) if (i.price) unitNow.set(pkey(i), i.price.unit);
@@ -1559,7 +1646,7 @@
     if (gridOk) renderGrid(list, GRID_TYPES[tab.type]); else renderList(list);
   }
 
-  const COLS = [['', null], ['', null], ['Objet', 'label'], ['Onglet', 'tab'], ['Pile', 'stack', 1], ['iLvl', 'ilvl', 1], ['Sockets', 'links'], ['Prix', 'price', 1]];
+  const COLS = [['', null], ['', null], ['Objet', 'label'], ['Onglet', 'tab'], ['Pile', 'stack', 1], ['iLvl', 'ilvl', 1], ['Sockets', 'links'], ['Prix', 'price', 1], ['', null]];
   function renderList(list) {
     const keyFn = {
       label: i => i.label.toLowerCase(),
@@ -1578,7 +1665,8 @@
       <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
       <td class="num">${i.ilvl || ''}</td>
       <td>${socketsHtml(i)}</td>
-      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(change7(i.price))}</span>` : ''}</td></tr>`).join('');
+      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
+      <td class="zc">${i.price ? `<button class="loupe" data-z="${i.idx}" title="Détails du prix" aria-label="Détails du prix de ${esc(i.name || i.type)}"><svg><use href="#i-search"/></svg></button>` : ''}</td></tr>`).join('');
     $('view').innerHTML = `<table><thead><tr>${COLS.map(([n, key, num]) => `<th class="${num ? 'num' : ''}${key === sortKey ? ' sorted' : ''}" ${key ? `data-s="${key}"` : ''}>${n}${key === sortKey ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
       (list.length > shown ? `<button class="btn more" id="more">Afficher ${Math.min(PAGE, list.length - shown)} de plus · ${list.length - shown} restants</button>` : '');
     $('view').querySelectorAll('th[data-s]').forEach(th => th.onclick = () => {
@@ -1587,6 +1675,7 @@
     });
     $('view').querySelectorAll('tr.it').forEach(tr => tr.onclick = () => select(Number(tr.dataset.i)));
     $('view').querySelectorAll('.star').forEach(b => b.onclick = e => { e.stopPropagation(); toggleFollow(items[Number(b.dataset.f)]); });
+    $('view').querySelectorAll('.loupe').forEach(b => b.onclick = e => { e.stopPropagation(); openZoom(Number(b.dataset.z), b); });
     const more = $('more'); if (more) more.onclick = () => { shown += PAGE; render(); };
   }
 
@@ -1656,7 +1745,7 @@
       </div></div>
       <div class="pricebox${pr ? '' : ' none'}"${chart || (!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2)) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div></div>${pr
         ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
-           <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(change7(pr))}</div>
+           <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(trend6(pr))}</div>
            ${pr.approx ? '<div class="s">Plusieurs variantes à des prix différents : la moins chère est retenue.</div>' : ''}`
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${chart}
@@ -1853,6 +1942,114 @@
       </div></div>`;
   }
 
+  // =================== Fenêtre détaillée d'un prix ===================
+  let zoomIdx = null, zoomFrom = null, zoomRange = 'league';
+  function openZoom(idx, from) {
+    zoomIdx = idx; zoomFrom = from || null;
+    $('zModal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderZoom();
+    const hk = items[idx].price && items[idx].price.hk;
+    if (hk && repoPricesFile) Promise.all([loadShard(shardOf(hk), false), loadShard(shardOf(hk), true)]).then(() => { if (zoomIdx === idx) renderZoom(); });
+    setTimeout(() => $('zClose') && $('zClose').focus(), 0);
+  }
+  function closeZoom() {
+    if (zoomIdx === null) return;
+    $('zModal').hidden = true; zoomIdx = null;
+    document.body.style.overflow = '';
+    if (zoomFrom && document.contains(zoomFrom)) zoomFrom.focus();
+  }
+  $('zModal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeZoom(); });
+  $('zModal').addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const f = [...$('zBox').querySelectorAll('button,a[href],select')].filter(x => !x.disabled);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+
+  function renderZoom() {
+    if (zoomIdx === null) return;
+    const i = items[zoomIdx], pr = i.price;
+    if (!pr) { closeZoom(); return; }
+    const pk = pkey(i), hk = pr.hk, now = Date.now(), H = 3600000;
+    const full = hk ? shardSeries(hk, false) : null, rec = hk ? shardSeries(hk, true) : null;
+    const loading = hk && repoPricesFile && (!hist[`${repoPricesFile}/${shardOf(hk)}`]);
+    const league = full && full.length >= 2 ? full : rec && rec.length >= 2 ? rec : null;
+    const short = rec && rec.length >= 2 ? rec : league;
+    // quantités
+    const same = items.filter(x => x.price && pkey(x) === pk);
+    const qty = same.reduce((a, x) => a + x.stack, 0);
+    const byTab = new Map();
+    for (const x of same) byTab.set(x.tabN, (byTab.get(x.tabN) || 0) + x.stack);
+    const qh = ((qtyLoad()[vhKey()] || {})[pk]) || [];
+    let qMax = qh.reduce((m, p) => p[1] > m[1] ? p : m, [0, 0]);
+    if (qty >= qMax[1]) qMax = [qh.length ? qMax[0] : 0, qty];
+    const firstSeen = qh.find(p => p[1] > 0);
+    // statistiques
+    const c6 = changeOver(short, 6 * H), c24 = changeOver(short, 24 * H), c7 = changeOver(short, 7 * 24 * H) ?? change7(pr), cL = changeOver(league, Infinity);
+    let mn = null, mx = null, avg = null, vol = null;
+    if (league) {
+      for (const p of league) { if (!mn || p[1] < mn[1]) mn = p; if (!mx || p[1] > mx[1]) mx = p; }
+      avg = league.reduce((a, p) => a + p[1], 0) / league.length;
+      const d24 = short.filter(p => p[0] >= now - 24 * H).map(p => p[1]);
+      if (d24.length >= 3) { const m = d24.reduce((a, b) => a + b, 0) / d24.length; vol = Math.sqrt(d24.reduce((a, b) => a + (b - m) ** 2, 0) / d24.length) / m; }
+    }
+    const totalValue = items.reduce((a, x) => a + val(x), 0);
+    const held = qty * pr.unit;
+    const dshort = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    const chgTile = (label, c, sub) => `<div class="zt"><span class="zl">${label}</span><span class="zv ${c === null || c === undefined ? '' : c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : ''}">${c === null || c === undefined || !isFinite(c) ? '—' : `${c > 0.0005 ? '▲' : c < -0.0005 ? '▼' : '='} ${pctFmt(c)}`}</span><span class="zs">${sub || '&nbsp;'}</span></div>`;
+    const tile = (label, v, sub, cls = '') => `<div class="zt"><span class="zl">${label}</span><span class="zv ${cls}">${v}</span><span class="zs">${sub || '&nbsp;'}</span></div>`;
+    const money = c => c > 0 ? esc(fmt(c)) : '—';
+    // courbe
+    const ranges = { '24h': 24 * H, '7d': 7 * 24 * H, league: Infinity };
+    const src = zoomRange === 'league' ? league : short;
+    const pts = src ? src.filter(p => ranges[zoomRange] === Infinity || p[0] >= now - ranges[zoomRange]) : null;
+    const svg = pts && pts.length >= 2 ? chartHtml([{ pts, cls: 'l1' }], 760, 230) : '';
+    const big = P && P.divine && pr.unit >= P.divine;
+    const followed = !!follow[itemKey(i)];
+    const nUrl = ninjaUrl(pr);
+    $('zBox').innerHTML = `
+      <div class="zh">
+        <div class="zi"><img src="${esc(i.raw.icon)}" alt=""></div>
+        <div class="zn"><h2 id="zTitle" class="r${i.rarity}">${esc(i.name || i.type)}</h2><div>${i.name ? `${esc(i.type)} · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''}${pr.listings ? ` · ${nf(pr.listings, 0)} annonces sur poe.ninja` : ''}</div></div>
+        <div class="zx">
+          <button class="btn ghost" id="zFollow" title="${followed ? 'Ne plus suivre' : 'Suivre le prix'}">★ ${followed ? 'Suivi' : 'Suivre'}</button>
+          <a class="btn ghost" id="zTrade" href="#" title="Recherche sur le site de trade"><svg><use href="#i-ext"/></svg>Trade</a>
+          ${nUrl ? `<a class="btn ghost" href="${esc(nUrl)}" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg>poe.ninja</a>` : ''}
+          <button class="btn ghost zclose" id="zClose" data-close aria-label="Fermer">✕</button>
+        </div>
+      </div>
+      <div class="zb">
+        <div class="zgrid">
+          ${tile('Prix unitaire', `${pr.approx ? '~' : ''}${money(pr.unit)}`, big ? `${fmtC(pr.unit)} c` : `relevé ${prices ? ago(prices.fetchedAt) : ''}`, 'gold')}
+          ${tile('Valeur détenue', money(held), totalValue ? `${nf(held / totalValue * 100, held / totalValue < 0.1 ? 1 : 0)} % du coffre` : '', 'gold')}
+          ${tile('Quantité', nf(qty, 0), `${byTab.size} onglet${byTab.size > 1 ? 's' : ''}`)}
+          ${tile('Quantité max', nf(qMax[1], 0), qMax[0] ? `le ${dshort(qMax[0])}` : 'suivi des quantités en cours')}
+          ${chgTile('Variation 6 h', c6, short ? '' : 'pas encore d\'historique')}
+          ${chgTile('Variation 24 h', c24, '')}
+          ${chgTile('Variation 7 j', c7, c7 !== null && !changeOver(short, 7 * 24 * H) ? 'poe.ninja' : '')}
+          ${chgTile('Variation ligue', cL, league ? `depuis le ${dshort(league[0][0])}` : '')}
+          ${tile('Prix min', mn ? money(mn[1]) : '—', mn ? `le ${dshort(mn[0])}` : '')}
+          ${tile('Prix max', mx ? money(mx[1]) : '—', mx ? `le ${dshort(mx[0])}` : '')}
+          ${tile('Prix moyen', avg ? money(avg) : '—', league ? `${league.length} relevés` : '')}
+          ${tile('Volatilité 24 h', vol === null ? '—' : `${nf(vol * 100, 1)} %`, vol === null ? '' : vol < 0.03 ? 'stable' : vol < 0.1 ? 'modérée' : 'forte')}
+        </div>
+        <div class="zsec"><span>Évolution du prix unitaire</span><span class="zrng" role="group" aria-label="Période">
+          <button data-zr="24h"${zoomRange === '24h' ? ' class="on"' : ''}>24 h</button><button data-zr="7d"${zoomRange === '7d' ? ' class="on"' : ''}>7 j</button><button data-zr="league"${zoomRange === 'league' ? ' class="on"' : ''}>ligue</button></span></div>
+        <div class="chart zchart" id="zChart">${svg
+          ? `<div class="cv" id="zCv" data-unit="0"><div class="cv-v">${curImg(big ? 'divine' : 'chaos', 'cur sm')}${esc(fmt(pr.unit))}</div><div class="cv-s">${esc(pr.src)} ${chgHtml(trend6(pr))}</div></div>${svg}`
+          : `<div class="zempty">${loading ? 'Chargement de l\'historique…' : hk ? 'Pas encore assez de relevés pour cette période.' : 'Pas d\'historique pour cet objet (prix de référence).'}</div>`}</div>
+        <div class="zsec"><span>Dans ton coffre</span></div>
+        <div class="zplaces">${[...byTab].map(([n, q]) => `<span class="zplace">${esc(n)} <b>${nf(q, 0)}</b></span>`).join('')}</div>
+        <div class="znote">${firstSeen ? `Présent dans ton coffre depuis le ${dshort(firstSeen[0])}. ` : ''}Historique publié par le dépôt : relevés toutes les 30 min sur 7 jours, puis toutes les 2 h et 6 h.</div>
+      </div>`;
+    wireChart('zChart', 'zCv');
+    $('zBox').querySelectorAll('[data-zr]').forEach(b => b.onclick = () => { zoomRange = b.dataset.zr; renderZoom(); });
+    $('zFollow').onclick = () => { toggleFollow(i); renderZoom(); };
+    $('zTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
+  }
+
   // =================== Exports ===================
   function save(blob, name) {
     const a = document.createElement('a');
@@ -1873,7 +2070,7 @@
   };
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') $('detail').classList.remove('show');
+    if (e.key === 'Escape') { if (zoomIdx !== null) { closeZoom(); return; } $('detail').classList.remove('show'); }
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('q').focus(); }
   });
 })();
