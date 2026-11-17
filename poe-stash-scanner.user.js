@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.3
+// @version      2.6.4
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -17,9 +17,9 @@
 // @grant        GM_setValue
 // @grant        GM_addValueChangeListener
 // @grant        GM_deleteValue
+// @grant        GM_listValues
 // @connect      www.pathofexile.com
 // @connect      poe.ninja
-// @connect      www.poewiki.net
 // @run-at       document-idle
 // ==/UserScript==
 (() => {
@@ -46,42 +46,17 @@
     return fetch(url, { method, credentials: 'include', headers, body })
       .then(async r => { const h = {}; r.headers.forEach((v, k) => (h[k.toLowerCase()] = v)); return { status: r.status, headers: h, text: await r.text() }; });
   }
+  const logErr = (what, e) => console.warn(`[Coffres] ${what} :`, e);
+  // Nettoyage des clés laissées par le relais et la base poewiki (supprimés en 2.6.4)
+  for (const k of ['gggAlive', 'relayTab', 'relayPing', 'relayAck', 'relayDone', 'uniqueDb']) GM_deleteValue(k);
+  for (const k of typeof GM_listValues === 'function' ? GM_listValues() : []) if (/^relay(Req|Res)_/.test(k)) GM_deleteValue(k);
   const wrap = r => ({ status: r.status, header: n => (r.headers || {})[n.toLowerCase()] ?? null, text: r.text, error: r.error });
-
-  // Relais : un onglet pathofexile.com ouvert exécute les requêtes GGG de la page (même origine, mêmes cookies,
-  // vérification Cloudflare déjà passée). Les échanges se font par le stockage de Violentmonkey.
-  const relayWait = new Map(), relayAcks = new Set();
-  function relayAlive() { return Date.now() - GM_getValue('gggAlive', 0) < 180000; }
-  function viaRelay(url, method, body) {
-    const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-    const tab = GM_getValue('relayTab', null);
-    const done = new Promise(resolve => relayWait.set(id, resolve));
-    GM_setValue(`relayReq_${id}`, { url, method, body });
-    GM_setValue('relayPing', { id, tab, at: Date.now() });
-    const ack = new Promise((resolve, reject) => {
-      const t0 = Date.now();
-      const iv = setInterval(() => {
-        if (relayAcks.has(id)) { clearInterval(iv); resolve(); }
-        else if (Date.now() - t0 > 6000) { clearInterval(iv); reject(new Error("L'onglet pathofexile.com ne répond pas : recharge-le (F5) après la mise à jour du script, garde-le ouvert, puis réessaie.")); }
-      }, 200);
-    });
-    return ack.then(() => withTimeout(done, 60000, 'Relais pathofexile.com'))
-      .finally(() => { relayWait.delete(id); relayAcks.delete(id); GM_deleteValue(`relayReq_${id}`); GM_deleteValue(`relayRes_${id}`); });
-  }
-  if (!ON_GGG) {
-    GM_addValueChangeListener('relayAck', (k, o, id) => { if (relayWait.has(id)) relayAcks.add(id); });
-    GM_addValueChangeListener('relayDone', (k, o, id) => {
-      const res = relayWait.get(id);
-      if (res) res(GM_getValue(`relayRes_${id}`, { status: 0, headers: {}, text: '' }));
-    });
-  }
 
   function http(url, method = 'GET', body = null) {
     const headers = { 'X-Requested-With': 'XMLHttpRequest' };
     if (body) headers['Content-Type'] = 'application/json';
     if (IS_GGG_URL(url)) {
       if (ON_GGG) return withTimeout(ggFetch(url, method, body), 45000, 'pathofexile.com').then(wrap);
-      if (relayAlive()) return viaRelay(url, method, body).then(wrap);
     }
     return withTimeout(new Promise((resolve, reject) => GM_xmlhttpRequest({
       url, method, headers, data: body || undefined,
@@ -228,7 +203,7 @@
         const names = new Map((j.items || []).map(i => [i.id, i.name]));
         out.exchange[t] = (j.lines || []).map(l => ({ k: `x|${l.id}`, name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
         if (t === 'Currency') out.core = j.core ? { primary: j.core.primary, rates: j.core.rates } : null;
-      } catch {}
+      } catch (e) { logErr(`poe.ninja ${t} (exchange)`, e); }
       await sleep(150);
     }
     for (const t of STASH_CURRENCY_TYPES) {
@@ -238,7 +213,7 @@
         out.currency[t] = (j.lines || []).map(l => ({ k: `c|${l.detailsId}`, name: l.currencyTypeName, v: l.chaosEquivalent, sp: l.receiveSparkLine?.data }));
         const tid = new Map((j.currencyDetails || []).map(d => [d.name, d.tradeId]));
         for (const l of j.lines || []) { const t2 = tid.get(l.currencyTypeName); if (t2 && l.chaosEquivalent > 0) out.tradeIds[t2] = l.chaosEquivalent; }
-      } catch {}
+      } catch (e) { logErr(`poe.ninja ${t} (currency)`, e); }
       await sleep(150);
     }
     for (const t of ITEM_TYPES) {
@@ -253,7 +228,7 @@
           sp: (l.sparkLine?.data || []).some(x => x !== null) ? l.sparkLine.data : l.lowConfidenceSparkLine?.data,
           ...(/^Unique/.test(t) ? { ranges: (l.explicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)), iranges: (l.implicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)) } : {}),
         }));
-      } catch {}
+      } catch (e) { logErr(`poe.ninja ${t} (items)`, e); }
       await sleep(150);
     }
     GM_setValue('ninjaPrices', out);
@@ -279,7 +254,7 @@
       if (res.status === 429) { tradeNext[kind] = Date.now() + ((Number(res.header('Retry-After')) || 60) * 1000 + 1000); continue; }
       if (res.status < 200 || res.status >= 300) {
         let msg = `Trade : HTTP ${res.status}`;
-        try { const j = JSON.parse(res.text); if (j.error) msg += ` (${j.error.message})`; } catch {}
+        try { const j = JSON.parse(res.text); if (j.error) msg += ` (${j.error.message})`; } catch { /* réponse sans JSON : le code HTTP suffit */ }
         throw new Error(msg);
       }
       try { return JSON.parse(res.text); }
@@ -443,41 +418,6 @@
     return rec;
   }
 
-  // ---------- Base des uniques (poewiki) ----------
-  const WIKI = 'https://www.poewiki.net/w/api.php';
-  async function loadUniqueDb(report, force) {
-    const c = GM_getValue('uniqueDb', null);
-    if (!force && c && Date.now() - c.at < 7 * 86400000) return c;
-    report({ msg: 'Construction de la base des uniques (poewiki)…' });
-    const rows = [];
-    for (let off = 0; ; off += 500) {
-      const url = `${WIKI}?action=cargoquery&tables=items&fields=items.name,items.base_item,items.explicit_stat_text,items.implicit_stat_text,items.drop_enabled&where=items.rarity%3D%22Unique%22&limit=500&offset=${off}&format=json`;
-      const res = await http(url);
-      let j;
-      try { j = JSON.parse(res.text); } catch { throw new Error('poewiki demande une vérification anti-robot : ouvre https://www.poewiki.net une fois dans ce navigateur, puis clique sur « Construire la base ».'); }
-      const b = (j.cargoquery || []).map(x => x.title);
-      rows.push(...b);
-      report({ msg: `Base des uniques : ${rows.length} objets lus…` });
-      if (b.length < 500) break;
-      await sleep(600);
-    }
-    const dec = t => String(t || '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#0*39;/g, "'").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/&quot;/g, '"').replace(/&ndash;/g, '–').replace(/&amp;/g, '&');
-    const lines = t => dec(t).replace(/<br\s*\/?>/gi, '\n').replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1').replace(/<[^>]+>/g, '').replace(/–/g, '-').split('\n').map(x => x.trim()).filter(x => /\(-?[\d.]+-/.test(x));
-    const db = {};
-    for (const r of rows) {
-      if (!r.name) continue;
-      const v = { b: dec(r['base item']), i: lines(r['implicit stat text']), e: lines(r['explicit stat text']), d: r['drop enabled'] === '1' ? 1 : 0 };
-      if (!v.i.length && !v.e.length) continue;
-      const k = dec(r.name);
-      (db[k] = db[k] || []);
-      if (!db[k].some(x => JSON.stringify(x) === JSON.stringify(v))) db[k].push(v);
-    }
-    const out = { at: Date.now(), n: Object.keys(db).length, db };
-    GM_setValue('uniqueDb', out);
-    report({ msg: `Base des uniques prête : ${out.n} uniques.` });
-    return out;
-  }
-
   // ---------- Rescan automatique (le premier contexte disponible s'en charge) ----------
   async function autoTick(report) {
     const mins = Number(getSettings().autoMinutes) || 0;
@@ -501,10 +441,6 @@
     const pushScan = () => { const s = GM_getValue('lastScan', null); if (s) send('scan', s); };
     const pushPrices = p => p && send('prices', JSON.stringify(p));
     const pushSettings = () => send('settings', getSettings());
-    const pushRelay = () => send('relay', { alive: relayAlive(), at: GM_getValue('gggAlive', 0) });
-    setInterval(pushRelay, 10000);
-    GM_addValueChangeListener('gggAlive', () => pushRelay());
-    const pushUniques = u => u && send('uniques', JSON.stringify(u.db));
     const pushTrades = () => send('trades', JSON.stringify(GM_getValue('tradeEstimates', {})));
     let tradeQueue = Promise.resolve(), tradeQueued = 0;
     const pushTracking = () => send('tracking', JSON.stringify({ follow: GM_getValue('follow', {}), history: GM_getValue('priceHistory', {}) }));
@@ -513,10 +449,8 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.3' });
-      pushSettings(); pushRelay(); pushTracking(); pushTrades(); pushScan();
-      const u = GM_getValue('uniqueDb', null);
-      if (u) pushUniques(u);
+      send('ready', { version: '2.6.4' });
+      pushSettings(); pushTracking(); pushTrades(); pushScan();
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
       if (!getSettings().ninjaRemote && (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== getSettings().league)) pushPrices(await loadPrices(false, report));
@@ -538,8 +472,6 @@
           if (!getSettings().ninjaRemote) pushPrices(await loadPrices(false, report));
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report));
-        } else if (m.cmd === 'uniques-refresh') {
-          pushUniques(await loadUniqueDb(report, true));
         } else if (m.cmd === 'trade-prepare') {
           const { itemId, item } = m.data;
           try {
@@ -566,7 +498,6 @@
         }
       } catch (e) {
         report({ msg: e.message, error: true });
-        if (m.cmd === 'uniques-refresh') send('uniques-error', { msg: e.message });
       }
     });
 
@@ -588,38 +519,13 @@
       finally { pricesBusy = false; }
     }, 60000);
 
-    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); if (!getSettings().ninjaRemote) loadPrices(false, report).then(pushPrices).catch(() => {}); } }), 60000);
+    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); if (!getSettings().ninjaRemote) loadPrices(false, report).then(pushPrices).catch(e => logErr('prix poe.ninja après rescan auto', e)); } }), 60000);
   }
 
   // =====================================================================
   // Panneau sur pathofexile.com (premier réglage + scan manuel)
   // =====================================================================
-  function gggRelay() {
-    const tab = Math.random().toString(36).slice(2);
-    const beat = () => { GM_setValue('gggAlive', Date.now()); GM_setValue('relayTab', tab); };
-    beat();
-    setInterval(beat, 5000);
-    document.addEventListener('visibilitychange', beat);
-    window.addEventListener('focus', beat);
-    GM_addValueChangeListener('relayPing', async (k, o, ping, remote) => {
-      if (!remote || !ping || !ping.id) return;
-      // l'onglet visé répond ; si la page n'en vise aucun (ou un onglet fermé), le premier à réagir s'en charge
-      if (ping.tab && ping.tab !== tab && Date.now() - GM_getValue('gggAlive', 0) < 180000 && GM_getValue('relayTab', null) !== tab) return;
-      const id = ping.id;
-      const req = GM_getValue(`relayReq_${id}`, null);
-      if (!req) return;
-      GM_setValue('relayTab', tab);
-      GM_setValue('relayAck', id);
-      let res;
-      try { res = await withTimeout(ggFetch(req.url, req.method || 'GET', req.body || null), 45000, 'pathofexile.com'); }
-      catch (e) { res = { status: 0, headers: {}, text: '', error: e.message }; }
-      GM_setValue(`relayRes_${id}`, res);
-      GM_setValue('relayDone', id);
-    });
-  }
-
   function gggPanel() {
-    gggRelay();
     const host = document.createElement('div');
     host.style.cssText = 'position:fixed;z-index:2147483647;right:16px;bottom:16px;';
     document.body.appendChild(host);
@@ -683,7 +589,7 @@
     let tabList = [];
 
     async function detectAccount() {
-      try { const j = await ggg('/get-account-name', {}, 'POST'); if (j && j.accountName) return j.accountName; } catch {}
+      try { const j = await ggg('/get-account-name', {}, 'POST'); if (j && j.accountName) return j.accountName; } catch (e) { logErr('détection du compte', e); }
       const a = document.querySelector('a[href*="/account/view-profile/"]');
       if (a) return decodeURIComponent(a.getAttribute('href').split('/view-profile/')[1].split(/[/?#]/)[0]).replace(/-(\d{4})$/, '#$1');
       return '';
@@ -706,7 +612,7 @@
           const leagues = [...new Set((chars || []).map(c => c.league).filter(Boolean))];
           $('leagues').innerHTML = leagues.map(l => `<option value="${esc(l)}">`).join('');
           if (!$('league').value && leagues.length) $('league').value = leagues.find(l => !/standard|hardcore/i.test(l)) || leagues[0];
-        } catch {}
+        } catch (e) { logErr('liste des ligues', e); }
       }
       const last = GM_getValue('lastScanAt', 0);
       setStatus(last ? `Dernier scan : ${new Date(last).toLocaleString('fr-FR')}` : 'Charge les onglets puis lance un premier scan.');
@@ -751,7 +657,7 @@
       try {
         const scan = await runScan(report);
         if (getSettings().alsoDownload) download(scan);
-        if (!getSettings().ninjaRemote) loadPrices(false, () => {}).catch(() => {});
+        if (!getSettings().ninjaRemote) loadPrices(false, () => {}).catch(e => logErr('prix poe.ninja après scan', e));
       } catch (e) { setStatus(e.message, true); }
       $('scan').disabled = $('load').disabled = false;
     };

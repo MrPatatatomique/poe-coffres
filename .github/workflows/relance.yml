@@ -1,0 +1,50 @@
+name: Relance des données
+
+# Les tâches planifiées de GitHub sont souvent retardées ou sautées (2 passages sur 24 h au lieu de 48).
+# Cette tâche sert d'horloge : elle déclenche « Données et publication » à h:07 et h:37 pendant ~5 h 40,
+# puis se relance elle-même. Le cron ci-dessous ne sert qu'à redémarrer la boucle si elle s'arrête.
+# Un déclenchement manuel (workflow_dispatch) depuis l'onglet Actions démarre aussi la boucle.
+on:
+  schedule:
+    - cron: '23 */4 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+# Une seule boucle à la fois : un redémarrage arrivé pendant qu'elle tourne attend, puis est remplacé
+# par la relance suivante.
+concurrency:
+  group: relance
+  cancel-in-progress: false
+
+jobs:
+  horloge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Déclencher les données toutes les 30 min
+        run: |
+          start=$(date +%s)
+          while [ $(( $(date +%s) - start )) -lt 20400 ]; do   # 5 h 40
+            now=$(date +%s); m=$(( (now / 60) % 60 ))
+            # prochaine minute 7 ou 37
+            if   [ $m -lt 7 ];  then t=7
+            elif [ $m -lt 37 ]; then t=37
+            else t=67; fi
+            sleep $(( (t - m) * 60 - now % 60 ))
+            if gh run list --workflow data.yml --status in_progress --json databaseId -q 'length' | grep -qx 0 \
+               && gh run list --workflow data.yml --status queued --json databaseId -q 'length' | grep -qx 0; then
+              gh workflow run data.yml --ref main && echo "$(date -u +%H:%M) données déclenchées"
+            else
+              echo "$(date -u +%H:%M) une mise à jour est déjà en cours, on passe"
+            fi
+          done
+
+      - name: Se relancer
+        if: always()
+        run: gh workflow run relance.yml --ref main

@@ -247,8 +247,6 @@
   /* ---------- Trade ---------- */
   :root{--trade:#7fb8cc;--trade2:#3c6a7a}
   .kpis{grid-template-columns:minmax(260px,1.4fr) repeat(3,minmax(160px,1fr))}
-  .pill.relay{text-decoration:none;cursor:pointer}
-  .pill.relay:hover{border-color:var(--line3)}
   .leds{display:flex;gap:6px}
   .led{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line2);border-radius:999px;background:#120f0c;color:var(--text2);font-size:12px;white-space:nowrap;cursor:default}
   .acct{display:flex;align-items:center;gap:11px;padding:6px 12px 6px 7px;border:1px solid var(--gold3);border-radius:12px;background:linear-gradient(#2a2117,#1b1611);color:var(--text);cursor:pointer;text-align:left;transition:border-color .15s,background .15s}
@@ -655,22 +653,99 @@
   const $ = id => document.getElementById(id);
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
   const clean = s => String(s ?? '').replace(/<<[^>]*>>/g, '').replace(/\[([^\]|]+)\|([^\]]+)\]/g, '$2').replace(/\[([^\]]+)\]/g, '$1');
+
+  // =================== Stockage local : format versionné, purge, erreurs visibles ===================
+  // Clés : poeTracking (suivis), poeTrades (estimations trade), poeFarm (gains), poeQtyHist (quantités),
+  // poeValueHist (valeur du coffre), poeFollowHidden / poeGainRange / poeVhRange (préférences), poeSchema (version).
+  const STORE_VER = 2;
+  const logErr = (what, e) => console.warn(`[Coffres] ${what} :`, e);
+  let storeWarned = false;
+  const store = {
+    get(k, def) {
+      let raw;
+      try { raw = localStorage.getItem(k); } catch (e) { logErr(`lecture de ${k}`, e); return def; }
+      if (raw === null) return def;
+      try { return JSON.parse(raw); } catch { return raw; } // anciennes préférences enregistrées en texte brut
+    },
+    set(k, v) {
+      const txt = JSON.stringify(v);
+      try { localStorage.setItem(k, txt); return true; }
+      catch (e) {
+        logErr(`écriture de ${k} (${Math.round(txt.length / 1024)} Ko)`, e);
+        // stockage plein : on purge l'historique ancien puis on réessaie une fois
+        if (/quota/i.test(e.name + e.message)) {
+          storeCompact(true);
+          try { localStorage.setItem(k, txt); return true; } catch (e2) { logErr(`écriture de ${k} après purge`, e2); }
+        }
+        if (!storeWarned) {
+          storeWarned = true;
+          setTimeout(() => status('Le stockage du navigateur est plein : l\'historique (gains, quantités, valeur) n\'est plus enregistré. Exporte puis vide les données du site si ça persiste.', true), 0);
+        }
+        return false;
+      }
+    },
+    size() { let n = 0; try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); n += k.length + (localStorage.getItem(k) || '').length; } } catch (e) { logErr('taille du stockage', e); } return n * 2; },
+  };
+  // Purge : garde l'essentiel, retire le détail ancien. hard = stockage plein, on coupe plus large.
+  function storeCompact(hard = false) {
+    const now = Date.now(), D = 86400000;
+    const farm = store.get('poeFarm', {});
+    for (const f of Object.values(farm)) {
+      const log = f.log || [];
+      const detMax = hard ? 3 * D : 14 * D, max = hard ? 2000 : 5000;
+      for (const e of log) if (e[4] && now - e[0] > detMax) e.length = 4;  // détail par objet : 14 jours
+      if (log.length > max) log.splice(0, log.length - max);
+      const ik = Object.keys(f.icons || {});
+      if (ik.length > 600) for (const x of ik.slice(0, ik.length - 600)) delete f.icons[x];
+    }
+    const qty = store.get('poeQtyHist', {});
+    for (const acc of Object.values(qty)) for (const [pk, arr] of Object.entries(acc)) {
+      const last = arr[arr.length - 1];
+      if (!last || (last[1] === 0 && now - last[0] > 30 * D)) delete acc[pk]; // objet parti depuis 30 jours
+      else if (arr.length > (hard ? 100 : 400)) arr.splice(0, arr.length - (hard ? 100 : 400));
+    }
+    const vh = store.get('poeValueHist', {});
+    if (hard) for (const pts of Object.values(vh)) if (pts.length > 96 * 14) pts.splice(0, pts.length - 96 * 14);
+    const tr = store.get('poeTrades', {});
+    const ids = Object.keys(tr).sort((a, b) => (tr[b].at || 0) - (tr[a].at || 0));
+    for (const id of ids.slice(hard ? 150 : 600)) delete tr[id];
+    for (const [k, v] of [['poeFarm', farm], ['poeQtyHist', qty], ['poeValueHist', vh], ['poeTrades', tr]]) {
+      try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { logErr(`purge de ${k}`, e); }
+    }
+  }
+  // Migrations : chaque version convertit le format de la précédente
+  (function migrate() {
+    const v = Number(store.get('poeSchema', 1)) || 1;
+    if (v >= STORE_VER) { storeCompact(); return; }
+    if (v < 2) {
+      // v2 : chaque entrée de gain porte le nombre d'objets changés et des noms lisibles
+      const farm = store.get('poeFarm', {});
+      const nameOf = nm => { const p = String(nm).split('|'); return p.length < 2 ? nm : p[0] === 'i' ? p[2] : p[0] === 'x' || p[0] === 'c' ? p[1].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : p[1]; };
+      for (const f of Object.values(farm)) for (const e of f.log || []) {
+        if (e[3] === undefined) e[3] = e[1] !== 0 ? 1 : 0;
+        if (e[4]) e[4] = Object.fromEntries(Object.entries(e[4]).map(([nm, x]) => [nameOf(nm), x]));
+      }
+      store.set('poeFarm', farm);
+    }
+    storeCompact();
+    store.set('poeSchema', STORE_VER);
+  })();
   const EMPTY_DETAIL = `<div class="placeholder"><svg><use href="#i-chest"/></svg>Clique sur un objet pour voir ses détails et son prix.</div>`;
 
   let data = null, items = [], tabs = [], prices = null, P = null;
   let activeTab = null, view = 'list', sortKey = 'tab', sortDir = 1, shown = PAGE, selected = null;
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
-  let localTrades = {}; try { localTrades = JSON.parse(localStorage.getItem('poeTrades') || '{}'); } catch {}
+  let localTrades = store.get('poeTrades', {});
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.3';
+  const REQ_SCRIPT = '2.6.4';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
-  let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
+  let uniqueSrc = 'Path of Building', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
   const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
-  try { const j = JSON.parse(localStorage.getItem('poeTracking') || '{}'); follow = j.follow || {}; history = j.history || {}; } catch {}
+  { const j = store.get('poeTracking', {}); follow = j.follow || {}; history = j.history || {}; }
 
   // =================== Toast ===================
   let toastTimer = 0;
@@ -713,32 +788,21 @@
         $('auto').value = String(settings.autoMinutes || 0);
         break;
       case 'trades':
-        try { trades = { ...localTrades, ...(JSON.parse(m.data) || {}) }; applyPrices(); } catch {}
+        try { trades = { ...localTrades, ...(JSON.parse(m.data) || {}) }; applyPrices(); } catch (e) { logErr('estimations trade reçues', e); }
         break;
       case 'trade-result':
         try {
           const rec = JSON.parse(m.data);
           trades[rec.itemId] = rec; tradeBusy.delete(rec.itemId); lstShown[rec.itemId] = 20;
           applyPrices();
-        } catch {}
-        break;
-      case 'relay':
-        relayOn = !!m.data.alive;
-        updateApi();
+        } catch (e) { logErr('résultat trade reçu', e); }
         break;
       case 'trade-draft-error':
         draftErr[m.data.itemId] = m.data.msg; draftReq.delete(m.data.itemId);
         if (selected !== null) select(selected);
         break;
       case 'trade-draft':
-        try { const d = JSON.parse(m.data); drafts[d.itemId] = { mods: d.mods, extras: d.extras }; draftReq.delete(d.itemId); if (selected !== null) select(selected); } catch {}
-        break;
-      case 'uniques':
-        try { if (!uniqueDb) { uniqueDb = JSON.parse(m.data); uniqueErr = ''; applyPrices(); } } catch {}
-        break;
-      case 'uniques-error':
-        uniqueErr = m.data.msg || 'erreur';
-        if (selected !== null) select(selected);
+        try { const d = JSON.parse(m.data); drafts[d.itemId] = { mods: d.mods, extras: d.extras }; draftReq.delete(d.itemId); if (selected !== null) select(selected); } catch (e) { logErr('critères trade reçus', e); }
         break;
       case 'trade-error':
         tradeBusy.delete(m.data.itemId);
@@ -753,7 +817,7 @@
             history[k] = [...(history[k] || []), ...pts.filter(p => !seen.has(p[0]))].sort((a, b) => a[0] - b[0]);
           }
           saveTracking(); renderFollow();
-        } catch {}
+        } catch (e) { logErr('suivis reçus', e); }
         break;
       case 'scan':
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
@@ -792,7 +856,8 @@
   function setBusy(id, on) { $(id).disabled = on; $(id).classList.toggle('spin', on); }
   $('scanBtn').onclick = () => { setBusy('scanBtn', true); status('Scan demandé…', false, true); cmd('scan'); };
   const closeMenu = () => { $('acctPop').hidden = true; $('acctBtn').setAttribute('aria-expanded', 'false'); };
-  $('acctBtn').onclick = e => { e.stopPropagation(); const h = !$('acctPop').hidden; $('acctPop').hidden = h; $('acctBtn').setAttribute('aria-expanded', String(!h)); };
+  $('acctBtn').onclick = e => { e.stopPropagation(); const h = !$('acctPop').hidden; $('acctPop').hidden = h;
+    if (!h) { const v = $('verInfo').textContent.replace(/ · stockage.*$/, ''); $('verInfo').textContent = `${v} · stockage ${store.size() < 1048576 ? `${nf(store.size() / 1024, 0)} Ko` : `${nf(store.size() / 1048576, 1)} Mo`} sur ~5 Mo`; } $('acctBtn').setAttribute('aria-expanded', String(!h)); };
   document.addEventListener('click', e => { if (!e.target.closest('.menu')) closeMenu(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
   $('acctPop').addEventListener('click', e => { if (e.target.closest('button,a')) closeMenu(); });
@@ -807,20 +872,19 @@
 
   $('followToggle').onclick = () => {
     const h = !$('followList').hidden;
-    try { localStorage.setItem('poeFollowHidden', h ? '1' : '0'); } catch {}
+    store.set('poeFollowHidden', h ? 1 : 0);
     renderFollow();
   };
 
   // =================== Overlay local (pont trade) ===================
   const OVERLAY = 'http://127.0.0.1:7777';
-  let overlayOK = false, overlayName = '', relayOn = false;
+  let overlayOK = false, overlayName = '';
   function updateApi() {
-    const on = overlayOK || relayOn;
+    const on = overlayOK;
     $('apiDot').classList.toggle('on', on);
     const txt = overlayOK
       ? `${overlayName === 'poe-overlay' ? 'Ton overlay PoE' : 'Le pont Windows'} tourne : la page lui confie les recherches trade.`
-      : relayOn ? 'Un onglet pathofexile.com sert de relais pour les recherches trade (solution de secours, moins fiable).'
-      : 'Aucune API pour les recherches trade : lance le pont Windows (ou l\'overlay), ou ouvre un onglet pathofexile.com.';
+      : 'Aucune API pour les recherches trade : lance le pont Windows (ou l\'overlay).';
     $('apiLed').title = txt;
     $('apiInfo').textContent = txt;
   }
@@ -1174,7 +1238,7 @@
   function saveTracking() {
     const payload = { follow, history };
     if (bridge) cmd('tracking', payload);
-    try { localStorage.setItem('poeTracking', JSON.stringify(payload)); } catch {}
+    store.set('poeTracking', payload);
   }
   function recordPoint(k) {
     const f = follow[k];
@@ -1255,7 +1319,7 @@
         <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(trend6(pr))}</span></span>${miniSpark(pts)}</button></div>`;
     }).join('');
     $('followCount').textContent = `(${keys.length})`;
-    let hidden = false; try { hidden = localStorage.getItem('poeFollowHidden') === '1'; } catch {}
+    const hidden = Number(store.get('poeFollowHidden', 0)) === 1;
     $('followList').hidden = hidden;
     $('followToggle').textContent = hidden ? 'Afficher' : 'Masquer';
     $('followToggle').setAttribute('aria-expanded', String(!hidden));
@@ -1400,8 +1464,8 @@
 
   // =================== KPI ===================
   // =================== Gain / h : variation du contenu du coffre entre deux scans, aux mêmes prix ===================
-  function farmLoad() { try { return JSON.parse(localStorage.getItem('poeFarm') || '{}'); } catch { return {}; } }
-  function farmSave(f) { try { localStorage.setItem('poeFarm', JSON.stringify(f)); } catch {} }
+  function farmLoad() { return store.get('poeFarm', {}); }
+  function farmSave(f) { store.set('poeFarm', f); }
   const pkey = i => i.price.hk || `n|${i.type}`;
   // contenu d'un scan : identifiant de l'objet → [clé de prix, quantité, valeur unitaire]
   function scanContent() {
@@ -1414,7 +1478,7 @@
     }
     return { ids, icons };
   }
-  function qtyLoad() { try { return JSON.parse(localStorage.getItem('poeQtyHist') || '{}'); } catch { return {}; } }
+  function qtyLoad() { return store.get('poeQtyHist', {}); }
   function processFarm() {
     const k = vhKey();
     if (!k || !P || !data.scannedAt) return;
@@ -1432,7 +1496,7 @@
       if (!arr.length ? n > 0 : arr[arr.length - 1][1] !== n) arr.push([t, n]);
       if (arr.length > 400) arr.splice(0, arr.length - 400);
     }
-    try { localStorage.setItem('poeQtyHist', JSON.stringify(qa)); } catch {}
+    store.set('poeQtyHist', qa);
     if (f.last && f.last.ids && f.tabsSig === tabsSig) {
       const unitNow = new Map();
       for (const i of items) if (i.price) unitNow.set(pkey(i), i.price.unit);
@@ -1461,7 +1525,7 @@
     farmSave(all);
   }
   // heure jouée : au moins un objet ajouté, retiré ou dont la pile a changé
-  const played = e => e[3] !== undefined ? e[3] > 0 : e[1] !== 0;
+  const played = e => e[3] > 0;
   function drawGain() {
     const k = vhKey(), f = k && farmLoad()[k];
     const log = (f && f.log) || [];
@@ -1495,7 +1559,7 @@
 
   // =================== Fenêtre détaillée des gains ===================
   let gRange = '24h', gAllHours = false;
-  try { gRange = localStorage.getItem('poeGainRange') || '24h'; } catch {}
+  gRange = String(store.get('poeGainRange', '24h'));
   const sgn = v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v)) || '0 c'}`;
   const gcls = v => v > 0 ? 'g-up' : v < 0 ? 'g-dn' : '';
   const durFmt = ms => { const m = Math.round(ms / 60000); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${String(m % 60).padStart(2, '0')}` : ''}`; };
@@ -1659,7 +1723,7 @@
         ${hrows.length ? `<div class="gscroll"><table class="gtable"><thead><tr><th>Heure</th><th class="r">Gain</th><th class="r">Scans</th><th>Principaux mouvements</th></tr></thead><tbody>${hrows.map(s => `<tr${s.ch ? '' : ' class="off"'}><td>${esc(slotLbl(s.t, H))}</td><td class="r ${gcls(s.v)}">${esc(sgn(s.v))}</td><td class="r">${s.n}</td><td class="gt">${topOf(s) || (s.ch ? '' : 'aucun changement')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="glist"><div class="gempty">Aucune heure jouée sur cette période.</div></div>'}
         
       </div>`;
-    $('gBox').querySelectorAll('[data-gr]').forEach(b => b.onclick = () => { gRange = b.dataset.gr; try { localStorage.setItem('poeGainRange', gRange); } catch {} renderGains(); });
+    $('gBox').querySelectorAll('[data-gr]').forEach(b => b.onclick = () => { gRange = b.dataset.gr; store.set('poeGainRange', gRange); renderGains(); });
     $('gAll').onchange = e => { gAllHours = e.target.checked; renderGains(); };
     const cv = $('gCv');
     if (cv) {
@@ -1679,9 +1743,9 @@
 
   // =================== Historique de la valeur totale (toutes les 15 min) ===================
   const VH_SLOT = 15 * 60000, VH_MAX = 60 * 96; // 60 jours de relevés
-  let vhRange = 24; try { vhRange = Number(localStorage.getItem('poeVhRange') ?? 24); } catch {}
+  let vhRange = Number(store.get('poeVhRange', 24));
   const vhKey = () => data ? `${data.account}|${data.league}` : null;
-  function vhLoad() { try { return JSON.parse(localStorage.getItem('poeValueHist') || '{}'); } catch { return {}; } }
+  function vhLoad() { return store.get('poeValueHist', {}); }
   function recordValue(total, safe, trade) {
     const k = vhKey();
     if (!k || !P || !(total > 0)) return;
@@ -1690,7 +1754,7 @@
     const pt = [slot, Math.round(total), Math.round(safe), Math.round(trade)];
     if (pts.length && pts[pts.length - 1][0] === slot) pts[pts.length - 1] = pt; else pts.push(pt);
     if (pts.length > VH_MAX) pts.splice(0, pts.length - VH_MAX);
-    try { localStorage.setItem('poeValueHist', JSON.stringify(all)); } catch {}
+    store.set('poeValueHist', all);
   }
   // Reconstitution des trous : quantités du dernier scan × historique des prix publié par le dépôt
   const recon = { sig: '', pts: [], busy: false };
@@ -1778,7 +1842,7 @@
   }
   document.querySelectorAll('.hc-rng button').forEach(b => b.onclick = () => {
     vhRange = Number(b.dataset.r);
-    try { localStorage.setItem('poeVhRange', String(vhRange)); } catch {}
+    store.set('poeVhRange', vhRange);
     recon.sig = '';
     drawValueChart();
   });
@@ -1997,14 +2061,13 @@
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${chart}
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
-      ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}${bridge && !ONLINE && !uniqueDb ? ' <button class="btn ghost" id="uniBuild">Construire depuis poewiki</button>' : ''}</div>` : ''}
+      ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
     wireChart();
     wireTrade(i);
     if ($('lnkItemTrade')) $('lnkItemTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
-    if ($('uniBuild')) $('uniBuild').onclick = () => { uniqueErr = ''; status('Construction de la base des uniques…', false, true); cmd('uniques-refresh'); };
     $('detail').classList.add('show');
   }
 
@@ -2144,13 +2207,13 @@
     document.querySelectorAll('.xchip').forEach(c => c.onclick = () => { const e = d.extras[Number(c.dataset.x)]; e.enabled = !e.enabled; rerender(); });
     $('tradeGo').onclick = () => {
       tradeBusy.add(id); tradeLive = ''; tradeStarted[id] = Date.now();
-      setTimeout(() => { if (tradeBusy.has(id) && Date.now() - tradeStarted[id] >= 180000) { tradeBusy.delete(id); status('La recherche trade n\'a pas abouti en 3 minutes. Ouvre un onglet pathofexile.com (il sert de relais au script), puis relance.', true); if (selected !== null) select(selected); } }, 180000);
+      setTimeout(() => { if (tradeBusy.has(id) && Date.now() - tradeStarted[id] >= 180000) { tradeBusy.delete(id); status('La recherche trade n\'a pas abouti en 3 minutes. Lance le pont Windows (ou l\'overlay), puis relance.', true); if (selected !== null) select(selected); } }, 180000);
       status('Recherche sur le trade…', false, true);
       if (overlayOK) {
         overlayEstimate(i, d).then(rec => {
           trades[id] = rec; tradeBusy.delete(id); lstShown[id] = 20;
           if (bridge) cmd('trade-store', rec);
-          try { const all = JSON.parse(localStorage.getItem('poeTrades') || '{}'); all[id] = rec; localStorage.setItem('poeTrades', JSON.stringify(all)); } catch {}
+          { const all = store.get('poeTrades', {}); all[id] = rec; store.set('poeTrades', all); }
           status(rec.estimate ? `Estimation trade terminée : ${rec.n} annonces.` : 'Aucune annonce trouvée sur le trade.', !rec.estimate);
           applyPrices();
         }).catch(e => { tradeBusy.delete(id); status(e.message, true); if (selected !== null) select(selected); });
