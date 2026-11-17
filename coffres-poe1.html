@@ -395,6 +395,25 @@
   .zplace b{color:var(--gold2);font-weight:600}
   .znote{margin-top:12px;color:var(--muted);font-size:11.5px;line-height:1.5}
   .gbox{width:min(900px,100%)}
+  .fbtns{display:flex;gap:6px;align-items:center}
+  .fhead > span:first-child{white-space:nowrap}
+  .wempty{padding:6px 8px 4px;font-size:12px;color:var(--muted);line-height:1.45}
+  .wempty button{margin-top:8px}
+  .wbox{width:min(720px,100%)}
+  .wlab{display:block;font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .wrow{display:flex;gap:8px}
+  .wrow .wq{flex:1}
+  .wres{margin-top:12px;max-height:min(460px,calc(100vh - 260px));overflow:auto;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .wit{display:grid;grid-template-columns:32px 1fr auto auto;align-items:center;gap:10px;padding:7px 12px;border-top:1px solid #ffffff08}
+  .wit:first-child{border-top:0}
+  .wit img{width:30px;height:30px;object-fit:contain}
+  .wit .wn{min-width:0}
+  .wit .wn b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wit .wn span{display:block;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wit .wp{font-variant-numeric:tabular-nums;color:var(--gold2);font-size:12.5px;text-align:right}
+  .wit .btn{padding:5px 11px;font-size:12px}
+  .wit .btn.on{border-color:var(--gold3);color:var(--gold2)}
+  .wnote{padding:16px 14px;color:var(--muted);font-size:12.5px;text-align:center}
   .gh-ico{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:12px}
   .gh-ico svg{width:30px;height:30px}
   .gbars{position:relative;padding:58px 12px 4px;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
@@ -594,6 +613,10 @@
         <div class="sect fhead"><span>★ Suivis <span id="followCount"></span></span><button class="linkbtn" id="followToggle" aria-expanded="true">Masquer</button></div>
         <div id="followList"></div>
       </div>
+      <div class="follow-sect" id="watchWrap" hidden>
+        <div class="sect fhead"><span>◎ Surveillés <span id="watchCount"></span></span><span class="fbtns"><button class="linkbtn" id="watchToggle" aria-expanded="true">Masquer</button><button class="gh-more" id="watchAdd" title="Surveiller le prix d'un objet que tu n'as pas" aria-label="Ajouter un objet à surveiller">+</button></span></div>
+        <div id="watchList"></div>
+      </div>
       <div class="sect">Onglets</div>
       <div id="tabList"></div>
     </aside>
@@ -631,6 +654,32 @@
 <div class="modal" id="zModal" hidden>
   <div class="mback" data-close></div>
   <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="zTitle" id="zBox"></div>
+</div>
+<div class="modal" id="wModal" hidden>
+  <div class="mback" data-close></div>
+  <div class="mbox wbox" role="dialog" aria-modal="true" aria-labelledby="wTitle">
+    <div class="zh">
+      <div class="zn"><h2 id="wTitle">Surveiller un objet</h2><div>Uniques, currency, threads, gemmes, cartes… tout ce que poe.ninja cote, même sans l'avoir dans ton coffre.</div></div>
+      <div class="zx"><button class="btn ghost zclose" id="wClose" data-close aria-label="Fermer">✕</button></div>
+    </div>
+    <div class="zb">
+      <div class="wsearch">
+        <label class="wlab" for="wQ">Nom de l'objet</label>
+        <div class="wrow">
+          <div class="search wq"><svg><use href="#i-search"/></svg><input id="wQ" type="search" autocomplete="off" placeholder="ex. Headhunter, Divine Orb, Thread…"></div>
+          <select id="wCat" aria-label="Catégorie">
+            <option value="">Toutes catégories</option>
+            <option value="cur">Currency et échange</option>
+            <option value="uni">Uniques</option>
+            <option value="gem">Gemmes</option>
+            <option value="div">Cartes divinatoires</option>
+            <option value="oth">Cartes, invitations, autres</option>
+          </select>
+        </div>
+      </div>
+      <div class="wres" id="wRes" role="list"></div>
+    </div>
+  </div>
 </div>
 <div class="modal" id="gModal" hidden>
   <div class="mback" data-close></div>
@@ -1301,18 +1350,21 @@
     return `<svg viewBox="0 0 ${W} ${H}"><path d="${d}" fill="none" stroke="${up ? 'var(--ok)' : 'var(--err)'}" stroke-width="1.5" stroke-linejoin="round"/></svg>`;
   }
 
-  function renderFollow() {
-    const keys = Object.keys(follow).sort((a, b) => (follow[b].addedAt || 0) - (follow[a].addedAt || 0));
-    $('followWrap').hidden = !keys.length || !data;
-    $('followList').innerHTML = keys.map(k => {
-      const f = follow[k], pr = P ? priceItem(f.probe) : null;
-      const rec = history[k] || [];
-      const repo = pr ? repoHistory(pr.hk) : null;
-      const pts = repo && repo.length >= 3 ? repo.filter(p => p[0] > Date.now() - 7 * 86400000) : rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
-      return `<div class="flw"><button class="unf" data-u="${esc(k)}" title="Ne plus suivre" aria-label="Ne plus suivre ${esc(f.label)}">✕</button><button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="">
+  function followRow(k) {
+    const f = follow[k], pr = P ? priceItem(f.probe) : null;
+    const rec = history[k] || [];
+    const repo = pr ? repoHistory(pr.hk) : null;
+    const pts = repo && repo.length >= 3 ? repo.filter(p => p[0] > Date.now() - 7 * 86400000) : rec.length >= 3 ? rec.map(p => [p[0], p[1]]) : ninjaSeries(pr);
+    return `<div class="flw"><button class="unf" data-u="${esc(k)}" title="${f.watch ? 'Ne plus surveiller' : 'Ne plus suivre'}" aria-label="${f.watch ? 'Ne plus surveiller' : 'Ne plus suivre'} ${esc(f.label)}">✕</button><button class="fl" data-k="${esc(k)}" title="${esc(f.label)}${f.sub ? ' — ' + esc(f.sub) : ''}"><img src="${esc(f.icon)}" alt="" onerror="this.style.visibility='hidden'">
         <span class="flt"><span class="nm r${f.rarity}">${esc(f.label)}</span><span class="fp">${pr ? esc(fmt(pr.unit)) : '—'} ${chgHtml(trend6(pr))}</span></span>${miniSpark(pts)}</button></div>`;
-    }).join('');
+  }
+  function renderFollow() {
+    const all = Object.keys(follow).sort((a, b) => (follow[b].addedAt || 0) - (follow[a].addedAt || 0));
+    const keys = all.filter(k => !follow[k].watch), wkeys = all.filter(k => follow[k].watch);
+    $('followWrap').hidden = !keys.length || !data;
+    $('followList').innerHTML = keys.map(followRow).join('');
     $('followCount').textContent = `(${keys.length})`;
+    renderWatch(wkeys);
     const hidden = Number(store.get('poeFollowHidden', 0)) === 1;
     $('followList').hidden = hidden;
     $('followToggle').textContent = hidden ? 'Afficher' : 'Masquer';
@@ -1331,6 +1383,138 @@
       if (it) focusItem(it.idx); else showFollowed(k);
     });
   }
+
+  // =================== Surveillés : objets suivis sans les posséder ===================
+  function renderWatch(wkeys) {
+    $('watchWrap').hidden = !data;
+    $('watchCount').textContent = wkeys.length ? `(${wkeys.length})` : '';
+    const hidden = Number(store.get('poeWatchHidden', 0)) === 1;
+    $('watchList').hidden = hidden;
+    $('watchToggle').hidden = !wkeys.length;
+    $('watchToggle').textContent = hidden ? 'Afficher' : 'Masquer';
+    $('watchToggle').setAttribute('aria-expanded', String(!hidden));
+    $('watchList').innerHTML = wkeys.length ? wkeys.map(followRow).join('')
+      : `<div class="wempty">Suis le prix d'objets que tu n'as pas : uniques de ton build, threads, currency…<br><button class="btn" id="watchAdd2">+ Ajouter un objet</button></div>`;
+    if ($('watchAdd2')) $('watchAdd2').onclick = e => openWatch(e.currentTarget);
+    $('watchList').querySelectorAll('.unf').forEach(b => b.onclick = e => {
+      e.stopPropagation();
+      const f = follow[b.dataset.u];
+      delete follow[b.dataset.u];
+      saveTracking(); renderFollow(); render();
+      if (f) status(`${f.label} n'est plus surveillé`);
+    });
+    $('watchList').querySelectorAll('.fl').forEach(b => b.onclick = () => openZoom(ghostOf(b.dataset.k), b));
+  }
+  $('watchAdd').onclick = e => openWatch(e.currentTarget);
+  $('watchToggle').onclick = () => { store.set('poeWatchHidden', $('watchList').hidden ? 0 : 1); renderFollow(); };
+  // objet « fantôme » : un suivi sans exemplaire dans le coffre, coté par son modèle (probe)
+  function ghostOf(k) {
+    const f = follow[k];
+    return { ...f.probe, idx: -1, key: k, label: f.label, raw: { icon: f.icon, properties: [] }, groups: [], tabN: '', ilvl: 0, unid: false, ghost: true, watch: !!f.watch };
+  }
+  function watchToggle(probe, label, icon, rarity) {
+    const k = itemKey(probe);
+    if (follow[k]) { delete follow[k]; status(`${label} n'est plus surveillé`); }
+    else {
+      follow[k] = { label, sub: probe.name ? probe.type : '', icon, rarity, probe: probeOf(probe), addedAt: Date.now(), watch: 1 };
+      recordPoint(k);
+      status(`${label} ajouté aux surveillés`);
+    }
+    saveTracking(); renderFollow(); render();
+    ensureRecent();
+  }
+
+  // ---- fenêtre d'ajout
+  let wFrom = null, wIcons = null, wIconsReq = null, wCands = null, wCandsAt = 0;
+  const POECDN = 'https://web.poecdn.com';
+  function loadIcons() {
+    if (wIcons || !ONLINE || !repoPricesFile) return Promise.resolve();
+    if (!wIconsReq) wIconsReq = getJson(`data/icons/${repoPricesFile}.json`).then(j => { wIcons = j || {}; });
+    return wIconsReq;
+  }
+  const iconOf = name => wIcons && wIcons[name] ? (/^https?:/.test(wIcons[name]) ? wIcons[name] : POECDN + wIcons[name]) : '';
+  // tous les objets cotés par poe.ninja, sous forme de modèles compatibles avec priceItem()
+  function candidates() {
+    if (wCands && wCandsAt === prices.fetchedAt) return wCands;
+    const out = [], seen = new Set();
+    const push = c => { const k = itemKey(c.probe); if (seen.has(k)) return; seen.add(k); c.key = k; c.lc = c.label.toLowerCase(); out.push(c); };
+    for (const sec of ['exchange', 'currency']) for (const [t, lines] of Object.entries(prices[sec] || {})) for (const l of lines) {
+      if (!l.name) continue;
+      const div = t === 'DivinationCard';
+      push({ cat: div ? 'div' : 'cur', t, label: l.name, sub: CAT_FR[t] || t, rarity: div ? 6 : 5,
+        probe: { name: '', type: l.name, base: l.name, rarity: div ? 6 : 5, links: 0 } });
+    }
+    for (const [t, lines] of Object.entries(prices.items || {})) for (const l of lines) {
+      if (!l.name) continue;
+      if (/^Unique/.test(t)) {
+        const r = t === 'UniqueRelic' ? 9 : 3, links = l.links >= 5 ? l.links : 0;
+        push({ cat: 'uni', t, label: l.name, sub: [l.baseType, links ? `${links} liens` : '', CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: r,
+          probe: { name: l.name, type: l.baseType || l.name, base: l.baseType || l.name, rarity: r, links } });
+      } else if (t === 'SkillGem') {
+        push({ cat: 'gem', t, label: l.name, sub: `niveau ${l.gemLevel || 1}${l.gemQuality ? ` · ${l.gemQuality} % qualité` : ''}${l.corrupted ? ' · corrompue' : ''}`, rarity: 4,
+          probe: { name: '', type: l.name, base: l.name, rarity: 4, links: 0, gemLevel: l.gemLevel || 1, gemQuality: l.gemQuality || 0, corrupted: !!l.corrupted } });
+      } else {
+        push({ cat: 'oth', t, label: l.name, sub: [l.mapTier ? `palier ${l.mapTier}` : '', l.variant, CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: 0,
+          probe: { name: '', type: l.name, base: l.name, rarity: 0, links: 0, mapTier: l.mapTier } });
+      }
+    }
+    wCands = out; wCandsAt = prices.fetchedAt;
+    return out;
+  }
+  const CAT_FR = { Currency: 'Currency', Fragment: 'Fragment', DivinationCard: 'Carte divinatoire', Scarab: 'Scarabée', Thread: 'Thread', Fossil: 'Fossile', Resonator: 'Résonateur', Essence: 'Essence', Oil: 'Huile', Omen: 'Présage', Tattoo: 'Tatouage', Runegraft: 'Runegraft', DeliriumOrb: 'Orbe de délire', Artifact: 'Artefact', Astrolabe: 'Astrolabe', AllflameEmber: 'Braise', DjinnCoin: 'Pièce de djinn', Ducat: 'Ducat', EnshroudingCrystal: 'Cristal', UniqueWeapon: 'Arme unique', UniqueArmour: 'Armure unique', UniqueAccessory: 'Bijou unique', UniqueFlask: 'Flasque unique', UniqueJewel: 'Joyau unique', UniqueTincture: 'Teinture unique', UniqueRelic: 'Relique', UniqueMap: 'Carte unique', Map: 'Carte', BlightedMap: 'Carte infestée', BlightRavagedMap: 'Carte ravagée', ValdoMap: 'Carte de Valdo', Invitation: 'Invitation', Memory: 'Souvenir', Incubator: 'Incubateur', Vial: 'Fiole', Wombgift: 'Wombgift', Corpse: 'Cadavre', Viscera: 'Viscère' };
+  function openWatch(from) {
+    if (!prices || !P) { status('Les prix poe.ninja ne sont pas encore chargés.', true); return; }
+    wFrom = from || null;
+    $('wModal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    $('wQ').value = '';
+    renderWatchRes();
+    loadIcons().then(() => { if (!$('wModal').hidden) renderWatchRes(); });
+    setTimeout(() => $('wQ').focus(), 0);
+  }
+  function closeWatch() {
+    if ($('wModal').hidden) return;
+    $('wModal').hidden = true;
+    document.body.style.overflow = '';
+    if (wFrom && document.contains(wFrom)) wFrom.focus();
+  }
+  function renderWatchRes() {
+    const q = $('wQ').value.trim().toLowerCase(), cat = $('wCat').value;
+    if (q.length < 2) { $('wRes').innerHTML = `<div class="wnote">Tape au moins 2 lettres du nom (en anglais, comme sur poe.ninja).</div>`; return; }
+    const words = q.split(/\s+/);
+    const hits = [];
+    for (const c of candidates()) {
+      if (cat && c.cat !== cat) continue;
+      if (!words.every(w => c.lc.includes(w))) continue;
+      const pr = priceItem(c.probe);
+      if (!pr) continue;
+      hits.push({ c, pr, rank: c.lc === q ? 0 : c.lc.startsWith(q) ? 1 : 2 });
+    }
+    hits.sort((a, b) => a.rank - b.rank || b.pr.unit - a.pr.unit);
+    const shown = hits.slice(0, 60);
+    $('wRes').innerHTML = shown.length ? shown.map(({ c, pr }, n) => {
+      const on = !!follow[c.key];
+      const ic = iconOf(c.label);
+      return `<div class="wit" role="listitem">${ic ? `<img src="${esc(ic)}" alt="" onerror="this.style.visibility='hidden'">` : '<span></span>'}<span class="wn"><b class="r${c.rarity}">${esc(c.label)}</b><span>${esc(c.sub)}</span></span><span class="wp">${esc(fmt(pr.unit))}</span><button class="btn${on ? ' on' : ''}" data-w="${n}" aria-pressed="${on}">${on ? '✓ Surveillé' : 'Surveiller'}</button></div>`;
+    }).join('') + (hits.length > 60 ? `<div class="wnote">${hits.length - 60} autres résultats : précise ta recherche.</div>` : '')
+      : `<div class="wnote">Aucun objet coté ne correspond.</div>`;
+    $('wRes').querySelectorAll('[data-w]').forEach(b => b.onclick = () => {
+      const { c } = shown[Number(b.dataset.w)];
+      watchToggle(c.probe, c.label, iconOf(c.label), c.rarity);
+      renderWatchRes();
+      const nb = $('wRes').querySelector(`[data-w="${b.dataset.w}"]`); if (nb) nb.focus();
+    });
+  }
+  $('wQ').oninput = renderWatchRes;
+  $('wCat').onchange = renderWatchRes;
+  $('wModal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeWatch(); });
+  $('wModal').addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const f = [...$('wModal').querySelectorAll('button,input,select')].filter(x => !x.disabled && x.offsetParent);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
   function showFollowed(k) {
     const f = follow[k];
     selected = null;
@@ -2249,12 +2433,14 @@
 
   // =================== Fenêtre détaillée d'un prix ===================
   let zoomIdx = null, zoomFrom = null, zoomRange = 'league';
+  // idx : index d'un objet du coffre, ou objet fantôme (surveillé) recoté à chaque affichage
+  const zoomItem = () => typeof zoomIdx === 'number' ? items[zoomIdx] : { ...zoomIdx, price: P ? priceItem(zoomIdx) : null };
   function openZoom(idx, from) {
     zoomIdx = idx; zoomFrom = from || null;
     $('zModal').hidden = false;
     document.body.style.overflow = 'hidden';
     renderZoom();
-    const hk = items[idx].price && items[idx].price.hk;
+    const it = zoomItem(), hk = it && it.price && it.price.hk;
     if (hk && repoPricesFile) Promise.all([loadShard(shardOf(hk), false), loadShard(shardOf(hk), true)]).then(() => { if (zoomIdx === idx) renderZoom(); });
     setTimeout(() => $('zClose') && $('zClose').focus(), 0);
   }
@@ -2275,8 +2461,8 @@
 
   function renderZoom() {
     if (zoomIdx === null) return;
-    const i = items[zoomIdx], pr = i.price;
-    if (!pr) { closeZoom(); return; }
+    const i = zoomItem(), pr = i && i.price;
+    if (!pr) { if (i && i.ghost) { $('zBox').innerHTML = `<div class="zh"><div class="zn"><h2 id="zTitle">${esc(i.label)}</h2><div>Plus coté sur poe.ninja pour cette ligue.</div></div><div class="zx"><button class="btn ghost zclose" id="zClose" data-close aria-label="Fermer">✕</button></div></div>`; return; } closeZoom(); return; }
     const pk = pkey(i), hk = pr.hk, now = Date.now(), H = 3600000;
     const full = hk ? shardSeries(hk, false) : null, rec = hk ? shardSeries(hk, true) : null;
     const loading = hk && repoPricesFile && (!hist[`${repoPricesFile}/${shardOf(hk)}`]);
@@ -2313,13 +2499,14 @@
     const svg = pts && pts.length >= 2 ? chartHtml([{ pts, cls: 'l1' }], 760, 230) : '';
     const big = P && P.divine && pr.unit >= P.divine;
     const followed = !!follow[itemKey(i)];
+    const fLabel = i.ghost ? (followed ? '◎ Surveillé' : '◎ Surveiller') : (followed ? '★ Suivi' : '★ Suivre');
     const nUrl = ninjaUrl(pr);
     $('zBox').innerHTML = `
       <div class="zh">
         <div class="zi"><img src="${esc(i.raw.icon)}" alt=""></div>
         <div class="zn"><h2 id="zTitle" class="r${i.rarity}">${esc(i.name || i.type)}</h2><div>${i.name ? `${esc(i.type)} · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''}${pr.listings ? ` · ${nf(pr.listings, 0)} annonces sur poe.ninja` : ''}</div></div>
         <div class="zx">
-          <button class="btn ghost" id="zFollow" title="${followed ? 'Ne plus suivre' : 'Suivre le prix'}">★ ${followed ? 'Suivi' : 'Suivre'}</button>
+          <button class="btn ghost" id="zFollow" title="${followed ? 'Arrêter le suivi' : 'Suivre le prix'}">${fLabel}</button>
           <a class="btn ghost" id="zTrade" href="#" title="Recherche sur le site de trade"><svg><use href="#i-ext"/></svg>Trade</a>
           ${nUrl ? `<a class="btn ghost" href="${esc(nUrl)}" target="_blank" rel="noopener"><svg><use href="#i-ext"/></svg>poe.ninja</a>` : ''}
           <button class="btn ghost zclose" id="zClose" data-close aria-label="Fermer">✕</button>
@@ -2328,9 +2515,9 @@
       <div class="zb">
         <div class="zgrid">
           ${tile('Prix unitaire', `${pr.approx ? '~' : ''}${money(pr.unit)}`, big ? `${fmtC(pr.unit)} c` : `relevé ${prices ? ago(prices.fetchedAt) : ''}`, 'gold')}
-          ${tile('Valeur détenue', money(held), totalValue ? `${nf(held / totalValue * 100, held / totalValue < 0.1 ? 1 : 0)} % du coffre` : '', 'gold')}
-          ${tile('Quantité', nf(qty, 0), `${byTab.size} onglet${byTab.size > 1 ? 's' : ''}`)}
-          ${tile('Quantité max', nf(qMax[1], 0), qMax[0] ? `le ${dshort(qMax[0])}` : 'suivi des quantités en cours')}
+          ${tile('Valeur détenue', money(held), !qty ? 'pas dans ton coffre' : totalValue ? `${nf(held / totalValue * 100, held / totalValue < 0.1 ? 1 : 0)} % du coffre` : '', 'gold')}
+          ${tile('Quantité', nf(qty, 0), qty ? `${byTab.size} onglet${byTab.size > 1 ? 's' : ''}` : 'aucun exemplaire')}
+          ${tile('Quantité max', nf(qMax[1], 0), qMax[0] ? `le ${dshort(qMax[0])}` : qMax[1] ? 'suivi des quantités en cours' : 'jamais possédé depuis le suivi')}
           ${chgTile('Variation 6 h', c6, short ? '' : 'pas encore d\'historique')}
           ${chgTile('Variation 24 h', c24, '')}
           ${chgTile('Variation 7 j', c7, c7 !== null && !changeOver(short, 7 * 24 * H) ? 'poe.ninja' : '')}
@@ -2346,12 +2533,12 @@
           ? `<div class="cv" id="zCv" data-unit="0"><div class="cv-v">${curImg(big ? 'divine' : 'chaos', 'cur sm')}${esc(fmt(pr.unit))}</div><div class="cv-s">${esc(pr.src)} ${chgHtml(trend6(pr))}</div></div>${svg}`
           : `<div class="zempty">${loading ? 'Chargement de l\'historique…' : hk ? 'Pas encore assez de relevés pour cette période.' : 'Pas d\'historique pour cet objet (prix de référence).'}</div>`}</div>
         <div class="zsec"><span>Dans ton coffre</span></div>
-        <div class="zplaces">${[...byTab].map(([n, q]) => `<span class="zplace">${esc(n)} <b>${nf(q, 0)}</b></span>`).join('')}</div>
+        <div class="zplaces">${byTab.size ? [...byTab].map(([n, q]) => `<span class="zplace">${esc(n)} <b>${nf(q, 0)}</b></span>`).join('') : '<span class="zplace">Aucun exemplaire pour l\'instant.</span>'}</div>
         <div class="znote">${firstSeen ? `Présent dans ton coffre depuis le ${dshort(firstSeen[0])}. ` : ''}Historique publié par le dépôt : relevés toutes les 30 min sur 7 jours, puis toutes les 2 h et 6 h.</div>
       </div>`;
     wireChart('zChart', 'zCv');
     $('zBox').querySelectorAll('[data-zr]').forEach(b => b.onclick = () => { zoomRange = b.dataset.zr; renderZoom(); });
-    $('zFollow').onclick = () => { toggleFollow(i); renderZoom(); };
+    $('zFollow').onclick = () => { if (i.ghost) watchToggle(zoomIdx, i.label, i.raw.icon, i.rarity); else toggleFollow(i); renderZoom(); };
     $('zTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
   }
 
@@ -2375,7 +2562,7 @@
   };
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { if (!$('gModal').hidden) { closeGains(); return; } if (zoomIdx !== null) { closeZoom(); return; } $('detail').classList.remove('show'); }
+    if (e.key === 'Escape') { if (!$('wModal').hidden) { closeWatch(); return; } if (!$('gModal').hidden) { closeGains(); return; } if (zoomIdx !== null) { closeZoom(); return; } $('detail').classList.remove('show'); }
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('q').focus(); }
   });
 })();

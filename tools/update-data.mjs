@@ -44,6 +44,10 @@ async function getJson(url, tries = 3) {
 async function fetchLeague(league, prev = null) {
   const q = t => `?league=${encodeURIComponent(league)}&type=${t}`;
   const out = { league, fetchedAt: Date.now(), exchange: {}, currency: {}, items: {}, core: null, tradeIds: {}, stale: [] };
+  // icônes par nom d'objet, publiées à part (icons/<ligue>.json) : chemin relatif à web.poecdn.com
+  const icons = {};
+  const icon = (name, url) => { if (name && url && !icons[name]) icons[name] = String(url).replace(/^https:\/\/web\.poecdn\.com/, ''); };
+  Object.defineProperty(out, 'icons', { value: icons, enumerable: false });
   const fallback = (sec, t) => {
     const old = prev && prev[sec] && prev[sec][t];
     if (old && old.length) { out[sec][t] = old; out.stale.push(`${sec}|${t}`); console.warn(`${league} : ${sec}/${t} indisponible, anciennes valeurs conservées`); }
@@ -52,6 +56,7 @@ async function fetchLeague(league, prev = null) {
     const j = await getJson(`${NINJA}/exchange/current/overview${q(t)}`);
     if (j) {
       const names = new Map((j.items || []).map(i => [i.id, i.name]));
+      for (const i of j.items || []) icon(i.name, i.image);
       out.exchange[t] = (j.lines || []).map(l => ({ k: `x|${l.id}`, name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
       if (t === 'Currency' && j.core) out.core = { primary: j.core.primary, rates: j.core.rates };
     }
@@ -63,6 +68,7 @@ async function fetchLeague(league, prev = null) {
     if (j) {
       out.currency[t] = (j.lines || []).map(l => ({ k: `c|${l.detailsId}`, name: l.currencyTypeName, v: l.chaosEquivalent, sp: l.receiveSparkLine?.data }));
       const tid = new Map((j.currencyDetails || []).map(d => [d.name, d.tradeId]));
+      for (const d of j.currencyDetails || []) icon(d.name, d.icon);
       for (const l of j.lines || []) { const t2 = tid.get(l.currencyTypeName); if (t2 && l.chaosEquivalent > 0) out.tradeIds[t2] = l.chaosEquivalent; }
     }
     if (!out.currency[t] || !out.currency[t].length) fallback('currency', t);
@@ -71,6 +77,7 @@ async function fetchLeague(league, prev = null) {
   for (const t of ITEM_TYPES) {
     const j = await getJson(`${NINJA}/stash/current/item/overview${q(t)}`);
     if (j) {
+      for (const l of j.lines || []) icon(l.name, l.icon);
       out.items[t] = (j.lines || []).map(l => ({
         k: `i|${t}|${l.detailsId}|${l.links || 0}`,
         name: l.name, baseType: l.baseType, variant: l.variant, links: l.links || 0,
@@ -257,12 +264,21 @@ async function main() {
     const nLines = count('items') + count('exchange');
     if (nLines < 50) { console.warn(`${lg.id} : trop peu de lignes fraîches (${nLines}), prix et historique laissés tels quels`); continue; }
     await writeFile(pricesFile, JSON.stringify(p));
+    // icônes : fusion avec le fichier précédent (les catégories reprises n'en apportent pas de nouvelles)
+    const iconsFile = join(OUT, 'icons', `${slug(lg.id)}.json`);
+    let oldIcons = {};
+    if (existsSync(iconsFile)) { try { oldIcons = JSON.parse(await readFile(iconsFile, 'utf8')); } catch {} }
+    await mkdir(join(OUT, 'icons'), { recursive: true });
+    await writeFile(iconsFile, JSON.stringify({ ...oldIcons, ...p.icons }));
     const st = await updateHistory(join(OUT, 'history', slug(lg.id)), p, join(OUT, 'history-recent', slug(lg.id)));
     console.log(`${lg.id} : ${nLines} lignes${p.stale.length ? ` (${p.stale.length} catégories reprises)` : ''}, historique ${st.series} séries / ${st.points} points / ${(st.bytes / 1e6).toFixed(1)} Mo, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   // les ligues terminées disparaissent de poe.ninja : on retire leurs fichiers
   for (const base of ['history', 'history-recent']) {
     if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d)) await rm(join(OUT, base, d), { recursive: true });
+  }
+  for (const base of ['prices', 'icons']) {
+    if (existsSync(join(OUT, base))) for (const f of await readdir(join(OUT, base))) if (!keepDirs.has(f.replace(/\.json$/, ''))) await rm(join(OUT, base, f));
   }
   await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
   const nu = await updateUniques(OUT);
