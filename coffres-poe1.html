@@ -399,11 +399,12 @@
   .fhead > span:first-child{white-space:nowrap}
   .wempty{padding:6px 8px 4px;font-size:12px;color:var(--muted);line-height:1.45}
   .wempty button{margin-top:8px}
-  .wbox{width:min(720px,100%)}
+  .wbox{width:min(720px,100%);height:min(640px,calc(100vh - 48px));display:flex;flex-direction:column;overflow:hidden}
+  .wbox .zb{flex:1;min-height:0;display:flex;flex-direction:column}
   .wlab{display:block;font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
   .wrow{display:flex;gap:8px}
   .wrow .wq{flex:1}
-  .wres{margin-top:12px;max-height:min(460px,calc(100vh - 260px));overflow:auto;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .wres{flex:1;min-height:0;margin-top:12px;overflow:auto;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
   .wit{display:grid;grid-template-columns:32px 1fr auto auto;align-items:center;gap:10px;padding:7px 12px;border-top:1px solid #ffffff08}
   .wit:first-child{border-top:0}
   .wit img{width:30px;height:30px;object-fit:contain}
