@@ -82,7 +82,9 @@
   .kpi.hero .cur{width:34px;height:34px}
   .kpi.gain .gh-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
   .kpi.gain .gh-head .lb{margin:0}
-  .gh-per{font-size:10.5px;color:var(--muted)}
+  .gh-per{font-size:10.5px;color:var(--muted);margin-left:auto;margin-right:8px}
+  .gh-more{width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line2);border-radius:6px;background:#15110c;color:var(--text2);font:600 15px/1 var(--body);cursor:pointer;transition:all .12s}
+  .gh-more:hover,.gh-more:focus-visible{color:var(--gold2);border-color:var(--gold3);background:#2a2016;outline:none}
   .kpi.gain .vl.up{color:var(--ok)} .kpi.gain .vl.down{color:var(--err)}
   .gh{position:relative;display:flex;align-items:flex-end;gap:2px;height:34px;margin-top:8px}
   .gh i{flex:1;min-width:2px;border-radius:2px 2px 0 0;background:#2a241b;transition:filter .1s}
@@ -400,6 +402,40 @@
   .zplace{display:inline-flex;gap:6px;align-items:center;padding:4px 10px;border:1px solid var(--line2);border-radius:999px;font-size:12px;color:var(--text2)}
   .zplace b{color:var(--gold2);font-weight:600}
   .znote{margin-top:12px;color:var(--muted);font-size:11.5px;line-height:1.5}
+  .gbox{width:min(900px,100%)}
+  .gh-ico{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:12px;background:radial-gradient(circle,#c8a35a22,transparent 70%)}
+  .gh-ico svg{width:30px;height:30px}
+  .gbars{position:relative;padding:58px 12px 4px;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .gbars .cv{left:12px;right:12px;top:10px}
+  .gbars .cv .cv-v.g-up{color:var(--ok)} .gbars .cv .cv-v.g-dn{color:var(--err)}
+  .gbars svg{display:block;width:100%;height:auto}
+  .gbars rect.b{transition:opacity .1s} .gbars rect.b.p{fill:#5f8f4e} .gbars rect.b.n{fill:#9a4a3f} .gbars rect.b.z{fill:#2a241b}
+  .gbars rect.hit{fill:transparent;cursor:crosshair} .gbars rect.hit.on{fill:#ffffff0d}
+  .gbars line.z0{stroke:#3e3324} .gbars path.cum{fill:none;stroke:var(--gold);stroke-width:1.4;opacity:.75}
+  .gbars text{fill:var(--muted);font-size:10px}
+  .glegend{display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--muted)}
+  .glegend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  .gcols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .glist{border:1px solid var(--line2);border-radius:10px;background:#0d0b09;overflow:hidden}
+  .glist h3{margin:0;padding:9px 12px;font:600 10.5px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line2)}
+  .grow{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:12.5px;border-top:1px solid #ffffff08}
+  .grow:first-of-type{border-top:0}
+  .grow img{width:22px;height:22px;object-fit:contain;flex:none}
+  .grow .gn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text2)}
+  .grow .gq{color:var(--muted);font-variant-numeric:tabular-nums;font-size:11.5px}
+  .grow .gv{font-variant-numeric:tabular-nums;font-weight:600;min-width:72px;text-align:right}
+  .g-up{color:var(--ok)} .g-dn{color:var(--err)}
+  .gempty{padding:14px 12px;color:var(--muted);font-size:12px}
+  .gtable{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+  .gtable th{position:sticky;top:0;background:#16120d;text-align:left;font:600 10px/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line2)}
+  .gtable td{padding:7px 12px;border-top:1px solid #ffffff08;color:var(--text2);white-space:nowrap}
+  .gtable td.r,.gtable th.r{text-align:right}
+  .gtable td.g-up{color:var(--ok)} .gtable td.g-dn{color:var(--err)}
+  .gtable td.gt{white-space:normal;color:var(--muted);font-size:11.5px}
+  .gtable tr.off td{color:#6d6455}
+  .gscroll{max-height:300px;overflow:auto;border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .gtog{display:inline-flex;align-items:center;gap:6px;font:500 11px/1 var(--body);letter-spacing:0;text-transform:none;color:var(--muted);cursor:pointer}
+  @media (max-width:700px){.gcols{grid-template-columns:1fr}}
   @media (max-width:700px){.zgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
   /* ---------- Trésor ---------- */
@@ -539,7 +575,7 @@
       <div class="sb" id="kTradeSub">aucune estimation</div>
     </div>
     <div class="kpi gain">
-      <div class="gh-head"><span class="lb">Gain / h</span><span class="gh-per" id="ghPer">3 dernières h</span></div>
+      <div class="gh-head"><span class="lb">Gain / h</span><span class="gh-per" id="ghPer">3 dernières h</span><button class="gh-more" id="ghMore" title="Détail des gains" aria-label="Détail des gains">+</button></div>
       <div class="vl" id="kGain">—</div>
       <div class="sb" id="kGainSub">calcul au 2ᵉ scan</div>
       <div class="gh" id="ghChart"></div>
@@ -603,6 +639,10 @@
 <div class="modal" id="zModal" hidden>
   <div class="mback" data-close></div>
   <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="zTitle" id="zBox"></div>
+</div>
+<div class="modal" id="gModal" hidden>
+  <div class="mback" data-close></div>
+  <div class="mbox gbox" role="dialog" aria-modal="true" aria-labelledby="gTitle" id="gBox"></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
 
@@ -1365,13 +1405,14 @@
   const pkey = i => i.price.hk || `n|${i.type}`;
   // contenu d'un scan : identifiant de l'objet → [clé de prix, quantité, valeur unitaire]
   function scanContent() {
-    const ids = {};
+    const ids = {}, icons = {};
     for (const i of items) {
       const id = i.raw.id;
       if (!id) continue;
-      ids[id] = [i.price ? pkey(i) : '', i.stack, i.price ? Math.round(i.price.unit * 100) / 100 : i.trade ? Math.round(i.trade.estimate) : 0];
+      ids[id] = [i.price ? pkey(i) : '', i.stack, i.price ? Math.round(i.price.unit * 100) / 100 : i.trade ? Math.round(i.trade.estimate) : 0, i.name || i.type];
+      if (i.raw.icon) icons[i.name || i.type] = i.raw.icon;
     }
-    return { ids };
+    return { ids, icons };
   }
   function qtyLoad() { try { return JSON.parse(localStorage.getItem('poeQtyHist') || '{}'); } catch { return {}; } }
   function processFarm() {
@@ -1395,21 +1436,32 @@
     if (f.last && f.last.ids && f.tabsSig === tabsSig) {
       const unitNow = new Map();
       for (const i of items) if (i.price) unitNow.set(pkey(i), i.price.unit);
-      let d = 0;
-      for (const [id, [, n, u]] of Object.entries(cur.ids)) {
+      let d = 0, nch = 0;
+      const by = {};
+      const add = (name, dq, dv) => { nch++; d += dv; if (!dv) return; const b = by[name] || (by[name] = [0, 0]); b[0] += dq; b[1] += dv; };
+      for (const [id, [pk, n, u, name]] of Object.entries(cur.ids)) {
         const o = f.last.ids[id];
-        if (!o) d += n * u;                       // objet arrivé
-        else if (n !== o[1]) d += (n - o[1]) * u; // pile modifiée
+        if (!o) add(name || pk || '?', n, n * u);                        // objet arrivé
+        else if (n !== o[1]) add(name || pk || '?', n - o[1], (n - o[1]) * u); // pile modifiée
       }
-      for (const [id, [pk, n, u]] of Object.entries(f.last.ids)) {
-        if (!cur.ids[id]) d -= n * (pk && unitNow.has(pk) ? unitNow.get(pk) : u); // objet parti
+      for (const [id, [pk, n, u, name]] of Object.entries(f.last.ids)) {
+        if (!cur.ids[id]) add(name || pk || '?', -n, -n * (pk && unitNow.has(pk) ? unitNow.get(pk) : u)); // objet parti
       }
-      f.log.push([t, Math.round(d), Math.round((t - f.lastT) / 60000)]);
+      // détail : les 12 objets qui pèsent le plus dans la variation
+      const top = Object.entries(by).filter(([, b]) => Math.round(b[1])).sort((a, b) => Math.abs(b[1][1]) - Math.abs(a[1][1])).slice(0, 12);
+      const det = Object.fromEntries(top.map(([nm, b]) => [nm, [b[0], Math.round(b[1])]]));
+      f.icons = f.icons || {};
+      for (const [nm] of top) if (cur.icons[nm]) f.icons[nm] = cur.icons[nm];
+      const ik = Object.keys(f.icons);
+      if (ik.length > 600) for (const x of ik.slice(0, ik.length - 600)) delete f.icons[x];
+      f.log.push([t, Math.round(d), Math.round((t - f.lastT) / 60000), nch, det]);
       if (f.log.length > 5000) f.log.splice(0, f.log.length - 5000);
     }
-    f.last = cur; f.lastT = t; f.tabsSig = tabsSig;
+    f.last = { ids: cur.ids }; f.lastT = t; f.first = f.first || t; f.tabsSig = tabsSig;
     farmSave(all);
   }
+  // heure jouée : au moins un objet ajouté, retiré ou dont la pile a changé
+  const played = e => e[3] !== undefined ? e[3] > 0 : e[1] !== 0;
   function drawGain() {
     const k = vhKey(), f = k && farmLoad()[k];
     const log = (f && f.log) || [];
@@ -1425,7 +1477,7 @@
       el.className = `vl ${perH > 0 ? 'up' : perH < 0 ? 'down' : ''}`;
       const day = log.filter(e => e[0] >= now - 24 * H);
       const g24 = day.reduce((a, e) => a + e[1], 0);
-      const active = new Set(day.filter(e => e[1] !== 0).map(e => Math.floor(e[0] / H))).size;
+      const active = new Set(day.filter(played).map(e => Math.floor(e[0] / H))).size;
       $('kGainSub').textContent = `${g24 >= 0 ? '+' : '−'}${fmt(Math.abs(g24)) || '0 c'} sur 24 h · ${active} h active${active > 1 ? 's' : ''}`;
     }
     // barres : gain par heure sur les 24 dernières heures
@@ -1438,6 +1490,190 @@
       const lbl = `${new Date(b.t).toLocaleTimeString('fr-FR', { hour: '2-digit' })}–${new Date(b.t + H).toLocaleTimeString('fr-FR', { hour: '2-digit' })} : ${b.n ? `${b.v >= 0 ? '+' : '−'}${fmt(Math.abs(b.v)) || '0 c'}` : 'pas de scan'}`;
       return `<i class="${b.v > 0 ? 'p' : b.v < 0 ? 'n' : ''}" style="height:${h}%;${hasNeg ? (b.v < 0 ? 'align-self:flex-start;margin-top:17px' : 'margin-bottom:17px') : ''}" title="${esc(lbl)}"></i>`;
     }).join('') + (hasNeg ? '<span class="gz" style="top:50%"></span>' : '');
+    if (!$('gModal').hidden) renderGains();
+  }
+
+  // =================== Fenêtre détaillée des gains ===================
+  let gRange = '24h', gAllHours = false;
+  try { gRange = localStorage.getItem('poeGainRange') || '24h'; } catch {}
+  const sgn = v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(v)) || '0 c'}`;
+  const gcls = v => v > 0 ? 'g-up' : v < 0 ? 'g-dn' : '';
+  const durFmt = ms => { const m = Math.round(ms / 60000); return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${String(m % 60).padStart(2, '0')}` : ''}`; };
+  const hFmt = t => new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const dFmt = t => new Date(t).toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' });
+  const slotLbl = (t, w) => w >= 86400000 ? dFmt(t) : `${dFmt(t)} · ${new Date(t).getHours()} h – ${new Date(t + w).getHours()} h`;
+  // sign : 1 = seulement les hausses, -1 = seulement les baisses, 0 = net
+  function mergeDet(entries, sign = 0) {
+    const m = new Map();
+    for (const e of entries) for (const [nm, [q, v]] of Object.entries(e[4] || {})) {
+      if (sign && Math.sign(v) !== sign) continue;
+      const x = m.get(nm) || [0, 0]; x[0] += q; x[1] += v; m.set(nm, x);
+    }
+    return m;
+  }
+  // sessions de jeu : suites de scans avec changement, coupées après 1 h sans changement
+  function sessionsOf(log) {
+    const out = [];
+    let cur = null;
+    for (const e of log) {
+      if (played(e)) {
+        if (cur && e[0] - cur.end > 3600000) { out.push(cur); cur = null; }
+        if (!cur) cur = { start: e[0] - Math.min(e[2] || 15, 60) * 60000, end: e[0], gain: 0, scans: 0 };
+        cur.end = e[0];
+      }
+      if (cur && e[0] <= cur.end + 3600000) { cur.gain += e[1]; cur.scans++; }
+    }
+    if (cur) out.push(cur);
+    return out;
+  }
+  function openGains(from) {
+    gFrom = from || null;
+    $('gModal').hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderGains();
+    setTimeout(() => $('gClose') && $('gClose').focus(), 0);
+  }
+  let gFrom = null;
+  function closeGains() {
+    if ($('gModal').hidden) return;
+    $('gModal').hidden = true;
+    document.body.style.overflow = '';
+    if (gFrom && document.contains(gFrom)) gFrom.focus();
+  }
+  $('ghMore').onclick = e => openGains(e.currentTarget);
+  $('gModal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeGains(); });
+  $('gModal').addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const f = [...$('gBox').querySelectorAll('button,a[href],input')].filter(x => !x.disabled);
+    if (!f.length) return;
+    if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+    else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { e.preventDefault(); f[0].focus(); }
+  });
+
+  function renderGains() {
+    const k = vhKey(), f = (k && farmLoad()[k]) || { log: [] };
+    const log = f.log || [], icons = f.icons || {};
+    const now = Date.now(), H = 3600000, D = 24 * H;
+    const span = { '24h': D, '7d': 7 * D, all: Infinity }[gRange];
+    const per = log.filter(e => span === Infinity || e[0] >= now - span);
+    const t0 = per.length ? per[0][0] : now;
+    // créneaux : heures, ou jours pour « tout » au-delà de 7 jours
+    const w = gRange === 'all' && now - (log[0] ? log[0][0] : now) > 7 * D ? D : H;
+    const startSlot = gRange === 'all' ? Math.floor((log[0] ? log[0][0] : now) / w) : Math.floor((now - span) / w) + 1;
+    const endSlot = Math.floor(now / w);
+    const slots = [];
+    for (let s = Math.max(startSlot, endSlot - 400); s <= endSlot; s++) slots.push({ t: s * w, v: 0, n: 0, ch: 0, e: [] });
+    const first = slots.length ? slots[0].t / w : 0;
+    for (const e of per) { const sl = slots[Math.floor(e[0] / w) - first]; if (sl) { sl.v += e[1]; sl.n++; if (played(e)) sl.ch++; sl.e.push(e); } }
+    // heures jouées (toujours à l'heure, même en vue par jour)
+    const hours = new Map();
+    for (const e of per) { const h = Math.floor(e[0] / H) * H; const x = hours.get(h) || { t: h, v: 0, n: 0, ch: 0, e: [] }; x.v += e[1]; x.n++; if (played(e)) x.ch++; x.e.push(e); hours.set(h, x); }
+    const playedH = [...hours.values()].filter(x => x.ch > 0);
+    const gainPer = per.reduce((a, e) => a + e[1], 0);
+    const gainPlayed = playedH.reduce((a, x) => a + x.v, 0);
+    const perPlayed = playedH.length ? gainPlayed / playedH.length : null;
+    const in3 = log.filter(e => e[0] >= now - 3 * H).reduce((a, e) => a + e[1], 0) / 3;
+    const best = playedH.reduce((m, x) => !m || x.v > m.v ? x : m, null), worst = playedH.reduce((m, x) => !m || x.v < m.v ? x : m, null);
+    const inSum = per.reduce((a, e) => a + Object.values(e[4] || {}).reduce((b, [, v]) => b + (v > 0 ? v : 0), 0), 0);
+    const outSum = per.reduce((a, e) => a + Object.values(e[4] || {}).reduce((b, [, v]) => b + (v < 0 ? v : 0), 0), 0);
+    const hasDet = per.some(e => e[4]);
+    const sess = sessionsOf(log);
+    const live = sess.length && now - sess[sess.length - 1].end < H ? sess[sess.length - 1] : null;
+    const lastS = sess[sess.length - 1];
+    const allGain = log.reduce((a, e) => a + e[1], 0);
+    const allPlayed = new Set(log.filter(played).map(e => Math.floor(e[0] / H))).size;
+    const gaps = per.map(e => e[2]).filter(x => x > 0 && x < 600).sort((a, b) => a - b);
+    const medGap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : null;
+    const pLabel = { '24h': 'sur 24 h', '7d': 'sur 7 jours', all: 'depuis le début' }[gRange];
+    const tile = (label, v, sub, cls = '') => `<div class="zt"><span class="zl">${label}</span><span class="zv ${cls}">${v}</span><span class="zs">${sub || '&nbsp;'}</span></div>`;
+    const money = (v, sub, label) => tile(label, v === null ? '—' : `${esc(sgn(v))}${label.includes('/ h') ? ' <small style="font-size:12px;color:var(--muted);font-weight:400">/ h</small>' : ''}`, sub, v === null ? '' : v > 0 ? 'up' : v < 0 ? 'down' : '');
+    // graphique en barres
+    const W = 820, HH = 210, pt = 8, pb = 20, n = slots.length;
+    const mx = Math.max(1, ...slots.map(s => Math.abs(s.v)));
+    const hasNeg = slots.some(s => s.v < 0);
+    const zeroY = hasNeg ? pt + (HH - pt - pb) / 2 : HH - pb;
+    const scale = (hasNeg ? (HH - pt - pb) / 2 : HH - pt - pb) / mx;
+    const bw = (W - 8) / Math.max(n, 1);
+    let bars = '', hits = '', cum = 0, cumPts = [];
+    const cmax = Math.max(1, ...(() => { let c = 0; return slots.map(s => Math.abs(c += s.v)); })());
+    slots.forEach((s, j) => {
+      const x = 4 + j * bw, h = s.n ? Math.max(1.5, Math.abs(s.v) * scale) : 1.5;
+      const y = s.v < 0 ? zeroY : zeroY - h;
+      bars += `<rect class="b ${s.v > 0 ? 'p' : s.v < 0 ? 'n' : 'z'}" x="${(x + bw * 0.12).toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(1, bw * 0.76).toFixed(1)}" height="${h.toFixed(1)}" rx="1.5"/>`;
+      hits += `<rect class="hit" data-j="${j}" x="${x.toFixed(1)}" y="${pt}" width="${bw.toFixed(1)}" height="${HH - pt - pb}"/>`;
+      cum += s.v;
+      cumPts.push(`${(x + bw / 2).toFixed(1)},${(zeroY - (cum / cmax) * (hasNeg ? (HH - pt - pb) / 2 : HH - pt - pb) * 0.95).toFixed(1)}`);
+    });
+    const tick = j => slots[j] ? (w >= D ? new Date(slots[j].t).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : n > 30 ? new Date(slots[j].t).toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit' }) : `${new Date(slots[j].t).getHours()} h`) : '';
+    let ticks = '';
+    const step = Math.max(1, Math.ceil(n / 8));
+    for (let j = 0; j < n; j += step) ticks += `<text x="${j ? (4 + j * bw + bw / 2).toFixed(1) : 4}" y="${HH - 5}" text-anchor="${j ? 'middle' : 'start'}">${esc(tick(j))}</text>`;
+    const svg = per.length ? `<svg viewBox="0 0 ${W} ${HH}" role="img" aria-label="Gain par ${w >= D ? 'jour' : 'heure'}"><line class="z0" x1="0" x2="${W}" y1="${zeroY}" y2="${zeroY}"/>${bars}<path class="cum" d="M${cumPts.join('L')}"/>${hits}${ticks}</svg>` : '';
+    const defCv = `<div class="cv-v">${esc(sgn(gainPer))}</div><div class="cv-s">${pLabel} · ${playedH.length} h jouée${playedH.length > 1 ? 's' : ''} · survole une barre pour le détail</div>`;
+    // objets
+    const row = ([nm, [q, v]]) => `<div class="grow">${icons[nm] ? `<img src="${esc(icons[nm])}" alt="">` : '<span style="width:22px"></span>'}<span class="gn" title="${esc(nm)}">${esc(nm)}</span><span class="gq">${q > 0 ? '+' : q < 0 ? '−' : ''}${nf(Math.abs(q), 0)}</span><span class="gv ${gcls(v)}">${esc(sgn(v))}</span></div>`;
+    const ins = [...mergeDet(per, 1)].sort((a, b) => b[1][1] - a[1][1]).slice(0, 8);
+    const outs = [...mergeDet(per, -1)].sort((a, b) => a[1][1] - b[1][1]).slice(0, 8);
+    const noDet = `<div class="gempty">${hasDet ? 'Rien sur cette période.' : 'Le détail par objet est enregistré à partir de maintenant, à chaque nouveau scan.'}</div>`;
+    // tableau horaire
+    const hrows = [];
+    if (w === H) { for (const s of [...slots].reverse()) if (s.n && (gAllHours || s.ch)) hrows.push(s); }
+    else for (const x of [...hours.values()].reverse()) if (gAllHours || x.ch) hrows.push(x);
+    const topOf = s => [...mergeDet(s.e)].filter(([, b]) => Math.round(b[1])).sort((a, b) => Math.abs(b[1][1]) - Math.abs(a[1][1])).slice(0, 3).map(([nm, [, v]]) => `${esc(nm)} ${esc(sgn(v))}`).join(' · ');
+    const sessShown = sess.filter(x => span === Infinity || x.end >= now - span).reverse().slice(0, 12);
+    $('gBox').innerHTML = `
+      <div class="zh">
+        <div class="gh-ico"><svg><use href="#i-treasure" stroke="var(--gold2)"/></svg></div>
+        <div class="zn"><h2 id="gTitle">Gains de farm</h2><div>${data ? `${esc(data.account || '')} · ${esc(data.league || '')} · ` : ''}${f.first ? `suivi depuis le ${esc(dFmt(f.first))} ${esc(hFmt(f.first))}` : 'en attente de deux scans'} · ${nf(log.length, 0)} comparaison${log.length > 1 ? 's' : ''} de scans</div></div>
+        <div class="zx"><span class="zrng" role="group" aria-label="Période">
+          <button data-gr="24h"${gRange === '24h' ? ' class="on"' : ''}>24 h</button><button data-gr="7d"${gRange === '7d' ? ' class="on"' : ''}>7 j</button><button data-gr="all"${gRange === 'all' ? ' class="on"' : ''}>tout</button></span>
+          <button class="btn ghost zclose" id="gClose" data-close aria-label="Fermer">✕</button></div>
+      </div>
+      <div class="zb">
+        <div class="zgrid">
+          ${money(perPlayed, perPlayed === null ? 'aucune heure jouée' : `moyenne ${pLabel}`, 'Gain / h joué')}
+          ${money(log.length ? in3 : null, '3 dernières heures', 'Gain / h actuel')}
+          ${money(per.length ? gainPer : null, pLabel, 'Gain total')}
+          ${tile('Heures jouées', nf(playedH.length, 0), `${pLabel}${gRange === 'all' ? '' : ` · ${nf(allPlayed, 0)} au total`}`)}
+          ${money(best ? best.v : null, best ? slotLbl(best.t, H) : '', 'Meilleure heure')}
+          ${money(worst && worst.v < (best ? best.v : 0) ? worst.v : null, worst && worst !== best ? slotLbl(worst.t, H) : '', 'Pire heure')}
+          ${live ? money(live.gain, `en cours depuis ${durFmt(now - live.start)}`, 'Session en cours') : money(lastS ? lastS.gain : null, lastS ? `dernière : ${dFmt(lastS.start)} · ${durFmt(lastS.end - lastS.start)}` : 'aucune session', 'Session')}
+          ${(() => { const s = live || lastS; const d = s ? Math.max(s.end - s.start, H / 4) : 0; return money(s ? s.gain / (d / H) : null, s ? `sur ${durFmt(s.end - s.start)} de jeu` : '', 'Rythme de session / h'); })()}
+          ${money(hasDet ? inSum : null, hasDet ? 'objets arrivés ou piles en hausse' : 'détail à partir de maintenant', 'Rentrées')}
+          ${money(hasDet ? outSum : null, hasDet ? 'ventes, consommés ou déplacés' : 'détail à partir de maintenant', 'Sorties')}
+          ${tile('Scans comparés', nf(per.length, 0), medGap ? `un toutes les ${durFmt(medGap * 60000)} environ` : pLabel)}
+          ${money(log.length ? allGain : null, f.first ? `depuis le ${dFmt(f.first)} · ${nf(allPlayed, 0)} h jouées` : '', 'Depuis le début')}
+        </div>
+        <div class="zsec"><span>Gain par ${w >= D ? 'jour' : 'heure'}</span></div>
+        <div class="gbars" id="gChart">${svg ? `<div class="cv" id="gCv">${defCv}</div>${svg}` : '<div class="zempty">Il faut au moins deux scans pour calculer un gain. Lance un scan, joue, puis rescanne (ou active le rescan automatique).</div>'}</div>
+        ${svg ? `<div class="glegend"><span><i style="background:#5f8f4e"></i>gain</span><span><i style="background:#9a4a3f"></i>perte</span><span><i style="background:var(--gold);height:2px;vertical-align:3px"></i>cumul ${pLabel}</span></div>` : ''}
+        <div class="zsec"><span>Ce qui a bougé ${pLabel}</span></div>
+        <div class="gcols">
+          <div class="glist"><h3>Rentrées</h3>${ins.length ? ins.map(row).join('') : noDet}</div>
+          <div class="glist"><h3>Sorties</h3>${outs.length ? outs.map(row).join('') : noDet}</div>
+        </div>
+        <div class="zsec"><span>Sessions de jeu</span></div>
+        ${sessShown.length ? `<div class="gscroll" style="max-height:220px"><table class="gtable"><thead><tr><th>Jour</th><th>Horaires</th><th class="r">Durée</th><th class="r">Gain</th><th class="r">Gain / h</th></tr></thead><tbody>${sessShown.map(x => { const d = Math.max(x.end - x.start, H / 4); return `<tr><td>${esc(dFmt(x.start))}${x === live ? ' <span class="chg up">en cours</span>' : ''}</td><td>${esc(hFmt(x.start))} – ${esc(hFmt(x.end))}</td><td class="r">${esc(durFmt(x.end - x.start))}</td><td class="r ${gcls(x.gain)}">${esc(sgn(x.gain))}</td><td class="r ${gcls(x.gain)}">${esc(sgn(x.gain / (d / H)))}</td></tr>`; }).join('')}</tbody></table></div>` : '<div class="glist"><div class="gempty">Aucune session sur cette période.</div></div>'}
+        <div class="zsec"><span>Détail par heure</span><label class="gtog"><input type="checkbox" id="gAll"${gAllHours ? ' checked' : ''}> heures sans changement</label></div>
+        ${hrows.length ? `<div class="gscroll"><table class="gtable"><thead><tr><th>Heure</th><th class="r">Gain</th><th class="r">Scans</th><th>Principaux mouvements</th></tr></thead><tbody>${hrows.map(s => `<tr${s.ch ? '' : ' class="off"'}><td>${esc(slotLbl(s.t, H))}</td><td class="r ${gcls(s.v)}">${esc(sgn(s.v))}</td><td class="r">${s.n}</td><td class="gt">${topOf(s) || (s.ch ? '' : 'aucun changement')}</td></tr>`).join('')}</tbody></table></div>` : '<div class="glist"><div class="gempty">Aucune heure jouée sur cette période.</div></div>'}
+        <div class="znote">Le gain compare chaque scan au précédent, objet par objet, aux prix actuels : un objet ramassé compte en plus, un objet vendu, consommé ou sorti du coffre compte en moins. Une heure est « jouée » si au moins un objet a été ajouté, retiré ou si une pile a changé. Une session se termine après 1 h sans changement. Données stockées dans ce navigateur uniquement.</div>
+      </div>`;
+    $('gBox').querySelectorAll('[data-gr]').forEach(b => b.onclick = () => { gRange = b.dataset.gr; try { localStorage.setItem('poeGainRange', gRange); } catch {} renderGains(); });
+    $('gAll').onchange = e => { gAllHours = e.target.checked; renderGains(); };
+    const cv = $('gCv');
+    if (cv) {
+      let run = 0;
+      const cums = slots.map(s => (run += s.v));
+      $('gChart').querySelectorAll('rect.hit').forEach(r => {
+        r.addEventListener('mouseenter', () => {
+          const j = Number(r.dataset.j), s = slots[j];
+          r.classList.add('on');
+          cv.classList.add('hover');
+          cv.innerHTML = `<div class="cv-v ${gcls(s.v)}">${s.n ? esc(sgn(s.v)) : '—'}</div><div class="cv-s">${esc(slotLbl(s.t, w))} · ${s.n ? `${s.n} scan${s.n > 1 ? 's' : ''}${s.ch ? '' : ' sans changement'} · cumul ${esc(sgn(cums[j]))}${topOf(s) ? ` · ${topOf(s)}` : ''}` : 'pas de scan'}</div>`;
+        });
+        r.addEventListener('mouseleave', () => { r.classList.remove('on'); cv.classList.remove('hover'); cv.innerHTML = defCv; });
+      });
+    }
   }
 
   // =================== Historique de la valeur totale (toutes les 15 min) ===================
@@ -2080,7 +2316,7 @@
   };
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { if (zoomIdx !== null) { closeZoom(); return; } $('detail').classList.remove('show'); }
+    if (e.key === 'Escape') { if (!$('gModal').hidden) { closeGains(); return; } if (zoomIdx !== null) { closeZoom(); return; } $('detail').classList.remove('show'); }
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); $('q').focus(); }
   });
 })();
