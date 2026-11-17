@@ -1478,6 +1478,7 @@
     if (!k || !P || !data.scannedAt) return;
     const all = farmLoad(), f = all[k] || (all[k] = { log: [] });
     const t = Date.parse(data.scannedAt);
+    if (!isFinite(t)) return; // scan sans date lisible : on ne touche pas au calcul des gains
     if (f.lastT && t <= f.lastT) return;
     const tabsSig = (data.tabs || []).map(x => x.i).sort((a, b) => a - b).join(',');
     const cur = scanContent();

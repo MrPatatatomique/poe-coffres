@@ -39,9 +39,15 @@ async function getJson(url, tries = 3) {
 }
 
 // ---------------------------------------------------------------- prix
-async function fetchLeague(league) {
+// prev : prix du passage précédent. Une catégorie en échec (ou vide) reprend ses anciennes lignes et
+// est listée dans out.stale : elle reste cotée sur la page mais n'ajoute pas de point d'historique.
+async function fetchLeague(league, prev = null) {
   const q = t => `?league=${encodeURIComponent(league)}&type=${t}`;
-  const out = { league, fetchedAt: Date.now(), exchange: {}, currency: {}, items: {}, core: null, tradeIds: {} };
+  const out = { league, fetchedAt: Date.now(), exchange: {}, currency: {}, items: {}, core: null, tradeIds: {}, stale: [] };
+  const fallback = (sec, t) => {
+    const old = prev && prev[sec] && prev[sec][t];
+    if (old && old.length) { out[sec][t] = old; out.stale.push(`${sec}|${t}`); console.warn(`${league} : ${sec}/${t} indisponible, anciennes valeurs conservées`); }
+  };
   for (const t of EXCHANGE_TYPES) {
     const j = await getJson(`${NINJA}/exchange/current/overview${q(t)}`);
     if (j) {
@@ -49,6 +55,7 @@ async function fetchLeague(league) {
       out.exchange[t] = (j.lines || []).map(l => ({ k: `x|${l.id}`, name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
       if (t === 'Currency' && j.core) out.core = { primary: j.core.primary, rates: j.core.rates };
     }
+    if (!out.exchange[t] || !out.exchange[t].length) fallback('exchange', t);
     await sleep(250);
   }
   for (const t of STASH_CURRENCY_TYPES) {
@@ -58,6 +65,7 @@ async function fetchLeague(league) {
       const tid = new Map((j.currencyDetails || []).map(d => [d.name, d.tradeId]));
       for (const l of j.lines || []) { const t2 = tid.get(l.currencyTypeName); if (t2 && l.chaosEquivalent > 0) out.tradeIds[t2] = l.chaosEquivalent; }
     }
+    if (!out.currency[t] || !out.currency[t].length) fallback('currency', t);
     await sleep(250);
   }
   for (const t of ITEM_TYPES) {
@@ -75,8 +83,11 @@ async function fetchLeague(league) {
         } : {}),
       }));
     }
+    if (!out.items[t] || !out.items[t].length) fallback('items', t);
     await sleep(250);
   }
+  if (!out.core && prev && prev.core) out.core = prev.core;
+  if (!Object.keys(out.tradeIds).length && prev && prev.tradeIds) out.tradeIds = prev.tradeIds;
   return out;
 }
 
@@ -119,9 +130,10 @@ async function updateHistory(dir, prices, recentDir) {
   const now = Math.floor(prices.fetchedAt / 60000);
   const snap = new Map();
   const add = (k, v, always) => { if (k && v > 0 && (always || v >= MIN_HISTORY_CHAOS) && !snap.has(k)) snap.set(k, round(v)); };
-  for (const lines of Object.values(prices.exchange)) for (const l of lines) add(l.k, l.v, true);
-  for (const lines of Object.values(prices.currency)) for (const l of lines) add(l.k, l.v, true);
-  for (const lines of Object.values(prices.items)) for (const l of lines) add(l.k, l.v, false);
+  const stale = new Set(prices.stale || []);
+  for (const [sec, always] of [['exchange', true], ['currency', true], ['items', false]]) {
+    for (const [t, lines] of Object.entries(prices[sec])) if (!stale.has(`${sec}|${t}`)) for (const l of lines) add(l.k, l.v, always);
+  }
   await mkdir(dir, { recursive: true });
   const shards = Array.from({ length: SHARDS }, () => new Map());
   for (const [k, v] of snap) shards[shardOf(k)].set(k, v);
@@ -232,20 +244,25 @@ async function main() {
   await mkdir(join(OUT, 'prices'), { recursive: true });
   const leagues = await getJson(`${NINJA}/leagues`);
   if (!leagues || !leagues.length) throw new Error('liste des ligues poe.ninja indisponible');
-  const keepDirs = new Set();
+  // une ligue n'est retirée que lorsqu'elle disparaît de la liste poe.ninja, jamais parce qu'un passage a échoué
+  const keepDirs = new Set(leagues.map(lg => slug(lg.id)));
   for (const lg of leagues) {
     const t0 = Date.now();
-    const p = await fetchLeague(lg.id);
-    const nLines = Object.values(p.items).reduce((a, l) => a + l.length, 0) + Object.values(p.exchange).reduce((a, l) => a + l.length, 0);
-    if (nLines < 50) { console.warn(`${lg.id} : trop peu de lignes (${nLines}), ignorée`); continue; }
-    await writeFile(join(OUT, 'prices', `${slug(lg.id)}.json`), JSON.stringify(p));
+    const pricesFile = join(OUT, 'prices', `${slug(lg.id)}.json`);
+    let prev = null;
+    if (existsSync(pricesFile)) { try { prev = JSON.parse(await readFile(pricesFile, 'utf8')); } catch (e) { console.warn(`${lg.id} : prix précédents illisibles (${e.message})`); } }
+    const p = await fetchLeague(lg.id, prev);
+    const stale = new Set(p.stale);
+    const count = sec => Object.entries(p[sec]).filter(([t]) => !stale.has(`${sec}|${t}`)).reduce((a, [, l]) => a + l.length, 0);
+    const nLines = count('items') + count('exchange');
+    if (nLines < 50) { console.warn(`${lg.id} : trop peu de lignes fraîches (${nLines}), prix et historique laissés tels quels`); continue; }
+    await writeFile(pricesFile, JSON.stringify(p));
     const st = await updateHistory(join(OUT, 'history', slug(lg.id)), p, join(OUT, 'history-recent', slug(lg.id)));
-    keepDirs.add(slug(lg.id));
-    console.log(`${lg.id} : ${nLines} lignes, historique ${st.series} séries / ${st.points} points / ${(st.bytes / 1e6).toFixed(1)} Mo, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+    console.log(`${lg.id} : ${nLines} lignes${p.stale.length ? ` (${p.stale.length} catégories reprises)` : ''}, historique ${st.series} séries / ${st.points} points / ${(st.bytes / 1e6).toFixed(1)} Mo, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   // les ligues terminées disparaissent de poe.ninja : on retire leurs fichiers
   for (const base of ['history', 'history-recent']) {
-    if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d) && keepDirs.size) await rm(join(OUT, base, d), { recursive: true });
+    if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d)) await rm(join(OUT, base, d), { recursive: true });
   }
   await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
   const nu = await updateUniques(OUT);

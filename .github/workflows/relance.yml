@@ -45,6 +45,7 @@ jobs:
             fi
           done
 
+      # relance après succès ou échec, mais pas après une annulation : annuler la tâche arrête la boucle
       - name: Se relancer
-        if: always()
+        if: success() || failure()
         run: gh workflow run relance.yml --ref main
