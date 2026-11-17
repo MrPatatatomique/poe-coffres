@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.4
+// @version      2.6.5
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -47,7 +47,7 @@
       .then(async r => { const h = {}; r.headers.forEach((v, k) => (h[k.toLowerCase()] = v)); return { status: r.status, headers: h, text: await r.text() }; });
   }
   const logErr = (what, e) => console.warn(`[Coffres] ${what} :`, e);
-  // Nettoyage des clés laissées par le relais et la base poewiki (supprimés en 2.6.4)
+  // Nettoyage des clés laissées par le relais et la base poewiki (supprimés en 2.6.5)
   for (const k of ['gggAlive', 'relayTab', 'relayPing', 'relayAck', 'relayDone', 'uniqueDb']) GM_deleteValue(k);
   for (const k of typeof GM_listValues === 'function' ? GM_listValues() : []) if (/^relay(Req|Res)_/.test(k)) GM_deleteValue(k);
   const wrap = r => ({ status: r.status, header: n => (r.headers || {})[n.toLowerCase()] ?? null, text: r.text, error: r.error });
@@ -181,8 +181,12 @@
     const g = (gggLeague || '').toLowerCase();
     const exact = leagues.find(l => l.id.toLowerCase() === g || (l.name || '').toLowerCase() === g);
     if (exact) return exact.id;
-    const pref = leagues.filter(l => g.startsWith(l.id.toLowerCase()) || l.id.toLowerCase().startsWith(g)).sort((a, b) => b.id.length - a.id.length);
-    return (pref[0] || leagues[0]).id;
+    if (!g) throw new Error('Ligue inconnue : fais un premier scan.');
+    // ligue GGG plus longue que l'id poe.ninja, même mode (softcore / hardcore) ; jamais une ligue au hasard
+    const hc = /hardcore|\bhc\b/.test(g);
+    const pref = leagues.filter(l => g.startsWith(l.id.toLowerCase()) && /hardcore/i.test(l.id) === hc).sort((a, b) => b.id.length - a.id.length);
+    if (!pref.length) throw new Error(`Ligue « ${gggLeague} » introuvable sur poe.ninja.`);
+    return pref[0].id;
   }
 
   async function loadPrices(force = false, report = () => {}) {
@@ -449,7 +453,7 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.4' });
+      send('ready', { version: '2.6.5' });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
@@ -464,7 +468,7 @@
         if (m.cmd === 'hello') {
           await greet();
         } else if (m.cmd === 'prices-set') {
-          GM_setValue('ninjaPrices', { ...m.data, gggLeague: getSettings().league });
+          GM_setValue('ninjaPrices', { ...m.data, gggLeague: m.data.gggLeague || getSettings().league });
           if (!getSettings().ninjaRemote) setSettings({ ninjaRemote: true });
         } else if (m.cmd === 'scan') {
           await runScan(report);

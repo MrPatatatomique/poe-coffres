@@ -784,7 +784,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.4';
+  const REQ_SCRIPT = '2.6.5';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let uniqueSrc = 'Path of Building', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
@@ -867,7 +867,11 @@
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
         break;
       case 'prices':
-        try { const np = JSON.parse(m.data); if (!prices || np.fetchedAt > prices.fetchedAt) setPrices(np); } catch (e) { status('Prix reçus illisibles : ' + e.message, true); }
+        try {
+          const np = JSON.parse(m.data);
+          if (!pricesMatchLeague(np)) { logErr(`prix du script ignorés : ligue ${np.league} au lieu de ${data && data.league}`, ''); if (prices && prices.fromRepo && bridge) cmd('prices-set', prices); break; }
+          if (!prices || prices.league !== np.league || np.fetchedAt > prices.fetchedAt) setPrices(np);
+        } catch (e) { status('Prix reçus illisibles : ' + e.message, true); }
         break;
       case 'status': {
         const d = m.data || {};
@@ -1022,11 +1026,21 @@
   }
   function pickLeagueFile(gggLeague) {
     if (!repoLeagues) return null;
-    const g = (gggLeague || '').toLowerCase(), L = repoLeagues.leagues;
+    const g = (gggLeague || '').trim().toLowerCase(), L = repoLeagues.leagues;
+    if (!g) return null;
     const exact = L.find(l => l.id.toLowerCase() === g || (l.name || '').toLowerCase() === g);
     if (exact) return exact.file;
-    const pref = L.filter(l => g.startsWith(l.id.toLowerCase()) || l.id.toLowerCase().startsWith(g)).sort((a, b) => b.id.length - a.id.length);
+    // ligue GGG plus longue que l'id poe.ninja (« Covens of Umbra » → « Covens »), même mode (softcore / hardcore)
+    const hc = /hardcore|\bhc\b/.test(g);
+    const pref = L.filter(l => g.startsWith(l.id.toLowerCase()) && /hardcore/i.test(l.id) === hc).sort((a, b) => b.id.length - a.id.length);
     return pref[0] ? pref[0].file : null;
+  }
+  // les prix doivent être ceux de la ligue scannée (le script peut avoir gardé ceux d'une autre ligue)
+  function pricesMatchLeague(p) {
+    if (!data || !p) return true;
+    const f = repoLeagues ? pickLeagueFile(data.league) : null;
+    if (f && repoLeagues) { const lg = repoLeagues.leagues.find(l => l.file === f); return !lg || lg.id === p.league; }
+    return !p.gggLeague || p.gggLeague === data.league;
   }
   async function loadRepoPrices(force) {
     if (!ONLINE || !data) return;
@@ -1038,7 +1052,8 @@
     repoPricesFile = f;
     const hadKeys = repoKeys.size;
     repoKeys = repoKeyMap(p);
-    if (force || !prices || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
+    p.file = f; p.gggLeague = data.league;
+    if (force || !prices || prices.league !== p.league || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
     else if (!hadKeys && prices && !prices.fromRepo) setPrices(prices);
   }
   // Clés d'historique du dépôt, pour des prix récupérés par un ancien script (lignes sans clé)
@@ -2067,7 +2082,7 @@
     if (!data) return;
     const sAt = data.scannedAt ? Date.parse(data.scannedAt) : 0;
     $('kScan').textContent = ago(sAt);
-    $('kPrices').textContent = prices ? ago(prices.fetchedAt) : '—';
+    $('kPrices').textContent = prices ? `${ago(prices.fetchedAt)}${data && prices.league && prices.league !== data.league ? ` · ${prices.league}` : ''}` : '—';
     $('kPrices').className = prices && Date.now() - prices.fetchedAt > 3600000 ? 'old' : '';
 
   }
