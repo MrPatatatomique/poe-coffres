@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.2
+// @version      2.6.3
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -226,7 +226,7 @@
       try {
         const j = await ninjaGet(`/exchange/current/overview${q(t)}`);
         const names = new Map((j.items || []).map(i => [i.id, i.name]));
-        out.exchange[t] = (j.lines || []).map(l => ({ name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
+        out.exchange[t] = (j.lines || []).map(l => ({ k: `x|${l.id}`, name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
         if (t === 'Currency') out.core = j.core ? { primary: j.core.primary, rates: j.core.rates } : null;
       } catch {}
       await sleep(150);
@@ -235,7 +235,7 @@
       report({ msg: `poe.ninja : ${t} (${++n}/${total})` });
       try {
         const j = await ninjaGet(`/stash/current/currency/overview${q(t)}`);
-        out.currency[t] = (j.lines || []).map(l => ({ name: l.currencyTypeName, v: l.chaosEquivalent, sp: l.receiveSparkLine?.data }));
+        out.currency[t] = (j.lines || []).map(l => ({ k: `c|${l.detailsId}`, name: l.currencyTypeName, v: l.chaosEquivalent, sp: l.receiveSparkLine?.data }));
         const tid = new Map((j.currencyDetails || []).map(d => [d.name, d.tradeId]));
         for (const l of j.lines || []) { const t2 = tid.get(l.currencyTypeName); if (t2 && l.chaosEquivalent > 0) out.tradeIds[t2] = l.chaosEquivalent; }
       } catch {}
@@ -246,6 +246,7 @@
       try {
         const j = await ninjaGet(`/stash/current/item/overview${q(t)}`);
         out.items[t] = (j.lines || []).map(l => ({
+          k: `i|${t}|${l.detailsId}|${l.links || 0}`,
           name: l.name, baseType: l.baseType, variant: l.variant, links: l.links || 0,
           gemLevel: l.gemLevel, gemQuality: l.gemQuality || 0, corrupted: !!l.corrupted,
           mapTier: l.mapTier, itemClass: l.itemClass, v: l.chaosValue, listings: l.listingCount,
@@ -512,7 +513,7 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.2' });
+      send('ready', { version: '2.6.3' });
       pushSettings(); pushRelay(); pushTracking(); pushTrades(); pushScan();
       const u = GM_getValue('uniqueDb', null);
       if (u) pushUniques(u);

@@ -625,10 +625,10 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.2';
+  const REQ_SCRIPT = '2.6.3';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
-  let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, hist = {}, histReq = {}, scriptVersion = '';
+  let uniqueSrc = 'poewiki', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
   const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   try { const j = JSON.parse(localStorage.getItem('poeTracking') || '{}'); follow = j.follow || {}; history = j.history || {}; } catch {}
 
@@ -888,7 +888,17 @@
     const p = await getJson(`data/prices/${f}.json`);
     if (!p || !p.fetchedAt) return;
     repoPricesFile = f;
+    const hadKeys = repoKeys.size;
+    repoKeys = repoKeyMap(p);
     if (force || !prices || p.fetchedAt > prices.fetchedAt) { p.fromRepo = true; setPrices(p); if (bridge) cmd('prices-set', p); }
+    else if (!hadKeys && prices && !prices.fromRepo) setPrices(prices);
+  }
+  // Clés d'historique du dépôt, pour des prix récupérés par un ancien script (lignes sans clé)
+  const lineSig = (sec, t, l) => sec === 'items' ? [t, l.name, l.baseType, l.variant, l.links || 0, l.gemLevel, l.gemQuality || 0, l.corrupted ? 1 : 0].join('|') : `${sec}|${t}|${l.name}`;
+  function repoKeyMap(p) {
+    const m = new Map();
+    for (const sec of ['exchange', 'currency', 'items']) for (const [t, lines] of Object.entries(p[sec] || {})) for (const l of lines) if (l.k) m.set(lineSig(sec, t, l), l.k);
+    return m;
   }
   function shardOf(key) { let h = 5381; for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0; return h % (repoLeagues ? repoLeagues.shards : 64); }
   function repoHistory(k) {
@@ -986,8 +996,8 @@
     const toChaos = v => (p.core && p.core.primary === 'divine' && divine) ? v * divine : v;
     const byName = new Map();
     const put = (name, chaos, src, sp, hk) => { if (!name || !(chaos > 0)) return; const k = name.toLowerCase(); if (!byName.has(k)) byName.set(k, { chaos, src, sp, hk }); };
-    for (const [t, lines] of Object.entries(p.exchange || {})) lines.forEach(l => put(l.name, toChaos(l.v), t, l.sp, l.k));
-    for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp, l.k));
+    for (const [t, lines] of Object.entries(p.exchange || {})) lines.forEach(l => put(l.name, toChaos(l.v), t, l.sp, l.k || repoKeys.get(lineSig('exchange', t, l))));
+    for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp, l.k || repoKeys.get(lineSig('currency', t, l))));
     put('Chaos Orb', 1, 'Currency');
     if (!divine) divine = byName.get('divine orb')?.chaos || 0;
     const byItem = new Map();
@@ -995,7 +1005,7 @@
       if (!l.name || !(l.v > 0)) continue;
       const k = l.name.toLowerCase();
       if (!byItem.has(k)) byItem.set(k, []);
-      byItem.get(k).push({ ...l, t });
+      byItem.get(k).push({ ...l, t, k: l.k || repoKeys.get(lineSig('items', t, l)) });
     }
     return { byName, byItem, divine };
   }
