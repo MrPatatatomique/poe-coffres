@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.7.3
+// @version      2.8.0
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -147,16 +147,41 @@
     return out;
   }
 
+  // ---------- Relais : la page confie scans et imports à un onglet pathofexile.com ----------
+  // gggRequest {id, kind, data, at} -> l'onglet GGG accuse réception puis publie sa progression dans gggStatus {id, msg, p, error, done, at}
+  async function relayToGGG(kind, data, report) {
+    const id = Math.random().toString(36).slice(2, 10);
+    GM_setValue('gggRequest', { id, kind, data, at: Date.now() });
+    report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : demande transmise à l'onglet pathofexile.com…` });
+    let lastAt = Date.now(), acked = false, lastMsg = '';
+    while (true) {
+      await sleep(1000);
+      const st = GM_getValue('gggStatus', null);
+      if (st && st.id === id) {
+        if (!acked) acked = true;
+        if (st.at > lastAt || st.msg !== lastMsg) { lastAt = Math.max(lastAt, st.at); lastMsg = st.msg; report({ msg: st.msg, p: st.p, error: st.error, done: st.done }); }
+        if (st.done || st.error) return !st.error;
+      }
+      if (!acked && Date.now() - lastAt > 8000) {
+        report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : aucun onglet pathofexile.com n'a pris la demande. Ouvre pathofexile.com (connecté) dans ce navigateur, recharge-le si le script vient d'être mis à jour, puis réessaie.`, error: true });
+        return false;
+      }
+      if (acked && Date.now() - lastAt > 180000) { report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : l'onglet pathofexile.com ne donne plus de nouvelles depuis 3 min.`, error: true }); return false; }
+    }
+  }
+
   // ---------- Scan complet (utilisé par le panneau GGG et par la page) ----------
   let scanning = false;
-  async function runScan(report = () => {}, { tabsOverride } = {}) {
+  async function runScan(report0 = () => {}, { tabsOverride } = {}) {
+    // verrou partagé entre onglets, prolongé à chaque étape : un scan interrompu (onglet fermé) le libère en 2 min
+    const report = d => { GM_setValue('scanLock', Date.now() + 120000); report0(d); };
     const st = getSettings();
     const account = st.account, league = st.league;
     if (!account || !league) throw new Error('Compte et ligue inconnus : fais un premier scan depuis pathofexile.com (bouton Coffres).');
     const lock = GM_getValue('scanLock', 0);
-    if (scanning || lock > Date.now()) throw new Error('Un scan est déjà en cours.');
+    if (scanning || lock > Date.now()) throw new Error(`Un scan est déjà en cours (libéré au plus tard dans ${Math.max(1, Math.ceil((lock - Date.now()) / 1000))} s s'il est bloqué).`);
     scanning = true;
-    GM_setValue('scanLock', Date.now() + 15 * 60 * 1000);
+    GM_setValue('scanLock', Date.now() + 120000);
     const onWait = w => report({ msg: `Limite de requêtes GGG : pause ${Math.ceil(w / 1000)} s…` });
     try {
       report({ msg: 'Lecture de la liste des onglets…', p: 0 });
@@ -459,7 +484,7 @@
   // ---------- Rescan automatique (le premier contexte disponible s'en charge) ----------
   async function autoTick(report) {
     const mins = Number(getSettings().autoMinutes) || 0;
-    if (!mins || scanning) return;
+    if (!mins || scanning || !ON_GGG) return;
     const last = GM_getValue('lastScanAt', 0);
     if (Date.now() - last < mins * 60000) return;
     if (GM_getValue('scanLock', 0) > Date.now()) return;
@@ -510,25 +535,9 @@
           GM_setValue('ninjaPrices', { ...m.data, gggLeague: m.data.gggLeague || getSettings().league });
           if (!getSettings().ninjaRemote) setSettings({ ninjaRemote: true });
         } else if (m.cmd === 'scan') {
-          await runScan(report);
-          pushScan();
-          // personnages importés avec chaque scan si la page l'a demandé
-          if (getSettings().withChars) { try { await runChars(report); pushChars(); } catch (e) { report({ msg: `Personnages : ${e.message}`, error: true }); } }
-          if (!getSettings().ninjaRemote) pushPrices(await loadPrices(false, report));
+          if (await relayToGGG('scan', {}, report)) { pushScan(); pushChars(); }
         } else if (m.cmd === 'chars') {
-          const league = (m.data && m.data.league) || '';
-          const before = GM_getValue('lastChars', '').slice(0, 90);
-          GM_setValue('charsRequest', { at: Date.now(), league });
-          report({ msg: 'Personnages : demande transmise à l\'onglet pathofexile.com…' });
-          // un onglet pathofexile.com ouvert (même en arrière-plan) répond en quelques secondes
-          for (let t = 0; t < 40; t++) {
-            await sleep(1500);
-            const st = GM_getValue('charsStatus', null);
-            if (st && st.at > Date.now() - 3000 && st.msg) report(st);
-            if (GM_getValue('lastChars', '').slice(0, 90) !== before) { pushChars(); return; }
-            if (st && st.error && st.at > Date.now() - 3000) return;
-          }
-          report({ msg: 'Personnages : aucun onglet pathofexile.com n\'a répondu. Ouvre pathofexile.com (connecté) dans ce navigateur, puis relance l\'import, ou utilise le bouton Personnages du panneau Coffres.', error: true });
+          if (await relayToGGG('chars', { league: (m.data && m.data.league) || '' }, report)) pushChars();
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report, (m.data && m.data.league) || ''));
         } else if (m.cmd === 'trade-prepare') {
@@ -789,16 +798,39 @@
       $('chars').disabled = true;
       try { await runChars(rep, league); } catch (e) { rep({ msg: `Personnages : ${e.message}`, error: true }); }
       $('chars').disabled = false;
-      GM_setValue('charsLock', 0);
     };
     $('chars').onclick = () => { saveForm(); doChars(''); };
-    // demandes venues de la page : on exécute ici (cookies et Cloudflare OK) et on publie la progression
-    GM_addValueChangeListener('charsRequest', (k, o, n, remote) => {
+    // demandes venues de la page : exécutées ici (cookies et Cloudflare OK), progression publiée dans gggStatus
+    GM_addValueChangeListener('gggRequest', async (k, o, n, remote) => {
       if (!remote || !n || Date.now() - n.at > 60000) return;
-      if (GM_getValue('charsLock', 0) > Date.now()) return; // un seul onglet GGG traite la demande
-      GM_setValue('charsLock', Date.now() + 90000);
-      const relay = d => { report(d); GM_setValue('charsStatus', { msg: d.msg, error: !!d.error, at: Date.now() }); };
-      doChars(n.league || '', relay);
+      const lk = GM_getValue('gggLock', null);
+      if (lk && lk.id !== n.id && lk.until > Date.now()) return; // un autre onglet GGG traite déjà une demande
+      GM_setValue('gggLock', { id: n.id, until: Date.now() + 60000 });
+      if (GM_getValue('gggLock', null).id !== n.id) return;
+      const relay = d => {
+        report(d);
+        GM_setValue('gggLock', { id: n.id, until: Date.now() + 60000 });
+        GM_setValue('gggStatus', { id: n.id, msg: d.msg || '', p: d.p, error: !!d.error, done: false, at: Date.now() });
+      };
+      relay({ msg: n.kind === 'scan' ? 'Scan pris en charge par l\'onglet pathofexile.com…' : 'Personnages : pris en charge par l\'onglet pathofexile.com…' });
+      let ok = true, last = '';
+      try {
+        if (n.kind === 'scan') {
+          $('scan').disabled = $('load').disabled = true;
+          const scan = await runScan(relay);
+          last = `Scan terminé : ${scan.items.length} objets.`;
+          if (getSettings().withChars) { await runChars(relay); last += ' Personnages importés.'; }
+        } else {
+          $('chars').disabled = true;
+          const out = await runChars(relay, (n.data && n.data.league) || '');
+          last = `Personnages : ${out.chars.length} importé${out.chars.length > 1 ? 's' : ''}.`;
+        }
+      } catch (e) { ok = false; last = `${n.kind === 'scan' ? 'Scan' : 'Personnages'} : ${e.message}`; }
+      $('scan').disabled = $('load').disabled = $('chars').disabled = false;
+      report({ msg: last, error: !ok, p: 1 });
+      GM_setValue('gggStatus', { id: n.id, msg: last, p: 1, error: !ok, done: ok, at: Date.now() });
+      GM_setValue('gggLock', null);
+      fabState();
     });
     $('scan').onclick = async () => {
       saveForm();

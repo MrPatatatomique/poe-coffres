@@ -647,6 +647,7 @@
         <button role="menuitem" id="reloadPrices"><svg><use href="#i-coin"/></svg><span><b>Recharger les prix</b><small>Dernière publication poe.ninja du dépôt (toutes les 30 min)</small></span></button>
         <div class="mp-sec">Fichiers</div>
         <button role="menuitem" id="exportJson" disabled><svg><use href="#i-down"/></svg><span><b>Exporter le scan</b><small>JSON complet, réimportable</small></span></button>
+        <button role="menuitem" id="exportChars" disabled><svg><use href="#i-down"/></svg><span><b>Exporter les personnages</b><small>JSON de l'équipement importé</small></span></button>
         <button role="menuitem" id="exportCsv" disabled><svg><use href="#i-down"/></svg><span><b>Exporter la vue</b><small>CSV des objets filtrés, pour Excel</small></span></button>
         <button role="menuitem" id="openBtn"><svg><use href="#i-open"/></svg><span><b>Ouvrir un scan</b><small>Fichier JSON exporté auparavant</small></span></button>
         <div class="mp-sec">Recherches trade</div>
@@ -901,7 +902,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.7.3';
+  const REQ_SCRIPT = '2.8.0';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -1012,7 +1013,7 @@
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
         break;
       case 'chars':
-        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } if (charsDone()) status(`Personnages importés : ${charData.chars.length}${charData.failed && charData.failed.length ? `, ${charData.failed.length} en échec` : ''}`); } catch (e) { charsDone(); status('Personnages reçus illisibles : ' + e.message, true); }
+        try { charData = JSON.parse(m.data); $('exportChars').disabled = false; if (data) { buildItems(); applyPrices(); } if (charsDone()) status(`Personnages importés : ${charData.chars.length}${charData.failed && charData.failed.length ? `, ${charData.failed.length} en échec` : ''}`); } catch (e) { charsDone(); status('Personnages reçus illisibles : ' + e.message, true); }
         break;
       case 'prices':
         try {
@@ -1061,6 +1062,13 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
   $('acctPop').addEventListener('click', e => { if (e.target.closest('button,a')) closeMenu(); });
   $('reloadPage').onclick = () => location.reload();
+  $('exportChars').onclick = () => {
+    if (!charData) return;
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(charData)], { type: 'application/json' }));
+    a.download = `personnages_${String(charData.league || '').replace(/[^\w-]+/g, '_')}.json`;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  };
   const renderErrors = () => {
     const h = store.get('poeErrors', []).slice().reverse();
     $('eSub').textContent = h.length ? `${h.length} erreur${h.length > 1 ? 's' : ''} enregistrée${h.length > 1 ? 's' : ''} dans ce navigateur` : 'Aucune erreur enregistrée';
@@ -1341,7 +1349,7 @@
   let charsTimer = 0;
   function importChars() {
     if (!bridge) { status('Le script Violentmonkey n\'est pas connecté : impossible d\'importer les personnages.', true); return; }
-    if (vnum(scriptVersion) < vnum('2.7.1')) { status(`Mets à jour le script Violentmonkey (v${scriptVersion} installée, v2.7.1 requise) pour importer les personnages.`, true); return; }
+    if (vnum(scriptVersion) < vnum('2.8.0')) { status(`Mets à jour le script Violentmonkey (v${scriptVersion} installée, v2.8.0 requise) pour importer les personnages.`, true); return; }
     setBusy('charsBtn', true); $('charsImp').classList.add('spin');
     status('Import des personnages…', false, true);
     cmd('chars', { league: data ? data.league : '' });
@@ -2510,7 +2518,7 @@
     if (view === 'grid' && isChar) {
       const tot = list.reduce((a, i) => a + val(i), 0);
       $('count').innerHTML = `<span><b>${list.length}</b> objet${list.length > 1 ? 's' : ''}</span>${tot ? `<span>·</span><span>valeur <b>${esc(fmt(tot))}</b> (à part du coffre)</span>` : ''}`;
-      renderDoll(list); return;
+      renderDoll(items.filter(i => i.tabI === activeTab)); return;
     }
     const gridOk = view === 'grid' && tab && GRID_TYPES[tab.type];
     const tot = list.reduce((s, i) => s + val(i), 0);
