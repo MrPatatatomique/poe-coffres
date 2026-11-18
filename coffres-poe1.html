@@ -189,6 +189,9 @@
 
   .grid-wrap{padding:18px;display:flex;justify-content:center}
   .eqv{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .chnote{margin:6px 8px 0;font-size:11px;color:var(--muted)}
+  .gh-more svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+  .gh-more.spin svg{animation:spin .9s linear infinite}
   .chsect{display:flex;justify-content:space-between;align-items:baseline;margin:14px 8px 6px;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
   .chsect .s{font:400 11px/1 var(--body);letter-spacing:0;text-transform:none}
   .chimp{margin:0 8px;font-size:12px;padding:6px 10px}
@@ -666,6 +669,10 @@
         <div class="sect fhead"><span class="fttl">◎ Surveillés <span id="watchCount"></span><button class="gh-more" id="watchAdd" title="Surveiller le prix d'un objet que tu n'as pas" aria-label="Ajouter un objet à surveiller">+</button></span><button class="chev" id="watchToggle" aria-expanded="true" aria-label="Replier les surveillés"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
         <div id="watchList"></div>
       </div>
+      <div class="follow-sect" id="charWrap" hidden>
+        <div class="sect fhead"><span class="fttl">⚔ Personnages <span id="charCount"></span><button class="gh-more" id="charsImp" title="Importer ou actualiser l'équipement des personnages" aria-label="Importer les personnages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></span><button class="chev" id="charsToggle" aria-expanded="true" aria-label="Replier les personnages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+        <div id="charList"></div>
+      </div>
       <div class="sect fhead"><span>Onglets</span><button class="chev" id="tabsToggle" aria-expanded="true" aria-label="Replier les onglets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
       <div id="tabList"></div>
     </aside>
@@ -927,7 +934,7 @@
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
         break;
       case 'chars':
-        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } setBusy('charsBtn', false); } catch (e) { status('Personnages reçus illisibles : ' + e.message, true); }
+        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } charsDone(); } catch (e) { charsDone(); status('Personnages reçus illisibles : ' + e.message, true); }
         break;
       case 'prices':
         try {
@@ -941,6 +948,7 @@
         const busy = !d.done && !d.error && /…|\(\d+\/\d+\)|Onglet \d/.test(d.msg || '');
         status(d.msg || '', !!d.error, busy);
         if (d.done || d.error) setBusy('scanBtn', false);
+        if (d.error && /^Personnages|Compte et ligue/.test(d.msg || '')) charsDone();
         if (tradeBusy.size) { tradeLive = d.msg || ''; if (d.error) { tradeBusy.clear(); } if (selected !== null) select(selected); }
         break;
       }
@@ -1237,7 +1245,21 @@
     if (activeTab !== null && activeTab < 0 && !charsHere()[-activeTab - 1]) activeTab = null;
   }
   const stashItems = () => items.filter(i => !i.char);
-  $('charsBtn').onclick = () => { if (!bridge) return; setBusy('charsBtn', true); cmd('chars', { league: data ? data.league : '' }); };
+  // import des personnages : vérifie la version du script et donne un retour même s'il ne répond pas
+  let charsTimer = 0;
+  function importChars() {
+    if (!bridge) { status('Le script Violentmonkey n\'est pas connecté : impossible d\'importer les personnages.', true); return; }
+    if (vnum(scriptVersion) < vnum('2.7.0')) { status(`Mets à jour le script Violentmonkey (v${scriptVersion} installée, v2.7.0 requise) pour importer les personnages.`, true); return; }
+    setBusy('charsBtn', true); $('charsImp').classList.add('spin');
+    status('Import des personnages…', false, true);
+    cmd('chars', { league: data ? data.league : '' });
+    clearTimeout(charsTimer);
+    charsTimer = setTimeout(() => { setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); status('Pas de réponse du script pour les personnages : recharge la page et réessaie.', true); }, 120000);
+  }
+  const charsDone = () => { clearTimeout(charsTimer); setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); };
+  $('charsBtn').onclick = importChars;
+  $('charsImp').onclick = importChars;
+  $('charsToggle').onclick = () => { store.set('poeCharsHidden', $('charList').hidden ? 0 : 1); renderTabs(); };
   $('withChars').onchange = () => { cmd('settings', { withChars: $('withChars').checked }); status($('withChars').checked ? 'Les personnages seront réimportés après chaque scan' : 'Personnages : import manuel seulement'); };
 
   function enrich(it, idx) {
@@ -2345,10 +2367,16 @@
     const at = charData && charData.at ? ago(Date.parse(charData.at)) : '';
     $('tabList').innerHTML = btn(null, 'Tous les onglets', stashItems().length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
       tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('') +
-      (cl.length ? `<div class="chsect"><span>Personnages · à part</span><span class="s">${esc(at)}</span></div>` + cl.map(charBtn).join('')
-        : bridge && data ? `<div class="chsect"><span>Personnages</span></div><button class="btn ghost chimp" id="charsImp">Importer l'équipement</button>` : '');
-    if ($('charsImp')) $('charsImp').onclick = () => $('charsBtn').click();
-    $('tabList').querySelectorAll('.tab').forEach(b => b.onclick = () => {
+      '';
+    // personnages : section à part, sous les surveillés
+    $('charWrap').hidden = !data || (!cl.length && !bridge);
+    $('charCount').textContent = cl.length ? `(${cl.length})` : '';
+    $('charList').innerHTML = cl.length ? cl.map(charBtn).join('') + `<div class="chnote">Valeur à part du coffre · importés ${esc(at)}</div>`
+      : `<div class="wempty">Équipement et inventaire de tes personnages de la ligue, cotés à part.<br><button class="btn" id="charsImp2">Importer les personnages</button></div>`;
+    if ($('charsImp2')) $('charsImp2').onclick = importChars;
+    const ch = Number(store.get('poeCharsHidden', 0)) === 1;
+    $('charList').hidden = ch; setChev('charsToggle', ch, 'les personnages');
+    document.querySelectorAll('#tabList .tab, #charList .tab').forEach(b => b.onclick = () => {
       activeTab = b.dataset.k === '' ? null : Number(b.dataset.k);
       shown = PAGE; renderTabs(); render();
     });
