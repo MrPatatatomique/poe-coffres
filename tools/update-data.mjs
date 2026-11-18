@@ -13,7 +13,11 @@ const POB_FILES = ['amulet', 'axe', 'belt', 'body', 'boots', 'bow', 'claw', 'dag
 
 export const EXCHANGE_TYPES = ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Astrolabe', 'Thread', 'Fossil', 'Resonator', 'Essence'];
 export const STASH_CURRENCY_TYPES = ['Currency', 'Fragment'];
-export const ITEM_TYPES = ['UniqueWeapon', 'UniqueArmour', 'UniqueAccessory', 'UniqueFlask', 'UniqueJewel', 'UniqueTincture', 'UniqueRelic', 'UniqueMap', 'SkillGem', 'Map', 'BlightedMap', 'BlightRavagedMap', 'ValdoMap', 'Invitation', 'Memory', 'Incubator', 'Vial', 'Wombgift', 'Corpse', 'Viscera'];
+export const ITEM_TYPES = ['UniqueWeapon', 'UniqueArmour', 'UniqueAccessory', 'UniqueFlask', 'UniqueJewel', 'UniqueTincture', 'UniqueRelic', 'UniqueMap', 'SkillGem', 'Map', 'BlightedMap', 'BlightRavagedMap', 'ValdoMap', 'Invitation', 'Memory', 'Incubator', 'Vial', 'Wombgift', 'Corpse', 'Viscera',
+  // ajoutées le 18/11 : cotation par ligne exacte (ilvl, influences, enchantement…), pas encore appliquée aux objets du coffre
+  'BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt'];
+// Base Types : ~16 000 lignes, on ne garde que celles qui valent au moins 5 c
+const MIN_CHAOS = { BaseType: 5 };
 
 // Historique : 30 min sur 7 jours, puis 2 h jusqu'à 30 jours, puis 6 h jusqu'à la fin de la ligue
 const TIERS = [[7 * 1440, 30], [30 * 1440, 120], [Infinity, 360]];
@@ -78,11 +82,12 @@ async function fetchLeague(league, prev = null) {
     const j = await getJson(`${NINJA}/stash/current/item/overview${q(t)}`);
     if (j) {
       for (const l of j.lines || []) icon(l.name, l.icon);
-      out.items[t] = (j.lines || []).map(l => ({
+      out.items[t] = (j.lines || []).filter(l => !(l.chaosValue < (MIN_CHAOS[t] || 0))).map(l => ({
         k: `i|${t}|${l.detailsId}|${l.links || 0}`,
         name: l.name, baseType: l.baseType, variant: l.variant, links: l.links || 0,
         gemLevel: l.gemLevel, gemQuality: l.gemQuality || 0, corrupted: !!l.corrupted,
         mapTier: l.mapTier, itemClass: l.itemClass, v: l.chaosValue, listings: l.listingCount,
+        ...(l.levelRequired ? { ilvl: l.levelRequired } : {}), ...(l.itemType ? { itemType: l.itemType } : {}),
         sp: (l.sparkLine?.data || []).some(x => x !== null) ? l.sparkLine.data : l.lowConfidenceSparkLine?.data,
         ...(/^Unique/.test(t) ? {
           ranges: (l.explicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)),

@@ -674,6 +674,8 @@
             <option value="uni">Uniques</option>
             <option value="gem">Gemmes</option>
             <option value="div">Cartes divinatoires</option>
+            <option value="base">Bases (ilvl, influences) et flasques</option>
+            <option value="jew">Joyaux cluster et interdits</option>
             <option value="oth">Cartes, invitations, autres</option>
           </select>
         </div>
@@ -1163,15 +1165,20 @@
     for (const [t, lines] of Object.entries(p.currency || {})) lines.forEach(l => put(l.name, l.v, t, l.sp, l.k || repoKeys.get(lineSig('currency', t, l))));
     put('Chaos Orb', 1, 'Currency');
     if (!divine) divine = byName.get('divine orb')?.chaos || 0;
-    const byItem = new Map();
+    const byItem = new Map(), lineOnly = [];
     for (const [t, lines] of Object.entries(p.items || {})) for (const l of lines) {
       if (!l.name || !(l.v > 0)) continue;
+      if (LINE_ONLY.has(t)) { lineOnly.push({ ...l, t }); continue; }
       const k = l.name.toLowerCase();
       if (!byItem.has(k)) byItem.set(k, []);
       byItem.get(k).push({ ...l, t, k: l.k || repoKeys.get(lineSig('items', t, l)) });
     }
-    return { byName, byItem, divine };
+    const byKey = new Map();
+    for (const lines of [...byItem.values(), lineOnly]) for (const l of lines) if (l.k) byKey.set(l.k, l);
+    return { byName, byItem, byKey, divine };
   }
+  // catégories cotées seulement par ligne exacte (surveillés) : jamais par correspondance de nom ou de base
+  const LINE_ONLY = new Set(['BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt']);
 
   function pick(lines, src) {
     if (!lines.length) return null;
@@ -1183,7 +1190,10 @@
     if (!P) return null;
     const nameK = i.name.toLowerCase(), typeK = i.type.toLowerCase(), baseK = i.base.toLowerCase();
     let r = null;
-    if (i.rarity === 3 || i.rarity === 9) {
+    if (i.lineKey) {
+      const l = P.byKey.get(i.lineKey);
+      r = l ? pick([l]) : null;
+    } else if (i.rarity === 3 || i.rarity === 9) {
       let c = (P.byItem.get(nameK) || []).filter(l => /^Unique/.test(l.t));
       const kind = c.filter(l => (i.rarity === 9) === (l.t === 'UniqueRelic'));
       if (kind.length) c = kind;
@@ -1288,11 +1298,12 @@
 
   // =================== Suivi des prix ===================
   function itemKey(i) {
+    if (i.lineKey) return `k|${i.lineKey}`;
     if (i.rarity === 3 || i.rarity === 9) return `u|${i.name}|${i.base}|${i.links >= 5 ? i.links : 0}`;
     if (i.rarity === 4) return `g|${i.type}|${i.gemLevel}|${i.gemQuality}|${i.corrupted ? 1 : 0}`;
     return `n|${i.type}`;
   }
-  const probeOf = i => ({ name: i.name, type: i.type, base: i.base, rarity: i.rarity, links: i.links, gemLevel: i.gemLevel, gemQuality: i.gemQuality, corrupted: i.corrupted, mapTier: i.mapTier, stack: 1 });
+  const probeOf = i => ({ name: i.name, type: i.type, base: i.base, rarity: i.rarity, links: i.links, gemLevel: i.gemLevel, gemQuality: i.gemQuality, corrupted: i.corrupted, mapTier: i.mapTier, ...(i.lineKey ? { lineKey: i.lineKey } : {}), stack: 1 });
 
   function saveTracking() {
     const payload = { follow, history };
@@ -1462,7 +1473,12 @@
     }
     for (const [t, lines] of Object.entries(prices.items || {})) for (const l of lines) {
       if (!l.name) continue;
-      if (/^Unique/.test(t)) {
+      if (LINE_ONLY.has(t)) {
+        const cat = t === 'ImbuedGem' ? 'gem' : t === 'BaseType' || t === 'Flask' ? 'base' : t === 'ClusterJewel' || t === 'ForbiddenJewel' ? 'jew' : 'oth';
+        const label = t === 'ClusterJewel' ? `${l.baseType} · ${l.name}` : l.name;
+        push({ cat, t, label, sub: [l.variant, l.ilvl ? `ilvl ${l.ilvl}` : '', t === 'ClusterJewel' ? '' : l.baseType, CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: t === 'ImbuedGem' ? 4 : 0,
+          probe: { name: '', type: l.name, base: l.baseType || l.name, rarity: t === 'ImbuedGem' ? 4 : 0, links: 0, lineKey: l.k } });
+      } else if (/^Unique/.test(t)) {
         const r = t === 'UniqueRelic' ? 9 : 3, links = l.links >= 5 ? l.links : 0;
         push({ cat: 'uni', t, label: l.name, sub: [l.baseType, links ? `${links} liens` : '', CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: r,
           probe: { name: l.name, type: l.baseType || l.name, base: l.baseType || l.name, rarity: r, links } });
@@ -1477,7 +1493,7 @@
     wCands = out; wCandsAt = prices.fetchedAt;
     return out;
   }
-  const CAT_FR = { Currency: 'Currency', Fragment: 'Fragment', DivinationCard: 'Carte divinatoire', Scarab: 'Scarabée', Thread: 'Thread', Fossil: 'Fossile', Resonator: 'Résonateur', Essence: 'Essence', Oil: 'Huile', Omen: 'Présage', Tattoo: 'Tatouage', Runegraft: 'Runegraft', DeliriumOrb: 'Orbe de délire', Artifact: 'Artefact', Astrolabe: 'Astrolabe', AllflameEmber: 'Braise', DjinnCoin: 'Pièce de djinn', Ducat: 'Ducat', EnshroudingCrystal: 'Cristal', UniqueWeapon: 'Arme unique', UniqueArmour: 'Armure unique', UniqueAccessory: 'Bijou unique', UniqueFlask: 'Flasque unique', UniqueJewel: 'Joyau unique', UniqueTincture: 'Teinture unique', UniqueRelic: 'Relique', UniqueMap: 'Carte unique', Map: 'Carte', BlightedMap: 'Carte infestée', BlightRavagedMap: 'Carte ravagée', ValdoMap: 'Carte de Valdo', Invitation: 'Invitation', Memory: 'Souvenir', Incubator: 'Incubateur', Vial: 'Fiole', Wombgift: 'Wombgift', Corpse: 'Cadavre', Viscera: 'Viscère' };
+  const CAT_FR = { Currency: 'Currency', Fragment: 'Fragment', DivinationCard: 'Carte divinatoire', Scarab: 'Scarabée', Thread: 'Thread', Fossil: 'Fossile', Resonator: 'Résonateur', Essence: 'Essence', Oil: 'Huile', Omen: 'Présage', Tattoo: 'Tatouage', Runegraft: 'Runegraft', DeliriumOrb: 'Orbe de délire', Artifact: 'Artefact', Astrolabe: 'Astrolabe', AllflameEmber: 'Braise', DjinnCoin: 'Pièce de djinn', Ducat: 'Ducat', EnshroudingCrystal: 'Cristal', UniqueWeapon: 'Arme unique', UniqueArmour: 'Armure unique', UniqueAccessory: 'Bijou unique', UniqueFlask: 'Flasque unique', UniqueJewel: 'Joyau unique', UniqueTincture: 'Teinture unique', UniqueRelic: 'Relique', UniqueMap: 'Carte unique', Map: 'Carte', BlightedMap: 'Carte infestée', BlightRavagedMap: 'Carte ravagée', ValdoMap: 'Carte de Valdo', Invitation: 'Invitation', Memory: 'Souvenir', Incubator: 'Incubateur', Vial: 'Fiole', Wombgift: 'Wombgift', Corpse: 'Cadavre', Viscera: 'Viscère', BaseType: 'Base', ImbuedGem: 'Gemme imprégnée', ClusterJewel: 'Joyau cluster', ForbiddenJewel: 'Joyau interdit', Flask: 'Flasque', ScryingOrb: 'Orbe de divination', IncursionTemple: 'Temple', Beast: 'Bête', ShrineBelt: 'Ceinture de sanctuaire' };
   function openWatch(from) {
     if (!prices || !P) { status('Les prix poe.ninja ne sont pas encore chargés.', true); return; }
     wFrom = from || null;
