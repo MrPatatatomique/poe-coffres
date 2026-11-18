@@ -285,6 +285,14 @@
   .hdlinks a:hover{color:var(--gold2);border-color:var(--gold3)}
   .hdlinks svg{width:12px;height:12px}
   .bhint{color:var(--gold3);font-weight:500}
+  .manbox{margin-top:12px;padding:12px 15px;border:1px solid var(--line2);border-radius:var(--r);background:#14100c}
+  .manbox .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .manbox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .manbox .s{color:var(--muted);font-size:12px;margin-top:6px}
+  .manbox .row .s{margin:0}
+  .mrow{display:flex;gap:6px;flex-wrap:wrap}
+  .mrow input{width:90px;flex:1;min-width:70px}
+  .tbadge.man{color:var(--gold2);border-color:var(--gold3)}
   .bhbox{display:flex;flex-direction:column;gap:3px;margin:2px 0 0;padding:8px 10px;border:1px dashed var(--line3);border-radius:8px;font-size:12.5px;color:var(--text2)}
   .bhbox b{color:var(--gold2)} .bhbox .s{margin:0} .bhbox a{color:var(--gold2)}
   .gi.bvalued{outline:1px dashed var(--gold3);outline-offset:-1px}
@@ -707,7 +715,7 @@
 
   // =================== Stockage local : format versionné, purge, erreurs visibles ===================
   // Clés : poeTracking (suivis), poeTrades (estimations trade), poeFarm (gains), poeQtyHist (quantités),
-  // poeValueHist (valeur du coffre), poeFollowHidden / poeGainRange / poeVhRange (préférences), poeSchema (version).
+  // poeValueHist (valeur du coffre), poeManual (prix fixés à la main), poeFollowHidden / poeGainRange / poeVhRange (préférences), poeSchema (version).
   const STORE_VER = 2;
   const logErr = (what, e) => console.warn(`[Coffres] ${what} :`, e);
   let storeWarned = false;
@@ -788,10 +796,12 @@
   let bridge = false, curIcons = {};
   let follow = {}, history = {};
   let localTrades = store.get('poeTrades', {});
+  // prix fixés à la main, par identifiant d'objet : { v (chaos), at }
+  let manualPrices = store.get('poeManual', {});
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.6';
+  const REQ_SCRIPT = '2.6.7';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -818,6 +828,8 @@
     if (!m || m.src !== 'poe-us') return;
     switch (m.type) {
       case 'ready':
+        // deux copies du script (ancienne installation gardée à côté de la nouvelle) : chacune a ses propres données
+        if (m.data.inst) { scriptInst.set(m.data.inst, m.data); if (scriptInst.size > 1 && !dupWarned) { dupWarned = true; status(`Deux copies du script Violentmonkey sont actives (${[...scriptInst.values()].map(x => `v${x.version}`).join(' et ')}). Supprime l'ancienne dans le tableau de bord Violentmonkey : chacune a ses propres réglages et scans.`, true); } }
         if (bridge) return;
         bridge = true;
         scriptVersion = m.data.version;
@@ -935,6 +947,7 @@
   // =================== Overlay local (pont trade) ===================
   const OVERLAY = 'http://127.0.0.1:7777';
   let overlayOK = false, overlayName = '';
+  const scriptInst = new Map(); let dupWarned = false;
   function updateApi() {
     const on = overlayOK;
     $('apiDot').classList.toggle('on', on);
@@ -1209,6 +1222,32 @@
     return { byName, byItem, byKey, bases, clusters, divine };
   }
 
+  // ---- prix manuel
+  function manualHtml(i) {
+    const mp = manualPrices[i.raw.id], div = P && P.divine;
+    const inDiv = mp && div && mp.v >= div;
+    const shown = mp ? (inDiv ? Math.round(mp.v / div * 100) / 100 : Math.round(mp.v * 100) / 100) : '';
+    return `<div class="manbox"><div class="row"><label class="lb" for="mpV">Prix manuel</label>${mp ? `<span class="s">fixé ${esc(ago(mp.at))}</span>` : ''}</div>
+      <div class="mrow"><input id="mpV" type="number" inputmode="decimal" min="0" step="any" value="${shown}" placeholder="ex. 25">
+        <select id="mpU" aria-label="Unité"><option value="c"${inDiv ? '' : ' selected'}>chaos</option>${div ? `<option value="div"${inDiv ? ' selected' : ''}>divine</option>` : ''}</select>
+        <button class="btn primary" id="mpSave">${mp ? 'Modifier' : 'Fixer le prix'}</button>${mp ? '<button class="btn ghost" id="mpDel">Retirer</button>' : ''}</div>
+      <div class="s">Ton propre prix : compté dans les estimations à la place du trade.</div></div>`;
+  }
+  function wireManual(i) {
+    if (!$('mpSave')) return;
+    const save = () => {
+      const n = parseFloat(String($('mpV').value).replace(',', '.'));
+      if (!(n > 0)) { $('mpV').focus(); status('Indique un prix supérieur à 0.', true); return; }
+      const v = $('mpU').value === 'div' && P && P.divine ? n * P.divine : n;
+      manualPrices[i.raw.id] = { v: Math.round(v * 100) / 100, at: Date.now() };
+      store.set('poeManual', manualPrices);
+      applyPrices();
+      status(`Prix manuel fixé : ${i.label} à ${fmt(v)}`);
+    };
+    $('mpSave').onclick = save;
+    $('mpV').onkeydown = e => { if (e.key === 'Enter') save(); };
+    if ($('mpDel')) $('mpDel').onclick = () => { delete manualPrices[i.raw.id]; store.set('poeManual', manualPrices); applyPrices(); status(`Prix manuel retiré : ${i.label}`); };
+  }
   function baseHintHtml(bh) {
     const url = ninjaUrl({ hk: bh.hk, src: bh.src });
     return `<div class="bhbox"><span>Valeur de la base <b>${esc(fmt(bh.v))}</b></span><span class="s">${esc(bh.label)}${bh.listings ? ` · ${nf(bh.listings, 0)} annonces` : ''}${url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">voir sur poe.ninja</a>` : ''}</span><span class="s">Base seule, hors modificateurs : une piste pour repérer les objets à vérifier, non comptée dans les totaux.</span></div>`;
@@ -1329,7 +1368,9 @@
     items.forEach(i => {
       i.price = priceItem(i);
       const t = i.raw.id && trades[i.raw.id];
-      i.trade = !i.price && t && t.estimate ? t : null;
+      const mp = i.raw.id && manualPrices[i.raw.id];
+      // prix manuel : prioritaire sur l'estimation trade, jamais sur poe.ninja
+      i.trade = i.price ? null : mp ? { estimate: mp.v, at: mp.at, manual: true } : t && t.estimate ? t : null;
       i.baseHint = i.price ? null : baseHint(i);
       i.roll = computeRoll(i);
     });
@@ -2149,7 +2190,8 @@
     if (traded.length) {
       $('kTrade').textContent = fmt(sTrade) || '0 c';
       const oldest = Math.min(...traded.map(i => i.trade.at));
-      $('kTradeSub').textContent = `${traded.length} estimé${traded.length > 1 ? 's' : ''} · ${unvalued} non valorisé${unvalued > 1 ? 's' : ''} · plus ancienne ${ago(oldest)}`;
+      const nMan = traded.filter(i => i.trade.manual).length;
+      $('kTradeSub').textContent = `${traded.length} estimé${traded.length > 1 ? 's' : ''}${nMan ? ` (dont ${nMan} manuel${nMan > 1 ? 's' : ''})` : ''} · ${unvalued} non valorisé${unvalued > 1 ? 's' : ''} · plus ancienne ${ago(oldest)}`;
     } else { $('kTrade').textContent = '—'; $('kTradeSub').textContent = `aucune estimation · ${unvalued} objet${unvalued > 1 ? 's' : ''} non valorisé${unvalued > 1 ? 's' : ''}`; }
     renderFresh();
     // Les plus précieux
@@ -2252,7 +2294,7 @@
       <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
       <td class="num">${i.ilvl || ''}</td>
       <td>${socketsHtml(i)}</td>
-      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}${i.baseHint ? ` · base ${esc(fmt(i.baseHint.v))}` : ''}</span>` : !i.price && i.baseHint ? `<span class="bhint" title="Valeur de la base seule sur poe.ninja (${esc(i.baseHint.label)}) : une piste, non comptée dans les totaux">base ${esc(fmt(i.baseHint.v))}</span><span class="unit">${esc(i.baseHint.label)}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
+      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge${i.trade.manual ? ' man' : ''}">${i.trade.manual ? 'manuel' : 'trade'}</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}${i.baseHint ? ` · base ${esc(fmt(i.baseHint.v))}` : ''}</span>` : !i.price && i.baseHint ? `<span class="bhint" title="Valeur de la base seule sur poe.ninja (${esc(i.baseHint.label)}) : une piste, non comptée dans les totaux">base ${esc(fmt(i.baseHint.v))}</span><span class="unit">${esc(i.baseHint.label)}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
       <td class="zc">${i.price ? `<button class="loupe" data-z="${i.idx}" title="Détails du prix" aria-label="Détails du prix de ${esc(i.name || i.type)}"><svg><use href="#i-search"/></svg></button>` : ''}</td></tr>`).join('');
     $('view').innerHTML = `<table><thead><tr>${COLS.map(([n, key, num]) => `<th class="${num ? 'num' : ''}${key === sortKey ? ' sorted' : ''}" ${key ? `data-s="${key}"` : ''}>${n}${key === sortKey ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
       (list.length > shown ? `<button class="btn more" id="more">Afficher ${Math.min(PAGE, list.length - shown)} de plus · ${list.length - shown} restants</button>` : '');
@@ -2337,13 +2379,15 @@
         : i.baseHint ? baseHintHtml(i.baseHint)
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${chart}
-      ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
+      ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? (i.baseHint ? `<div class="pricebox none"><div class="row"><div class="lb">Prix poe.ninja</div></div>${baseHintHtml(i.baseHint)}</div>` : '') + tradeSection(i) : ''}
+      ${!pr && !i.ghost && i.raw.id ? manualHtml(i) : ''}
       ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
     wireChart();
     wireTrade(i);
+    wireManual(i);
     if ($('lnkItemTrade')) $('lnkItemTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
     $('detail').classList.add('show');
   }

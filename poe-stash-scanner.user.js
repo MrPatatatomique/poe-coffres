@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.6
+// @version      2.6.7
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -46,6 +46,7 @@
     return fetch(url, { method, credentials: 'include', headers, body })
       .then(async r => { const h = {}; r.headers.forEach((v, k) => (h[k.toLowerCase()] = v)); return { status: r.status, headers: h, text: await r.text() }; });
   }
+  const INSTANCE = Math.random().toString(36).slice(2, 10);
   const logErr = (what, e) => console.warn(`[Coffres] ${what} :`, e);
   // Nettoyage des clés laissées par le relais et la base poewiki (supprimés en 2.6.6)
   for (const k of ['gggAlive', 'relayTab', 'relayPing', 'relayAck', 'relayDone', 'uniqueDb']) GM_deleteValue(k);
@@ -460,11 +461,14 @@
     async function greet() {
       if (greeted) return;
       greeted = true;
-      send('ready', { version: '2.6.6' });
+      // instance : permet à la page de repérer deux copies du script installées en même temps
+      send('ready', { version: GM_info.script.version, inst: INSTANCE, scans: !!GM_getValue('lastScan', '') });
       pushSettings(); pushTracking(); pushTrades(); pushScan();
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
-      if (!getSettings().ninjaRemote && (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== getSettings().league)) pushPrices(await loadPrices(false, report));
+      // sans ligue connue (aucun scan dans ce script), pas de récupération automatique : la page fournit ses prix
+      if (!priceLeague()) return;
+      if (!getSettings().ninjaRemote && (!p || Date.now() - p.fetchedAt > NINJA_TTL || p.gggLeague !== priceLeague())) pushPrices(await loadPrices(false, report));
     }
 
     window.addEventListener('message', async ev => {
@@ -523,7 +527,7 @@
     let pricesBusy = false;
     setInterval(async () => {
       const p = GM_getValue('ninjaPrices', null);
-      if (getSettings().ninjaRemote || pricesBusy || (p && p.gggLeague === getSettings().league && Date.now() - p.fetchedAt < NINJA_TTL)) return;
+      if (getSettings().ninjaRemote || pricesBusy || !priceLeague() || (p && p.gggLeague === priceLeague() && Date.now() - p.fetchedAt < NINJA_TTL)) return;
       pricesBusy = true;
       try { pushPrices(await loadPrices(false, () => {})); }
       catch (e) { report({ msg: `Prix poe.ninja : ${e.message}`, error: true }); }
