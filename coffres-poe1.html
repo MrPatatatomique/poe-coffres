@@ -189,8 +189,11 @@
 
   .grid-wrap{padding:18px;display:flex;justify-content:center}
   .eqv{color:var(--muted);font-size:11.5px;margin-top:2px}
-  .tab .cls{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line3);background:#0c0a08}
-  .tab .tr2.cl2{padding-left:30px}
+  .chartab{display:grid;grid-template-columns:38px 1fr auto;grid-template-rows:auto auto;column-gap:10px;row-gap:3px;align-items:center}
+  .chartab .cls{grid-row:1/3;width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid var(--line3);background:#0c0a08}
+  .chartab .nm{grid-column:2;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .chartab .v{grid-column:3;color:var(--gold2);font-variant-numeric:tabular-nums}
+  .chartab .ct{grid-column:2/4;font-size:11.5px;color:var(--muted)}
   .gmi{display:inline-flex;gap:1px;margin-left:6px;vertical-align:middle}
   .gmi img{width:16px;height:16px;object-fit:contain}
   .dgems{position:absolute;top:2px;right:2px;display:flex;flex-direction:column;gap:1px}
@@ -301,6 +304,15 @@
   .acct-fresh b.old{color:var(--err)}
   .acct .chev{width:15px;height:15px;color:var(--muted)}
   .acct-pop{min-width:330px;max-height:calc(100vh - 90px);overflow:auto}
+  .errc{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:#3a1a16;color:#ffb4a8;font-size:10.5px;text-align:center}
+  .errc:empty{display:none}
+  .ebox{width:min(760px,100%);height:min(560px,calc(100vh - 48px));display:flex;flex-direction:column}
+  .ebox .zb{flex:1;min-height:0;overflow:auto}
+  .elist{border:1px solid var(--line2);border-radius:10px;background:#0d0b09}
+  .erow{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:8px 12px;border-top:1px solid #ffffff08;font-size:12.5px}
+  .erow:first-child{border-top:0}
+  .erow time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:11.5px}
+  .erow span{color:#ffb4a8;overflow-wrap:anywhere}
   .mp-ver{padding:6px 10px 2px;font-size:10.5px;color:var(--muted);text-align:right}
   .mp-ver.old{color:var(--err)}
   .mp-sec{font:600 10px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 10px 5px}
@@ -641,6 +653,7 @@
         <div class="mp-info" id="apiInfo">—</div>
         <a role="menuitem" class="mp-link" href="https://github.com/MrPatatatomique/poe-coffres/releases/download/pont-windows/poe-coffres-pont.exe"><svg><use href="#i-down"/></svg><span><b>Télécharger le pont Windows</b><small>Petit programme à laisser ouvert : recherches trade fiables</small></span></a>
         <div class="mp-sec">Page</div>
+        <button role="menuitem" id="errBtn"><svg><use href="#i-search"/></svg><span><b>Historique des erreurs <span class="errc" id="errCount"></span></b><small>Messages d'erreur de la page et du script</small></span></button>
         <button role="menuitem" id="reloadPage"><svg><use href="#i-refresh"/></svg><span><b>Recharger la page</b><small id="verInfo">—</small></span></button>
       </div>
     </div>
@@ -708,7 +721,7 @@
         <div class="sect fhead"><span class="fttl">⚔ Personnages <span id="charCount"></span><button class="gh-more" id="charsImp" title="Importer ou actualiser l'équipement des personnages" aria-label="Importer les personnages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></span><button class="chev" id="charsToggle" aria-expanded="true" aria-label="Replier les personnages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
         <div id="charList"></div>
       </div>
-      <div class="sect fhead"><span>Onglets</span><button class="chev" id="tabsToggle" aria-expanded="true" aria-label="Replier les onglets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
+      <div class="sect fhead"><span>▦ Onglets</span><button class="chev" id="tabsToggle" aria-expanded="true" aria-label="Replier les onglets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
       <div id="tabList"></div>
     </aside>
     <section class="center">
@@ -773,6 +786,14 @@
       </div>
       <div class="wres" id="wRes" role="list"></div>
     </div>
+  </div>
+</div>
+<div class="modal" id="eModal" hidden>
+  <div class="mback" data-close></div>
+  <div class="mbox ebox" role="dialog" aria-modal="true" aria-labelledby="eTitle">
+    <div class="zh"><div class="zn"><h2 id="eTitle">Historique des erreurs</h2><div id="eSub"></div></div>
+      <div class="zx"><button class="btn ghost" id="eCopy">Copier</button><button class="btn ghost" id="eClear">Effacer</button><button class="btn ghost zclose" data-close aria-label="Fermer">✕</button></div></div>
+    <div class="zb"><div class="elist" id="eList"></div></div>
   </div>
 </div>
 <div class="modal" id="gModal" hidden>
@@ -890,7 +911,17 @@
 
   // =================== Toast ===================
   let toastTimer = 0;
+  // Historique des erreurs (page et script), gardé dans ce navigateur : 100 dernières
+  function logError(msg) {
+    const h = store.get('poeErrors', []);
+    if (h.length && h[h.length - 1].m === msg && Date.now() - h[h.length - 1].t < 5000) return;
+    h.push({ t: Date.now(), m: String(msg).slice(0, 500), v: scriptVersion || '' });
+    if (h.length > 100) h.splice(0, h.length - 100);
+    store.set('poeErrors', h);
+    if ($('errCount')) $('errCount').textContent = h.length;
+  }
   function status(msg, err = false, busy = false) {
+    if (msg && err) logError(msg);
     clearTimeout(toastTimer);
     if (!msg) { $('toast').classList.remove('show'); return; }
     $('toastMsg').textContent = msg;
@@ -981,7 +1012,7 @@
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
         break;
       case 'chars':
-        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } charsDone(); } catch (e) { charsDone(); status('Personnages reçus illisibles : ' + e.message, true); }
+        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } if (charsDone()) status(`Personnages importés : ${charData.chars.length}${charData.failed && charData.failed.length ? `, ${charData.failed.length} en échec` : ''}`); } catch (e) { charsDone(); status('Personnages reçus illisibles : ' + e.message, true); }
         break;
       case 'prices':
         try {
@@ -996,6 +1027,8 @@
         status(d.msg || '', !!d.error, busy);
         if (d.done || d.error) setBusy('scanBtn', false);
         if (d.error && /^Personnages|Compte et ligue/.test(d.msg || '')) charsDone();
+        // progression de l'import des personnages : on repousse le délai d'attente
+        else if (charsTimer && /^Personnages/.test(d.msg || '')) armCharsTimer();
         if (tradeBusy.size) { tradeLive = d.msg || ''; if (d.error) { tradeBusy.clear(); } if (selected !== null) select(selected); }
         break;
       }
@@ -1028,6 +1061,18 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
   $('acctPop').addEventListener('click', e => { if (e.target.closest('button,a')) closeMenu(); });
   $('reloadPage').onclick = () => location.reload();
+  const renderErrors = () => {
+    const h = store.get('poeErrors', []).slice().reverse();
+    $('eSub').textContent = h.length ? `${h.length} erreur${h.length > 1 ? 's' : ''} enregistrée${h.length > 1 ? 's' : ''} dans ce navigateur` : 'Aucune erreur enregistrée';
+    $('eList').innerHTML = h.length ? h.map(e => `<div class="erow"><time>${esc(new Date(e.t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'medium' }))}</time><span>${esc(e.m)}${e.v ? ` <small style="color:var(--muted)">(script v${esc(e.v)})</small>` : ''}</span></div>`).join('') : '<div class="gempty">Rien à signaler.</div>';
+  };
+  $('errBtn').onclick = () => { renderErrors(); $('eModal').hidden = false; document.body.style.overflow = 'hidden'; $('eCopy').focus(); };
+  const closeErr = () => { $('eModal').hidden = true; document.body.style.overflow = ''; };
+  $('eModal').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeErr(); });
+  $('eModal').addEventListener('keydown', e => { if (e.key === 'Escape') closeErr(); });
+  $('eCopy').onclick = () => { const t = store.get('poeErrors', []).map(e => `${new Date(e.t).toISOString()} ${e.v ? `[v${e.v}] ` : ''}${e.m}`).join('\n'); navigator.clipboard.writeText(t).then(() => status('Historique copié'), () => status('Copie impossible', true)); };
+  $('eClear').onclick = () => { store.set('poeErrors', []); $('errCount').textContent = ''; renderErrors(); };
+  $('errCount').textContent = store.get('poeErrors', []).length || '';
   $('reloadPrices').onclick = async () => {
     status('Rechargement des prix…', false, true);
     if (ONLINE && data) { repoLeagues = null; await loadRepoPrices(true); }
@@ -1300,10 +1345,13 @@
     setBusy('charsBtn', true); $('charsImp').classList.add('spin');
     status('Import des personnages…', false, true);
     cmd('chars', { league: data ? data.league : '' });
-    clearTimeout(charsTimer);
-    charsTimer = setTimeout(() => { setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); status('Pas de réponse du script pour les personnages : recharge la page et réessaie.', true); }, 120000);
+    armCharsTimer();
   }
-  const charsDone = () => { clearTimeout(charsTimer); setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); };
+  function armCharsTimer() {
+    clearTimeout(charsTimer);
+    charsTimer = setTimeout(() => { charsTimer = 0; setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); status('Personnages : pas de réponse du script en 90 s. Vérifie qu\'un onglet pathofexile.com est ouvert (le panneau Coffres affiche la progression), puis réessaie.', true); }, 90000);
+  }
+  const charsDone = () => { const was = charsTimer; clearTimeout(charsTimer); charsTimer = 0; setBusy('charsBtn', false); $('charsImp').classList.remove('spin'); return was; };
   $('charsBtn').onclick = importChars;
   $('charsImp').onclick = importChars;
   $('charsToggle').onclick = () => { store.set('poeCharsHidden', $('charList').hidden ? 0 : 1); renderTabs(); };
@@ -2362,8 +2410,7 @@
     $('kPricedBar').style.width = stash.length ? `${(safe.length / stash.length) * 100}%` : '0';
     const unvalued = stash.length - safe.length - traded.length;
     const eqVal = equip.reduce((a, i) => a + val(i), 0), nChars = charsHere().length;
-    $('kEquip').hidden = !nChars;
-    if (nChars) $('kEquip').textContent = `+ équipement de ${nChars} personnage${nChars > 1 ? 's' : ''} : ${fmt(eqVal) || '0 c'} (à part)`;
+    $('kEquip').hidden = true;
     if (traded.length) {
       $('kTrade').textContent = fmt(sTrade) || '0 c';
       const oldest = Math.min(...traded.map(i => i.trade.at));
@@ -2417,8 +2464,8 @@
       <div class="tr1"><span class="sw" style="background:${colour}"></span><span class="nm">${esc(label)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
       <div class="tr2"><span class="ct">${n} obj.</span><span class="bar"><div style="width:${bar}%"></div></span></div></button>`;
     const charBtn = (c, k) => { const key = -(k + 1), v = values.get(key) || 0; return `<button class="tab chartab${activeTab === key ? ' active' : ''}" data-k="${key}">
-      <div class="tr1"><img class="cls" src="https://assets.poe.ninja/poe1/classes/${esc(String(c.class).toLowerCase().replace(/[^a-z]/g, ''))}.webp" alt="" onerror="this.style.visibility='hidden'"><span class="nm">${esc(c.name)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
-      <div class="tr2 cl2"><span class="ct">${esc(c.class)} · niv. ${c.level}</span></div></button>`; };
+      <img class="cls" src="https://assets.poe.ninja/poe1/classes/${esc(String(c.class).toLowerCase().replace(/[^a-z]/g, ''))}.webp" alt="" onerror="this.style.visibility='hidden'"><span class="nm">${esc(c.name)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span>
+      <span class="ct">${esc(c.class)} · niv. ${c.level}</span></button>`; };
     const at = charData && charData.at ? ago(Date.parse(charData.at)) : '';
     $('tabList').innerHTML = btn(null, 'Tous les onglets', stashItems().length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
       tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('') +
@@ -2547,7 +2594,7 @@
     const sockVal = slot => list.filter(i => i.parentSlot === slot).reduce((a, i) => a + val(i), 0);
     const box = (key, [x, y, w, h], label) => {
       const i = by.get(key), v = i ? val(i) + sockVal(i.slot) : 0, hint = i && !v && i.baseHint ? i.baseHint.v : 0;
-      return `<button class="dslot${i ? ` r${i.rarity}` : ' dempty'}${i && selected === i.idx ? ' sel' : ''}" ${i ? `data-i="${i.idx}"` : 'disabled'} style="left:${x * U}px;top:${y * U}px;width:${w * U}px;height:${h * U}px" title="${esc(i ? `${i.label} — ${label}${v ? ` — ${fmt(v)}` : ''}` : `${label} : vide`)}" aria-label="${esc(label)}${i ? ` : ${esc(i.label)}` : ' vide'}">
+      return `<button class="dslot${i ? ` r${i.rarity}` : ' dempty'}${i && selected === i.idx ? ' sel' : ''}" ${i ? `data-i="${i.idx}"` : 'disabled'} style="left:${x * U}px;top:${y * U}px;width:${w * U}px;height:${h * U}px" aria-label="${esc(label)}${i ? ` : ${esc(i.label)}` : ' vide'}">
         ${i ? `<img loading="lazy" src="${esc(i.raw.icon)}" alt="">${gemIcons(i, 'dgems')}${v ? `<span class="dv">${esc(fmt(v))}</span>` : hint ? `<span class="dv h">base ${esc(fmt(hint))}</span>` : ''}` : `<span class="dl">${esc(label)}</span>`}</button>`;
     };
     let html = Object.entries(DOLL).map(([k, g]) => box(k, g, SLOT_FR[k])).join('');
@@ -2555,8 +2602,7 @@
     const hasSwap = list.some(i => /^(Weapon|Offhand)2$/.test(i.slot));
     const inv = list.filter(i => i.slot === 'MainInventory' || (i.slot && !DOLL[i.slot] && !/^(Flask|Socketed|Weapon2|Offhand2)$/.test(i.slot)));
     $('view').innerHTML = `<div class="doll-wrap">${hasSwap ? `<div class="doll-sw" role="group" aria-label="Jeu d'armes"><button class="${dollSwap ? '' : 'on'}" data-sw="0">Armes I</button><button class="${dollSwap ? 'on' : ''}" data-sw="1">Armes II</button></div>` : ''}
-      <div class="doll" style="width:${9 * U}px;height:${8.9 * U}px">${html}</div>
-      <div class="doll-note">${list.filter(i => i.slot === 'Socketed').length} gemmes et joyaux sertis (comptés avec leur emplacement)${inv.length ? ` · ${inv.length} objet${inv.length > 1 ? 's' : ''} dans l'inventaire : voir la vue Liste` : ''}</div></div>`;
+      <div class="doll" style="width:${9 * U}px;height:${8.9 * U}px">${html}</div></div>`;
     $('view').querySelectorAll('.dslot[data-i]').forEach(b => { b.onclick = () => select(Number(b.dataset.i)); hoverCard(b); });
     $('view').querySelectorAll('[data-sw]').forEach(b => b.onclick = () => { dollSwap = b.dataset.sw === '1'; render(); });
   }
@@ -2567,8 +2613,7 @@
       html += `<div class="cell" style="left:${x * cell}px;top:${y * cell}px;width:${cell}px;height:${cell}px"></div>`;
     for (const i of list) {
       const r = i.raw;
-      const tip = i.label + (val(i) ? ` — ${fmt(val(i))}${i.trade ? ' (trade)' : ''}` : '') + (i.baseHint ? ` — base ${fmt(i.baseHint.v)} (${i.baseHint.label})` : '');
-      html += `<div class="gi${selected === i.idx ? ' sel' : ''}${val(i) ? ' valued' : i.baseHint && i.baseHint.v >= 10 ? ' bvalued' : ''}" data-i="${i.idx}" title="${esc(tip)}"
+      html += `<div class="gi${selected === i.idx ? ' sel' : ''}${val(i) ? ' valued' : i.baseHint && i.baseHint.v >= 10 ? ' bvalued' : ''}" data-i="${i.idx}" aria-label="${esc(i.label)}"
         style="left:${r.x * cell}px;top:${r.y * cell}px;width:${(r.w || 1) * cell}px;height:${(r.h || 1) * cell}px">
         <img loading="lazy" src="${esc(r.icon)}" alt="">${i.stack > 1 ? `<span class="st">${i.stack}</span>` : ''}</div>`;
     }
