@@ -315,13 +315,24 @@
   .tradebox .head .hr{display:inline-flex;align-items:center;gap:8px}
   .mline{display:flex;align-items:baseline;gap:6px;margin:4px 0 8px;font-size:13px;color:var(--text2)}
   .mline b{color:var(--gold2);font-size:15px} .mline .s{margin:0 0 0 auto}
-  .manbox{margin-top:12px;padding:12px 15px;border:1px solid var(--line2);border-radius:var(--r);background:#14100c}
-  .manbox .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-  .manbox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-  .manbox .s{color:var(--muted);font-size:12px;margin-top:6px}
-  .manbox .row .s{margin:0}
-  .mrow{display:flex;gap:6px;flex-wrap:wrap}
-  .mrow input{width:90px;flex:1;min-width:70px}
+  .manbox{margin-top:12px;padding:12px 14px;border:1px solid var(--gold3);border-radius:var(--r);background:#17120b}
+  .manbox .mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+  .manbox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--gold2)}
+  .manbox .mx{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:0;border-radius:5px;background:none;color:var(--muted);cursor:pointer;font-size:12px}
+  .manbox .mx:hover,.manbox .mx:focus-visible{color:var(--text);background:#ffffff0d;outline:none}
+  .mrow{display:flex;gap:8px;align-items:stretch}
+  .mfield{flex:1;min-width:0;display:flex;align-items:center;border:1px solid var(--line3);border-radius:8px;background:#0c0a08;padding:0 4px 0 10px;transition:border-color .12s}
+  .mfield:focus-within{border-color:var(--gold2)}
+  .mfield input{flex:1;min-width:0;border:0;background:none;padding:8px 0;font:600 15px/1.2 var(--body);color:var(--gold2);outline:none;font-variant-numeric:tabular-nums}
+  .mfield input::placeholder{color:#5f5444;font-weight:400}
+  .mseg{display:inline-flex;gap:2px;padding:2px;border-radius:6px;background:#1c1610}
+  .mseg button{border:0;background:none;color:var(--muted);font:600 11.5px/1 var(--body);padding:5px 8px;border-radius:4px;cursor:pointer}
+  .mseg button[aria-pressed="true"]{background:#3a2c14;color:var(--gold2)}
+  .mseg button:focus-visible{outline:1px solid var(--gold2)}
+  .mrow .btn{padding:0 14px;white-space:nowrap}
+  .mfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}
+  .mfoot .s{color:var(--muted);font-size:11.5px;margin:0}
+  .mfoot .linkbtn{color:var(--err)}
   .tbadge.man{color:var(--gold2);border-color:var(--gold3)}
   .bhbox{display:flex;flex-direction:column;gap:3px;margin:2px 0 0;padding:8px 10px;border:1px dashed var(--line3);border-radius:8px;font-size:12.5px;color:var(--text2)}
   .bhbox b{color:var(--gold2)} .bhbox .s{margin:0} .bhbox a{color:var(--gold2)}
@@ -1336,11 +1347,14 @@
     const mp = manualPrices[i.raw.id], div = P && P.divine;
     const inDiv = mp && div && mp.v >= div;
     const shown = mp ? (inDiv ? Math.round(mp.v / div * 100) / 100 : Math.round(mp.v * 100) / 100) : '';
-    return `<div class="manbox" id="manBox" hidden><div class="row"><label class="lb" for="mpV">Prix manuel</label>${mp ? `<span class="s">fixé ${esc(ago(mp.at))}</span>` : ''}</div>
-      <div class="mrow"><input id="mpV" type="number" inputmode="decimal" min="0" step="any" value="${shown}" placeholder="ex. 25">
-        <select id="mpU" aria-label="Unité"><option value="c"${inDiv ? '' : ' selected'}>chaos</option>${div ? `<option value="div"${inDiv ? ' selected' : ''}>divine</option>` : ''}</select>
-        <button class="btn primary" id="mpSave">${mp ? 'Modifier' : 'Fixer le prix'}</button>${mp ? '<button class="btn ghost" id="mpDel">Retirer</button>' : ''}</div>
-      <div class="s">Ton propre prix : compté dans les estimations, à la place du trade.</div></div>`;
+    return `<div class="manbox" id="manBox" hidden>
+      <div class="mhead"><label class="lb" for="mpV">Prix manuel</label><button class="mx" id="mpClose" aria-label="Fermer le prix manuel">✕</button></div>
+      <div class="mrow">
+        <div class="mfield"><input id="mpV" type="text" inputmode="decimal" autocomplete="off" value="${shown}" placeholder="0" aria-describedby="mpHelp">
+          <span class="mseg" role="group" aria-label="Unité"><button type="button" data-u="c" aria-pressed="${inDiv ? 'false' : 'true'}">c</button>${div ? `<button type="button" data-u="div" aria-pressed="${inDiv ? 'true' : 'false'}">div</button>` : ''}</span></div>
+        <button class="btn primary" id="mpSave">${mp ? 'Modifier' : 'Valider'}</button>
+      </div>
+      <div class="mfoot"><span class="s" id="mpHelp">Compté dans les estimations, à la place du trade.</span>${mp ? '<button class="linkbtn" id="mpDel">Retirer</button>' : ''}</div></div>`;
   }
   const penHtml = i => `<button class="pen${manualPrices[i.raw.id] ? ' on' : ''}" data-pen title="Prix manuel" aria-label="Fixer un prix manuel" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
   function manualLine(i) {
@@ -1355,17 +1369,20 @@
       if (!box.hidden) { box.scrollIntoView({ block: 'nearest' }); $('mpV').focus(); $('mpV').select(); }
     });
     if (!$('mpSave')) return;
+    const unit = () => (document.querySelector('#manBox [data-u][aria-pressed="true"]') || {}).dataset?.u || 'c';
+    document.querySelectorAll('#manBox [data-u]').forEach(b => b.onclick = () => { document.querySelectorAll('#manBox [data-u]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); $('mpV').focus(); });
+    $('mpClose').onclick = () => { $('manBox').hidden = true; document.querySelectorAll('#detailBody [data-pen]').forEach(x => x.setAttribute('aria-expanded', 'false')); };
     const save = () => {
-      const n = parseFloat(String($('mpV').value).replace(',', '.'));
+      const n = parseFloat(String($('mpV').value).replace(/\s/g, '').replace(',', '.'));
       if (!(n > 0)) { $('mpV').focus(); status('Indique un prix supérieur à 0.', true); return; }
-      const v = $('mpU').value === 'div' && P && P.divine ? n * P.divine : n;
+      const v = unit() === 'div' && P && P.divine ? n * P.divine : n;
       manualPrices[i.raw.id] = { v: Math.round(v * 100) / 100, at: Date.now() };
       store.set('poeManual', manualPrices);
       applyPrices();
       status(`Prix manuel fixé : ${i.label} à ${fmt(v)}`);
     };
     $('mpSave').onclick = save;
-    $('mpV').onkeydown = e => { if (e.key === 'Enter') save(); };
+    $('mpV').onkeydown = e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') { e.stopPropagation(); $('mpClose').click(); } };
     if ($('mpDel')) $('mpDel').onclick = () => { delete manualPrices[i.raw.id]; store.set('poeManual', manualPrices); applyPrices(); status(`Prix manuel retiré : ${i.label}`); };
   }
   function baseHintHtml(bh) {
@@ -2549,8 +2566,8 @@
         : i.baseHint ? baseHintHtml(i.baseHint)
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${chart}
-      ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? (i.baseHint ? `<div class="pricebox none"><div class="row"><div class="lb">Prix poe.ninja</div></div>${baseHintHtml(i.baseHint)}</div>` : '') + tradeSection(i) : ''}
-      ${!pr && !i.ghost && i.raw.id ? manualHtml(i) : ''}
+      ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? (i.baseHint ? `<div class="pricebox none"><div class="row"><div class="lb">Prix poe.ninja</div></div>${baseHintHtml(i.baseHint)}</div>` : '') + manualHtml(i) + tradeSection(i) : ''}
+      ${!pr && !i.ghost && i.raw.id && !(i.rarity === 1 || i.rarity === 2) ? manualHtml(i) : ''}
       ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}</div>` : ''}
       <div class="loc">${esc(i.tabN)}${i.char ? ` · ${esc(i.slot === 'Socketed' ? `serti (${SLOT_FR[i.parentSlot] || i.parentSlot})` : SLOT_FR[i.slot] || i.slot)}` : r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
