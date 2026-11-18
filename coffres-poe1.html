@@ -284,6 +284,10 @@
   .hdlinks a{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2);text-decoration:none;padding:3px 9px;border:1px solid #ffffff22;border-radius:999px;background:#00000045}
   .hdlinks a:hover{color:var(--gold2);border-color:var(--gold3)}
   .hdlinks svg{width:12px;height:12px}
+  .bhint{color:var(--gold3);font-weight:500}
+  .bhbox{display:flex;flex-direction:column;gap:3px;margin:2px 0 0;padding:8px 10px;border:1px dashed var(--line3);border-radius:8px;font-size:12.5px;color:var(--text2)}
+  .bhbox b{color:var(--gold2)} .bhbox .s{margin:0} .bhbox a{color:var(--gold2)}
+  .gi.bvalued{outline:1px dashed var(--gold3);outline-offset:-1px}
   .tradebox .live{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:12px;margin-top:8px}
   .tradebox .live .spinner{width:12px;height:12px;border:2px solid var(--trade2);border-top-color:var(--trade);border-radius:50%;animation:spin .8s linear infinite}
   .kpi.trade .vl{color:var(--trade)}
@@ -634,6 +638,7 @@
           <option value="0">Tous liens</option><option value="4">4L+</option><option value="5">5L+</option><option value="6">6L</option>
         </select>
         <label class="toggle"><input type="checkbox" id="priced">Cotés</label>
+          <label class="toggle" title="Objets dont la base seule vaut au moins 10 c sur poe.ninja (hors modificateurs)"><input type="checkbox" id="bhOnly">Bases de valeur</label>
         <label class="toggle"><input type="checkbox" id="corr">Corrompus</label>
         <label class="toggle"><input type="checkbox" id="unid">Non identifiés</label>
         <div class="seg" role="group" aria-label="Affichage">
@@ -1192,7 +1197,40 @@
     if (extraPrices && extraPrices.league === p.league) for (const [t, lines] of Object.entries(extraPrices.items)) for (const l of lines) if (l.v > 0) lineOnly.push({ ...l, t });
     const byKey = new Map();
     for (const lines of [...byItem.values(), lineOnly]) for (const l of lines) if (l.k) byKey.set(l.k, l);
-    return { byName, byItem, byKey, divine };
+    const bases = new Map(), clusters = new Map();
+    for (const l of lineOnly) {
+      if (l.t === 'BaseType' || l.t === 'Flask') { const k = l.name.toLowerCase(); (bases.get(k) || bases.set(k, []).get(k)).push(l); }
+      else if (l.t === 'ClusterJewel') { const k = `${l.baseType}|${l.name}`.toLowerCase(); (clusters.get(k) || clusters.set(k, []).get(k)).push(l); }
+    }
+    return { byName, byItem, byKey, bases, clusters, divine };
+  }
+
+  function baseHintHtml(bh) {
+    const url = ninjaUrl({ hk: bh.hk, src: bh.src });
+    return `<div class="bhbox"><span>Valeur de la base <b>${esc(fmt(bh.v))}</b></span><span class="s">${esc(bh.label)}${bh.listings ? ` · ${nf(bh.listings, 0)} annonces` : ''}${url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">voir sur poe.ninja</a>` : ''}</span><span class="s">Base seule, hors modificateurs : une piste pour repérer les objets à vérifier, non comptée dans les totaux.</span></div>`;
+  }
+  // =================== Valeur de la base : une piste, jamais comptée dans les totaux ===================
+  // Objets normaux, magiques ou rares : la base seule (ilvl, influences) ou le joyau cluster seul (taille, passifs,
+  // enchantement, palier d'ilvl) selon poe.ninja. Les modificateurs de l'objet ne sont pas pris en compte.
+  const CLUSTER_GRANT = 'Added Small Passive Skills grant: ';
+  const isBaseCandidate = i => i.rarity <= 2 && !i.unid && i.ilvl >= 50 && (/Cluster Jewel$/.test(i.base) || i.ilvl >= 82);
+  function baseHint(i) {
+    if (!P || !P.bases || i.rarity > 2) return null;
+    const best = lines => lines.filter(l => (l.ilvl || 0) <= i.ilvl).sort((a, b) => (b.ilvl || 0) - (a.ilvl || 0))[0];
+    let l = null, label = '';
+    if (/Cluster Jewel$/.test(i.base)) {
+      const ench = (i.raw.enchantMods || []).map(mt).join('\n').split('\n');
+      const grant = ench.filter(x => x.startsWith(CLUSTER_GRANT)).map(x => x.slice(CLUSTER_GRANT.length)).join(', ');
+      const n = (ench.join(' ').match(/Adds (\d+) Passive Skills/) || [])[1];
+      if (!grant || !n) return null;
+      l = best((P.clusters.get(`${i.base}|${grant}`.toLowerCase()) || []).filter(x => x.variant === `${n} passives`));
+      if (l) label = `${n} passifs · palier ilvl ${l.ilvl}`;
+    } else {
+      const inf = Object.keys(i.raw.influences || {}).filter(k => i.raw.influences[k]).sort().join('/');
+      l = best((P.bases.get(i.base.toLowerCase()) || []).filter(x => (x.variant || '').toLowerCase().split('/').sort().join('/') === inf));
+      if (l) label = `${l.variant ? `${l.variant} · ` : ''}ilvl ${l.ilvl}${l.ilvl >= 86 ? '+' : ''}`;
+    }
+    return l ? { v: l.v, label, hk: l.k, src: l.t, listings: l.listings } : null;
   }
   // catégories cotées seulement par ligne exacte (surveillés) : jamais par correspondance de nom ou de base
   const LINE_ONLY = new Set(['BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt']);
@@ -1288,8 +1326,10 @@
       i.price = priceItem(i);
       const t = i.raw.id && trades[i.raw.id];
       i.trade = !i.price && t && t.estimate ? t : null;
+      i.baseHint = i.price ? null : baseHint(i);
       i.roll = computeRoll(i);
     });
+    if (items.some(isBaseCandidate)) loadExtraPrices();
     renderKpis(); renderTabs(); renderFollow(); render();
     if (selected !== null) select(selected);
     ensureRecent();
@@ -1623,7 +1663,7 @@
   }
 
   // =================== Liens externes d'un objet ===================
-  const NINJA_CAT = t => t === 'Currency' ? 'currency' : t === 'Viscera' ? 'viscera' : t.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/y$/, 'ie') + 's';
+  const NINJA_CAT = t => t === 'Currency' ? 'currency' : t === 'Viscera' ? 'viscera' : t === 'IncursionTemple' ? 'temples' : t.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase().replace(/y$/, 'ie') + 's';
   function ninjaUrl(pr) {
     if (!pr || !pr.hk || !prices) return null;
     const parts = pr.hk.split('|');
@@ -2135,7 +2175,7 @@
     activeTab = i.tabI ?? null;
     ['q'].forEach(id => ($(id).value = ''));
     $('rarity').value = ''; $('links').value = '0';
-    ['priced','corr','unid'].forEach(id => ($(id).checked = false));
+    ['priced','corr','unid','bhOnly'].forEach(id => ($(id).checked = false));
     shown = Infinity;
     renderTabs(); render(); select(idx);
     const el = document.querySelector(`#view [data-i="${idx}"]`);
@@ -2161,18 +2201,18 @@
   }
 
   // =================== Filtres ===================
-  ['q','rarity','links','corr','unid','priced'].forEach(id => $(id).addEventListener('input', () => { shown = PAGE; render(); }));
+  ['q','rarity','links','corr','unid','priced','bhOnly'].forEach(id => $(id).addEventListener('input', () => { shown = PAGE; render(); }));
   $('vList').onclick = () => setView('list');
   $('vGrid').onclick = () => setView('grid');
   function setView(v) { view = v; $('vList').classList.toggle('on', v === 'list'); $('vGrid').classList.toggle('on', v === 'grid'); render(); }
 
   function filtered() {
     const q = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const r = $('rarity').value, l = Number($('links').value), c = $('corr').checked, u = $('unid').checked, pr = $('priced').checked;
+    const r = $('rarity').value, l = Number($('links').value), c = $('corr').checked, u = $('unid').checked, pr = $('priced').checked, bh = $('bhOnly').checked;
     return items.filter(i =>
       (activeTab === null || i.tabI === activeTab) &&
       (r === '' || i.rarity === Number(r)) &&
-      i.links >= l && (!c || i.corrupted) && (!u || i.unid) && (!pr || val(i) > 0) &&
+      i.links >= l && (!c || i.corrupted) && (!u || i.unid) && (!pr || val(i) > 0) && (!bh || (i.baseHint && i.baseHint.v >= 10)) &&
       q.every(w => i.search.includes(w)));
   }
 
@@ -2196,7 +2236,7 @@
       tab: i => (i.tabI || 0) * 1e6 + (i.raw.y || 0) * 1000 + (i.raw.x || 0),
       stack: i => i.stack, ilvl: i => i.ilvl,
       links: i => i.links * 10 + i.sockets.replace(/[ -]/g, '').length,
-      price: i => val(i) || -1,
+      price: i => val(i) || (i.baseHint ? i.baseHint.v * 1e-3 : -1),
     }[sortKey];
     list.sort((a, b) => { const x = keyFn(a), y = keyFn(b); return (x > y ? 1 : x < y ? -1 : 0) * sortDir; });
     if (!list.length) { $('view').innerHTML = `<div class="placeholder"><svg><use href="#i-search"/></svg>Aucun objet ne correspond à ces filtres.</div>`; return; }
@@ -2208,7 +2248,7 @@
       <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
       <td class="num">${i.ilvl || ''}</td>
       <td>${socketsHtml(i)}</td>
-      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
+      <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge">trade</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}${i.baseHint ? ` · base ${esc(fmt(i.baseHint.v))}` : ''}</span>` : !i.price && i.baseHint ? `<span class="bhint" title="Valeur de la base seule sur poe.ninja (${esc(i.baseHint.label)}) : une piste, non comptée dans les totaux">base ${esc(fmt(i.baseHint.v))}</span><span class="unit">${esc(i.baseHint.label)}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
       <td class="zc">${i.price ? `<button class="loupe" data-z="${i.idx}" title="Détails du prix" aria-label="Détails du prix de ${esc(i.name || i.type)}"><svg><use href="#i-search"/></svg></button>` : ''}</td></tr>`).join('');
     $('view').innerHTML = `<table><thead><tr>${COLS.map(([n, key, num]) => `<th class="${num ? 'num' : ''}${key === sortKey ? ' sorted' : ''}" ${key ? `data-s="${key}"` : ''}>${n}${key === sortKey ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
       (list.length > shown ? `<button class="btn more" id="more">Afficher ${Math.min(PAGE, list.length - shown)} de plus · ${list.length - shown} restants</button>` : '');
@@ -2229,8 +2269,8 @@
       html += `<div class="cell" style="left:${x * cell}px;top:${y * cell}px;width:${cell}px;height:${cell}px"></div>`;
     for (const i of list) {
       const r = i.raw;
-      const tip = i.label + (val(i) ? ` — ${fmt(val(i))}${i.trade ? ' (trade)' : ''}` : '');
-      html += `<div class="gi${selected === i.idx ? ' sel' : ''}${val(i) ? ' valued' : ''}" data-i="${i.idx}" title="${esc(tip)}"
+      const tip = i.label + (val(i) ? ` — ${fmt(val(i))}${i.trade ? ' (trade)' : ''}` : '') + (i.baseHint ? ` — base ${fmt(i.baseHint.v)} (${i.baseHint.label})` : '');
+      html += `<div class="gi${selected === i.idx ? ' sel' : ''}${val(i) ? ' valued' : i.baseHint && i.baseHint.v >= 10 ? ' bvalued' : ''}" data-i="${i.idx}" title="${esc(tip)}"
         style="left:${r.x * cell}px;top:${r.y * cell}px;width:${(r.w || 1) * cell}px;height:${(r.h || 1) * cell}px">
         <img loading="lazy" src="${esc(r.icon)}" alt="">${i.stack > 1 ? `<span class="st">${i.stack}</span>` : ''}</div>`;
     }
@@ -2290,6 +2330,7 @@
         ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
            <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(trend6(pr))}</div>
            ${pr.approx ? '<div class="s">Plusieurs variantes à des prix différents : la moins chère est retenue.</div>' : ''}`
+        : i.baseHint ? baseHintHtml(i.baseHint)
         : `<div class="s">${P ? 'Pas de prix : objet à mods variables, ou absent de poe.ninja.' : 'Prix poe.ninja non chargés.'}</div>`}</div>
       ${chart}
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? tradeSection(i) : ''}
