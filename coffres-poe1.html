@@ -789,6 +789,7 @@
   const REQ_SCRIPT = '2.6.5';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
+  let extraPrices = null, extraReq = null;
   let uniqueSrc = 'Path of Building', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
   const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   { const j = store.get('poeTracking', {}); follow = j.follow || {}; history = j.history || {}; }
@@ -1037,6 +1038,19 @@
     const pref = L.filter(l => g.startsWith(l.id.toLowerCase()) && /hardcore/i.test(l.id) === hc).sort((a, b) => b.id.length - a.id.length);
     return pref[0] ? pref[0].file : null;
   }
+  // Prix annexes (bases, joyaux cluster…) : chargés à l'ouverture de la recherche, ou si un surveillé en a besoin
+  function loadExtraPrices() {
+    if (!ONLINE || !repoPricesFile || !prices) return Promise.resolve();
+    if (extraPrices && extraPrices.league === prices.league && extraPrices.fetchedAt >= prices.fetchedAt) return Promise.resolve();
+    if (!extraReq) extraReq = getJson(`data/prices-extra/${repoPricesFile}.json`).then(j => {
+      extraReq = null;
+      if (!j || !j.items) return;
+      extraPrices = j; wCands = null;
+      P = buildIndex(prices); applyPrices(); recordAll(); renderFollow(); ensureRecent();
+    });
+    return extraReq;
+  }
+  const needsExtra = () => Object.values(follow).some(f => f.probe && f.probe.lineKey);
   // les prix doivent être ceux de la ligue scannée (le script peut avoir gardé ceux d'une autre ligue)
   function pricesMatchLeague(p) {
     if (!data || !p) return true;
@@ -1153,6 +1167,7 @@
     recordAll();
     renderFollow();
     if (!first) status(`Prix poe.ninja mis à jour (${p.league})`);
+    if (needsExtra()) loadExtraPrices();
   }
 
   function buildIndex(p) {
@@ -1173,6 +1188,8 @@
       if (!byItem.has(k)) byItem.set(k, []);
       byItem.get(k).push({ ...l, t, k: l.k || repoKeys.get(lineSig('items', t, l)) });
     }
+    // catégories annexes (fichier à part), seulement si elles sont de la même ligue
+    if (extraPrices && extraPrices.league === p.league) for (const [t, lines] of Object.entries(extraPrices.items)) for (const l of lines) if (l.v > 0) lineOnly.push({ ...l, t });
     const byKey = new Map();
     for (const lines of [...byItem.values(), lineOnly]) for (const l of lines) if (l.k) byKey.set(l.k, l);
     return { byName, byItem, byKey, divine };
@@ -1462,7 +1479,7 @@
   const iconOf = name => wIcons && wIcons[name] ? (/^https?:/.test(wIcons[name]) ? wIcons[name] : POECDN + wIcons[name]) : '';
   // tous les objets cotés par poe.ninja, sous forme de modèles compatibles avec priceItem()
   function candidates() {
-    if (wCands && wCandsAt === prices.fetchedAt) return wCands;
+    if (wCands && wCandsAt === prices.fetchedAt) return wCands; // remis à null au chargement des prix annexes
     const out = [], seen = new Set();
     const push = c => { const k = itemKey(c.probe); if (seen.has(k)) return; seen.add(k); c.key = k; c.lc = c.label.toLowerCase(); out.push(c); };
     for (const sec of ['exchange', 'currency']) for (const [t, lines] of Object.entries(prices[sec] || {})) for (const l of lines) {
@@ -1471,12 +1488,15 @@
       push({ cat: div ? 'div' : 'cur', t, label: l.name, sub: CAT_FR[t] || t, rarity: div ? 6 : 5,
         probe: { name: '', type: l.name, base: l.name, rarity: div ? 6 : 5, links: 0 } });
     }
-    for (const [t, lines] of Object.entries(prices.items || {})) for (const l of lines) {
+    const allItems = { ...(prices.items || {}), ...(extraPrices && extraPrices.league === prices.league ? extraPrices.items : {}) };
+    for (const [t, lines] of Object.entries(allItems)) for (const l of lines) {
       if (!l.name) continue;
       if (LINE_ONLY.has(t)) {
         const cat = t === 'ImbuedGem' ? 'gem' : t === 'BaseType' || t === 'Flask' ? 'base' : t === 'ClusterJewel' || t === 'ForbiddenJewel' ? 'jew' : 'oth';
-        const label = t === 'ClusterJewel' ? `${l.baseType} · ${l.name}` : l.name;
-        push({ cat, t, label, sub: [l.variant, l.ilvl ? `ilvl ${l.ilvl}` : '', t === 'ClusterJewel' ? '' : l.baseType, CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: t === 'ImbuedGem' ? 4 : 0,
+        // libellé complet : la liste des surveillés doit distinguer les variantes (influences, ilvl, passifs)
+        const det = [l.variant, l.ilvl ? `ilvl ${l.ilvl}` : ''].filter(Boolean).join(', ');
+        const label = t === 'ClusterJewel' ? `${l.baseType} · ${l.name}${det ? ` (${det})` : ''}` : `${l.name}${det ? ` (${det})` : ''}`;
+        push({ cat, t, label, icn: l.name, sub: [t === 'ClusterJewel' || !l.baseType ? '' : l.baseType.replace(/\|/g, ' / '), CAT_FR[t] || t].filter(Boolean).join(' · '), rarity: t === 'ImbuedGem' ? 4 : 0,
           probe: { name: '', type: l.name, base: l.baseType || l.name, rarity: t === 'ImbuedGem' ? 4 : 0, links: 0, lineKey: l.k } });
       } else if (/^Unique/.test(t)) {
         const r = t === 'UniqueRelic' ? 9 : 3, links = l.links >= 5 ? l.links : 0;
@@ -1502,6 +1522,7 @@
     $('wQ').value = '';
     renderWatchRes();
     loadIcons().then(() => { if (!$('wModal').hidden) renderWatchRes(); });
+    loadExtraPrices().then(() => { if (!$('wModal').hidden) renderWatchRes(); });
     setTimeout(() => $('wQ').focus(), 0);
   }
   function closeWatch() {
@@ -1526,13 +1547,13 @@
     const shown = hits.slice(0, 60);
     $('wRes').innerHTML = shown.length ? shown.map(({ c, pr }, n) => {
       const on = !!follow[c.key];
-      const ic = iconOf(c.label);
+      const ic = iconOf(c.icn || c.label);
       return `<div class="wit" role="listitem">${ic ? `<img src="${esc(ic)}" alt="" onerror="this.style.visibility='hidden'">` : '<span></span>'}<span class="wn"><b class="r${c.rarity}">${esc(c.label)}</b><span>${esc(c.sub)}</span></span><span class="wp">${esc(fmt(pr.unit))}</span><button class="btn${on ? ' on' : ''}" data-w="${n}" aria-pressed="${on}">${on ? '✓ Surveillé' : 'Surveiller'}</button></div>`;
     }).join('') + (hits.length > 60 ? `<div class="wnote">${hits.length - 60} autres résultats : précise ta recherche.</div>` : '')
       : `<div class="wnote">Aucun objet coté ne correspond.</div>`;
     $('wRes').querySelectorAll('[data-w]').forEach(b => b.onclick = () => {
       const { c } = shown[Number(b.dataset.w)];
-      watchToggle(c.probe, c.label, iconOf(c.label), c.rarity);
+      watchToggle(c.probe, c.label, iconOf(c.icn || c.label), c.rarity);
       renderWatchRes();
       const nb = $('wRes').querySelector(`[data-w="${b.dataset.w}"]`); if (nb) nb.focus();
     });

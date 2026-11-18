@@ -18,6 +18,9 @@ export const ITEM_TYPES = ['UniqueWeapon', 'UniqueArmour', 'UniqueAccessory', 'U
   'BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt'];
 // Base Types : ~16 000 lignes, on ne garde que celles qui valent au moins 5 c
 const MIN_CHAOS = { BaseType: 5 };
+// Catégories publiées à part (prices-extra/<ligue>.json, chargé par la page seulement quand il sert) :
+// elles doublaient la taille du fichier de prix principal.
+export const EXTRA_TYPES = ['BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt'];
 
 // Historique : 30 min sur 7 jours, puis 2 h jusqu'à 30 jours, puis 6 h jusqu'à la fin de la ligue
 const TIERS = [[7 * 1440, 30], [30 * 1440, 120], [Infinity, 360]];
@@ -261,14 +264,25 @@ async function main() {
   for (const lg of leagues) {
     const t0 = Date.now();
     const pricesFile = join(OUT, 'prices', `${slug(lg.id)}.json`);
+    const extraFile = join(OUT, 'prices-extra', `${slug(lg.id)}.json`);
     let prev = null;
     if (existsSync(pricesFile)) { try { prev = JSON.parse(await readFile(pricesFile, 'utf8')); } catch (e) { console.warn(`${lg.id} : prix précédents illisibles (${e.message})`); } }
+    if (prev && existsSync(extraFile)) { try { Object.assign(prev.items, JSON.parse(await readFile(extraFile, 'utf8')).items); } catch (e) { console.warn(`${lg.id} : prix annexes précédents illisibles (${e.message})`); } }
     const p = await fetchLeague(lg.id, prev);
     const stale = new Set(p.stale);
     const count = sec => Object.entries(p[sec]).filter(([t]) => !stale.has(`${sec}|${t}`)).reduce((a, [, l]) => a + l.length, 0);
     const nLines = count('items') + count('exchange');
     if (nLines < 50) { console.warn(`${lg.id} : trop peu de lignes fraîches (${nLines}), prix et historique laissés tels quels`); continue; }
-    await writeFile(pricesFile, JSON.stringify(p));
+    // fichier principal sans les catégories annexes ; lignes annexes allégées (valeurs par défaut retirées)
+    const extra = { league: p.league, fetchedAt: p.fetchedAt, items: {} };
+    const main = { ...p, items: { ...p.items } };
+    for (const t of EXTRA_TYPES) if (main.items[t]) {
+      extra.items[t] = main.items[t].map(({ links, gemQuality, corrupted, gemLevel, mapTier, ...l }) => l);
+      delete main.items[t];
+    }
+    await writeFile(pricesFile, JSON.stringify(main));
+    await mkdir(join(OUT, 'prices-extra'), { recursive: true });
+    await writeFile(extraFile, JSON.stringify(extra));
     // icônes : fusion avec le fichier précédent (les catégories reprises n'en apportent pas de nouvelles)
     const iconsFile = join(OUT, 'icons', `${slug(lg.id)}.json`);
     let oldIcons = {};
@@ -282,7 +296,7 @@ async function main() {
   for (const base of ['history', 'history-recent']) {
     if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d)) await rm(join(OUT, base, d), { recursive: true });
   }
-  for (const base of ['prices', 'icons']) {
+  for (const base of ['prices', 'prices-extra', 'icons']) {
     if (existsSync(join(OUT, base))) for (const f of await readdir(join(OUT, base))) if (!keepDirs.has(f.replace(/\.json$/, ''))) await rm(join(OUT, base, f));
   }
   await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
