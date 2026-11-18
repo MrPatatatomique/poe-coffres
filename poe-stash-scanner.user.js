@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.7.1
+// @version      2.7.2
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -591,58 +591,100 @@
     host.style.cssText = 'position:fixed;z-index:2147483647;right:16px;bottom:16px;';
     document.body.appendChild(host);
     const root = host.attachShadow({ mode: 'open' });
+    const VER = GM_info.script.version;
+    const ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M3 10a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4"/><path d="M10 13h4v3h-4z"/></svg>';
     root.innerHTML = `
     <style>
       :host{all:initial}
-      *{box-sizing:border-box;font:13px/1.4 system-ui,sans-serif}
-      .fab{background:#1b1712;color:#e8c98a;border:1px solid #6b5530;border-radius:8px;padding:8px 12px;cursor:pointer}
-      .fab:hover{border-color:#e8c98a}
-      .panel{display:none;width:360px;max-height:75vh;overflow:auto;background:#14110d;color:#ddd;border:1px solid #6b5530;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 8px 30px #000a}
-      .panel.open{display:block}
-      h2{margin:0 0 10px;font-size:15px;color:#e8c98a}
-      label{display:block;margin:8px 0 3px;color:#aaa;font-size:12px}
-      input,select{width:100%;background:#0c0a08;color:#eee;border:1px solid #3d3326;border-radius:6px;padding:6px 8px}
-      button{background:#2a2219;color:#e8c98a;border:1px solid #6b5530;border-radius:6px;padding:6px 10px;cursor:pointer}
-      button:hover:not(:disabled){border-color:#e8c98a}
-      button:disabled{opacity:.45;cursor:default}
-      .row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
-      .tabs{margin-top:8px;max-height:200px;overflow:auto;border:1px solid #3d3326;border-radius:6px;padding:4px}
-      .tabs label,.chk{display:flex;gap:6px;align-items:center;margin:0;padding:2px 4px;color:#ddd;font-size:12px;cursor:pointer}
-      .tabs input,.chk input{width:auto}
-      .sw{width:10px;height:10px;border-radius:2px;flex:none}
-      .tt{color:#777;margin-left:auto;font-size:11px}
-      .bar{height:6px;background:#0c0a08;border-radius:3px;margin-top:10px;overflow:hidden}
-      .bar>div{height:100%;width:0;background:#c9a24f;transition:width .2s}
-      .status{margin-top:6px;color:#bbb;font-size:12px;min-height:1.4em;white-space:pre-wrap}
+      [hidden]{display:none!important}
+      *{box-sizing:border-box;margin:0;font:13px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+      svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+      .fab{display:flex;align-items:center;gap:8px;margin-left:auto;background:#17130f;color:#ecd29a;border:1px solid #5a4a32;border-radius:999px;padding:8px 14px 8px 11px;cursor:pointer;box-shadow:0 4px 18px #0008}
+      .fab:hover,.fab:focus-visible{border-color:#c8a35a;outline:none}
+      .fab .v{color:#8f826d;font-size:11px}
+      .fab .dot{width:7px;height:7px;border-radius:50%;background:#5f5444}
+      .fab .dot.ok{background:#86c06c}
+      .panel{display:none;flex-direction:column;width:380px;max-height:min(640px,calc(100vh - 80px));background:#120f0c;color:#e6dccb;border:1px solid #5a4a32;border-radius:12px;margin-bottom:10px;box-shadow:0 12px 40px #000c;overflow:hidden}
+      .panel.open{display:flex}
+      .hd{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #2b241b;background:#17130f}
+      .hd .ic{color:#c8a35a}
+      .hd h2{font:600 15px/1.2 Georgia,"Times New Roman",serif;color:#ecd29a;letter-spacing:.02em}
+      .hd .sub{color:#8f826d;font-size:11px}
+      .hd .x{margin-left:auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:none;color:#8f826d;cursor:pointer;padding:0}
+      .hd .x:hover,.hd .x:focus-visible{color:#e6dccb;background:#ffffff0d;outline:none}
+      .bd{padding:4px 14px 12px;overflow:auto}
+      .sec{padding-top:12px}
+      .st{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8f826d}
+      .st span{font:inherit;letter-spacing:inherit}
+      .st .cnt{letter-spacing:0;text-transform:none;font-weight:400}
+      .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .f label{display:block;margin-bottom:4px;color:#8f826d;font-size:11.5px}
+      input[type=text],input[type=search],select{width:100%;background:#0b0907;color:#e6dccb;border:1px solid #3e3324;border-radius:7px;padding:7px 9px}
+      input[type=text]:focus,input[type=search]:focus,select:focus{border-color:#c8a35a;outline:none}
+      button{font-weight:500}
+      .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#1f1912;color:#ecd29a;border:1px solid #5a4a32;border-radius:7px;padding:7px 11px;cursor:pointer}
+      .btn:hover:not(:disabled),.btn:focus-visible{border-color:#c8a35a;outline:none}
+      .btn:disabled{opacity:.45;cursor:default}
+      .btn.pri{background:#3a2c14;border-color:#8a6d36;color:#f3dfb0;font-weight:600}
+      .btn.sm{padding:4px 8px;font-size:12px}
+      .lk{background:none;border:0;color:#8f826d;font-size:11.5px;cursor:pointer;padding:2px 4px;border-radius:4px}
+      .lk:hover,.lk:focus-visible{color:#ecd29a;outline:none}
+      .tools{display:flex;gap:6px;align-items:center}
+      .tabs{max-height:190px;overflow:auto;border:1px solid #2b241b;border-radius:8px;background:#0d0b09;margin-top:7px}
+      .tabs label{display:flex;gap:8px;align-items:center;padding:5px 9px;font-size:12.5px;cursor:pointer;border-top:1px solid #ffffff08}
+      .tabs label:first-child{border-top:0}
+      .tabs label:hover{background:#ffffff06}
+      .tabs input{accent-color:#c8a35a;margin:0}
+      .sw{width:9px;height:9px;border-radius:2px;flex:none}
+      .tt{color:#6d6455;margin-left:auto;font-size:11px}
+      .empty{padding:10px;color:#8f826d;font-size:12px;text-align:center}
+      .chk{display:flex;gap:8px;align-items:center;padding:4px 0;color:#d8cdb9;font-size:12.5px;cursor:pointer}
+      .chk input{accent-color:#c8a35a;margin:0}
+      .ft{padding:12px 14px;border-top:1px solid #2b241b;background:#15110d}
+      .acts{display:grid;grid-template-columns:1fr auto;gap:8px}
+      .bar{height:4px;background:#0b0907;border-radius:2px;margin-top:10px;overflow:hidden}
+      .bar>div{height:100%;width:0;background:#c8a35a;transition:width .2s}
+      .status{margin-top:7px;color:#b5a991;font-size:12px;min-height:1.4em;white-space:pre-wrap}
       .err{color:#ff8a7a}
-      .hint{color:#888;font-size:11px;margin-top:8px}
+      .open-page{display:inline-flex;align-items:center;gap:5px;margin-top:8px;color:#c8a35a;font-size:12px;text-decoration:none}
+      .open-page:hover{color:#ecd29a;text-decoration:underline}
     </style>
-    <div class="panel" id="panel">
-      <h2>Scanner de coffres PoE1</h2>
-      <label for="acc">Compte (Nom#1234)</label>
-      <input id="acc" placeholder="Détection…">
-      <label for="league">Ligue</label>
-      <select id="league"><option value="">Chargement des ligues…</option></select>
-      <div class="row"><button id="load">Charger les onglets</button></div>
-      <div id="tabsWrap" style="display:none">
-        <div class="row"><button id="all">Tout</button><button id="none">Rien</button></div>
-        <div class="tabs" id="tabs"></div>
+    <div class="panel" id="panel" role="dialog" aria-labelledby="pTitle">
+      <div class="hd"><span class="ic">${ICON}</span><div><h2 id="pTitle">Coffres PoE1</h2><div class="sub">Scanner · script v${VER}</div></div>
+        <button class="x" id="close" aria-label="Fermer le panneau"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="bd">
+        <div class="sec">
+          <div class="st">Compte</div>
+          <div class="grid">
+            <div class="f"><label for="acc">Compte</label><input type="text" id="acc" placeholder="Nom#1234" autocomplete="off"></div>
+            <div class="f"><label for="league">Ligue</label><select id="league"><option value="">Chargement…</option></select></div>
+          </div>
+        </div>
+        <div class="sec">
+          <div class="st"><span>Onglets <span class="cnt" id="tabCount"></span></span>
+            <span class="tools"><span id="selTools" hidden><button class="lk" id="all">Tout</button><button class="lk" id="none">Rien</button></span><button class="btn sm" id="load">Charger</button></span></div>
+          <div id="tabsWrap" style="display:none">
+            <input type="search" id="tabQ" placeholder="Filtrer les onglets…" aria-label="Filtrer les onglets">
+            <div class="tabs" id="tabs"></div>
+          </div>
+          <div class="empty" id="tabsHint">Charge la liste pour choisir les onglets à scanner.</div>
+        </div>
+        <div class="sec">
+          <div class="st">Automatisation</div>
+          <div class="f"><label for="auto">Rescan automatique</label>
+            <select id="auto"><option value="0">Désactivé</option><option value="15">Toutes les 15 min</option><option value="30">Toutes les 30 min</option><option value="60">Toutes les heures</option></select></div>
+          <label class="chk" style="margin-top:6px"><input type="checkbox" id="wc"> Importer aussi les personnages</label>
+          <label class="chk"><input type="checkbox" id="dl"> Télécharger le JSON à chaque scan</label>
+        </div>
       </div>
-      <label for="auto">Rescan automatique</label>
-      <select id="auto">
-        <option value="0">Désactivé</option><option value="15">Toutes les 15 min</option>
-        <option value="30">Toutes les 30 min</option><option value="60">Toutes les heures</option>
-      </select>
-      <div class="row">
-        <button id="scan">Scanner maintenant</button>
-        <button id="chars" title="Équipement et inventaire des personnages de la ligue">Personnages</button>
-        <label class="chk"><input type="checkbox" id="dl"> Télécharger aussi le JSON</label>
+      <div class="ft">
+        <div class="acts"><button class="btn pri" id="scan">Scanner maintenant</button><button class="btn" id="chars" title="Équipement et inventaire des personnages de la ligue">Personnages</button></div>
+        <div class="bar"><div id="prog"></div></div>
+        <div class="status" id="status" role="status"></div>
+        <a class="open-page" href="https://mrpatatatomique.github.io/poe-coffres/" target="_blank" rel="noopener">Ouvrir la page des coffres ↗</a>
       </div>
-      <div class="bar"><div id="prog"></div></div>
-      <div class="status" id="status"></div>
-      <div class="hint">Le scan est enregistré dans Violentmonkey : la page coffres-poe1.html le récupère toute seule.</div>
     </div>
-    <button class="fab" id="fab">Coffres</button>`;
+    <button class="fab" id="fab" aria-expanded="false" title="Coffres PoE1 · script v${VER}">${ICON}<span>Coffres</span><span class="v">v${VER}</span><span class="dot" id="fabDot"></span></button>`;
 
     const $ = id => root.getElementById(id);
     const setStatus = (msg, err = false) => { $('status').textContent = msg; $('status').className = 'status' + (err ? ' err' : ''); };
@@ -656,9 +698,15 @@
       return '';
     }
 
+    const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "à l'instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `le ${new Date(t).toLocaleDateString('fr-FR')}`; };
+    const fabState = () => { const last = GM_getValue('lastScanAt', 0); $('fabDot').classList.toggle('ok', Date.now() - last < 3 * 3600000); $('fab').title = `Coffres PoE1 · script v${VER}${last ? ` · dernier scan ${ago(last)}` : ''}`; };
+    fabState(); setInterval(fabState, 60000);
+    $('close').onclick = () => $('fab').click();
+    root.addEventListener('keydown', e => { if (e.key === 'Escape' && $('panel').classList.contains('open')) $('fab').click(); });
     $('fab').onclick = async () => {
       const p = $('panel');
       p.classList.toggle('open');
+      $('fab').setAttribute('aria-expanded', String(p.classList.contains('open')));
       if (!p.classList.contains('open') || $('acc').dataset.init) return;
       $('acc').dataset.init = '1';
       const st = getSettings();
@@ -671,6 +719,7 @@
       fillLeagues([], st.league || '');
       $('auto').value = String(st.autoMinutes || 0);
       $('dl').checked = !!st.alsoDownload;
+      $('wc').checked = !!st.withChars;
       if (!$('acc').value) { setStatus('Détection du compte…'); $('acc').value = await detectAccount(); $('acc').placeholder = 'Nom#1234'; }
       if ($('acc').value) {
         try {
@@ -682,14 +731,18 @@
         } catch (e) { logErr('liste des ligues', e); }
       }
       const last = GM_getValue('lastScanAt', 0);
-      setStatus(last ? `Dernier scan : ${new Date(last).toLocaleString('fr-FR')}` : 'Charge les onglets puis lance un premier scan.');
+      setStatus(last ? `Dernier scan ${ago(last)}.` : 'Charge les onglets puis lance un premier scan.');
+      const sel = st.selected?.[st.league];
+      $('tabCount').textContent = sel ? `· ${sel.length} choisis` : '';
     };
 
     const saveForm = () => setSettings({ account: $('acc').value.trim(), league: $('league').value.trim() });
     // changer de ligue : on enregistre tout de suite et on recharge la liste des onglets de cette ligue
-    $('league').onchange = () => { saveForm(); $('tabsWrap').style.display = 'none'; setStatus(`Ligue : ${$('league').value}. Charge les onglets puis lance un scan.`); };
+    $('league').onchange = () => { saveForm(); $('tabsWrap').style.display = 'none'; $('tabsHint').hidden = false; $('selTools').hidden = true; $('load').textContent = 'Charger'; $('tabCount').textContent = ''; setStatus(`Ligue : ${$('league').value}. Charge les onglets puis lance un scan.`); };
     $('auto').onchange = () => setSettings({ autoMinutes: Number($('auto').value) });
     $('dl').onchange = () => setSettings({ alsoDownload: $('dl').checked });
+    $('wc').onchange = () => setSettings({ withChars: $('wc').checked });
+    $('tabQ').oninput = () => { const q = $('tabQ').value.trim().toLowerCase(); root.querySelectorAll('#tabs label').forEach(l => (l.hidden = q && !l.textContent.toLowerCase().includes(q))); };
 
     $('load').onclick = async () => {
       saveForm();
@@ -705,7 +758,7 @@
           const c = t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#555';
           return `<label><input type="checkbox" data-i="${t.i}" ${sel.has(t.i) ? 'checked' : ''}><span class="sw" style="background:${c}"></span>${esc(t.n)}<span class="tt">${esc(t.type || '')}</span></label>`;
         }).join('');
-        $('tabsWrap').style.display = '';
+        $('tabsWrap').style.display = ''; $('tabsHint').hidden = true; $('selTools').hidden = false; $('load').textContent = 'Recharger';
         root.querySelectorAll('#tabs input').forEach(c => c.onchange = saveSelection);
         saveSelection();
         setStatus(`${tabList.length} onglets trouvés. Décoche ceux à ignorer.`);
@@ -716,6 +769,7 @@
       const league = getSettings().league;
       const chosen = [...root.querySelectorAll('#tabs input:checked')].map(c => Number(c.dataset.i));
       setSettings({ selected: { ...(getSettings().selected || {}), [league]: chosen } });
+      $('tabCount').textContent = `· ${chosen.length} / ${tabList.length || chosen.length}`;
     }
     $('all').onclick = () => { root.querySelectorAll('#tabs input').forEach(c => (c.checked = true)); saveSelection(); };
     $('none').onclick = () => { root.querySelectorAll('#tabs input').forEach(c => (c.checked = false)); saveSelection(); };
@@ -745,6 +799,7 @@
         if (!getSettings().ninjaRemote) loadPrices(false, () => {}).catch(e => logErr('prix poe.ninja après scan', e));
       } catch (e) { setStatus(e.message, true); }
       $('scan').disabled = $('load').disabled = false;
+      fabState();
     };
 
     function download(scan) {

@@ -280,6 +280,8 @@
   .acct-fresh b.old{color:var(--err)}
   .acct .chev{width:15px;height:15px;color:var(--muted)}
   .acct-pop{min-width:330px;max-height:calc(100vh - 90px);overflow:auto}
+  .mp-ver{padding:6px 10px 2px;font-size:10.5px;color:var(--muted);text-align:right}
+  .mp-ver.old{color:var(--err)}
   .mp-sec{font:600 10px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:10px 10px 5px}
   .mp-sec:first-child{padding-top:4px}
   .mp-row{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:7px}
@@ -601,6 +603,7 @@
         <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       <div class="menu-pop acct-pop" id="acctPop" hidden role="menu">
+        <div class="mp-ver" id="mpVer">Script non connecté</div>
         <div class="mp-sec">Coffres</div>
         <button role="menuitem" id="scanBtn" disabled><svg><use href="#i-refresh"/></svg><span><b>Rescanner maintenant</b><small>Relit tous les onglets choisis</small></span></button>
         <label class="mp-row" title="Même réglage que dans le panneau Coffres du site GGG"><svg><use href="#i-refresh"/></svg><span><b>Rescan automatique</b><small>Partagé avec le panneau du site GGG</small></span><select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
@@ -855,7 +858,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.7.1';
+  const REQ_SCRIPT = '2.7.2';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -891,6 +894,8 @@
         $('bridge').textContent = 'Script';
         $('scriptLed').title = `Script Violentmonkey v${m.data.version} connecté`;
         $('verInfo').textContent = `Page connectée au script v${m.data.version}`;
+        $('mpVer').textContent = `Script Violentmonkey v${m.data.version}${vnum(m.data.version) < vnum(REQ_SCRIPT) ? ` · v${REQ_SCRIPT} requise` : ''}`;
+        $('mpVer').classList.toggle('old', vnum(m.data.version) < vnum(REQ_SCRIPT));
         updateApi();
         if (vnum(m.data.version) < vnum(REQ_SCRIPT)) {
           $('updBar').hidden = false;
