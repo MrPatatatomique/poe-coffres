@@ -1,7 +1,7 @@
 // Met à jour les données partagées de Coffres PoE1 : prix poe.ninja, historique et base des uniques.
 // Usage : node tools/update-data.mjs <dossier-data>
 // Lancé par GitHub Actions toutes les 30 min ; le dossier est la branche « data » (un seul commit, réécrit à chaque passage).
-import { mkdir, readFile, writeFile, readdir, rm } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, readdir, rm, rename } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -254,11 +254,48 @@ async function updateTradeStats(dir) {
   return Object.keys(map).length;
 }
 
+// --------------------------------------------------------------- archives des ligues terminées
+// archive/<ligue>/ : prices.json, prices-extra.json, icons.json, history/<shard>.json ; archive/index.json : liste
+const ARCH = () => join(OUT, 'archive');
+async function readArchiveIndex() {
+  try { return JSON.parse(await readFile(join(ARCH(), 'index.json'), 'utf8')); } catch { return []; }
+}
+async function archiveLeague(d, info) {
+  const dst = join(ARCH(), d);
+  await mkdir(dst, { recursive: true });
+  let lastPrices = null;
+  for (const kind of ['prices', 'prices-extra', 'icons']) {
+    const src = join(OUT, kind, `${d}.json`);
+    if (!existsSync(src)) continue;
+    if (kind === 'prices') { try { lastPrices = JSON.parse(await readFile(src, 'utf8')).fetchedAt; } catch {} }
+    await rename(src, join(dst, `${kind}.json`));
+  }
+  if (existsSync(join(OUT, 'history', d))) { await rm(join(dst, 'history'), { recursive: true, force: true }); await rename(join(OUT, 'history', d), join(dst, 'history')); }
+  await rm(join(OUT, 'history-recent', d), { recursive: true, force: true }); // l'historique complet suffit
+  const idx = (await readArchiveIndex()).filter(x => x.file !== d);
+  idx.push({ id: info ? info.id : d, name: info ? info.name : d, file: d, endedAt: Date.now(), lastPrices });
+  await writeFile(join(ARCH(), 'index.json'), JSON.stringify(idx));
+  console.log(`${d} : ligue terminée, archivée`);
+}
+async function unarchive(d) {
+  const src = join(ARCH(), d);
+  if (!existsSync(src) || existsSync(join(OUT, 'prices', `${d}.json`))) return;
+  for (const kind of ['prices', 'prices-extra', 'icons']) {
+    if (existsSync(join(src, `${kind}.json`))) { await mkdir(join(OUT, kind), { recursive: true }); await rename(join(src, `${kind}.json`), join(OUT, kind, `${d}.json`)); }
+  }
+  if (existsSync(join(src, 'history'))) { await mkdir(join(OUT, 'history'), { recursive: true }); await rename(join(src, 'history'), join(OUT, 'history', d)); }
+  await rm(src, { recursive: true, force: true });
+  await writeFile(join(ARCH(), 'index.json'), JSON.stringify((await readArchiveIndex()).filter(x => x.file !== d)));
+  console.log(`${d} : de retour dans la liste poe.ninja, archive restaurée`);
+}
+
 // --------------------------------------------------------------- main
 async function main() {
   await mkdir(join(OUT, 'prices'), { recursive: true });
   const leagues = await getJson(`${NINJA}/leagues`);
   if (!leagues || !leagues.length) throw new Error('liste des ligues poe.ninja indisponible');
+  // ligue revenue dans la liste après avoir été archivée (coupure de poe.ninja) : on remet ses fichiers en place
+  for (const lg of leagues) await unarchive(slug(lg.id));
   // une ligue n'est retirée que lorsqu'elle disparaît de la liste poe.ninja, jamais parce qu'un passage a échoué
   const keepDirs = new Set(leagues.map(lg => slug(lg.id)));
   for (const lg of leagues) {
@@ -293,13 +330,16 @@ async function main() {
     console.log(`${lg.id} : ${nLines} lignes${p.stale.length ? ` (${p.stale.length} catégories reprises)` : ''}, historique ${st.series} séries / ${st.points} points / ${(st.bytes / 1e6).toFixed(1)} Mo, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   // les ligues terminées disparaissent de poe.ninja : on retire leurs fichiers
-  for (const base of ['history', 'history-recent']) {
-    if (existsSync(join(OUT, base))) for (const d of await readdir(join(OUT, base))) if (!keepDirs.has(d)) await rm(join(OUT, base, d), { recursive: true });
+  // ligues terminées (sorties de la liste poe.ninja) : archivées, jamais supprimées
+  let prevLeagues = [];
+  try { prevLeagues = JSON.parse(await readFile(join(OUT, 'leagues.json'), 'utf8')).leagues || []; } catch {}
+  const ended = new Set();
+  for (const base of ['history', 'history-recent', 'prices', 'prices-extra', 'icons']) {
+    if (existsSync(join(OUT, base))) for (const f of await readdir(join(OUT, base))) { const d = f.replace(/\.json$/, ''); if (!keepDirs.has(d)) ended.add(d); }
   }
-  for (const base of ['prices', 'prices-extra', 'icons']) {
-    if (existsSync(join(OUT, base))) for (const f of await readdir(join(OUT, base))) if (!keepDirs.has(f.replace(/\.json$/, ''))) await rm(join(OUT, base, f));
-  }
-  await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), shards: SHARDS }));
+  for (const d of ended) await archiveLeague(d, prevLeagues.find(l => l.file === d));
+  const archived = await readArchiveIndex();
+  await writeFile(join(OUT, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })), archived, shards: SHARDS }));
   const nu = await updateUniques(OUT);
   console.log(`uniques : ${nu}`);
   const ns = await updateTradeStats(OUT);

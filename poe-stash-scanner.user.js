@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.6.7
+// @version      2.7.0
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -118,6 +118,31 @@
       if (Array.isArray(t.children) && t.children.length) out.push(...flattenTabs(t.children, t.n));
       else if (typeof t.i === 'number') out.push({ i: t.i, n: name, type: t.type, colour: t.colour, id: t.id });
     }
+    return out;
+  }
+
+  // ---------- Personnages : équipement porté et inventaire, pour la ligue choisie ----------
+  async function runChars(report = () => {}, leagueHint = '') {
+    const st = getSettings();
+    const league = leagueHint || st.league;
+    if (!st.account || !league) throw new Error('Compte et ligue inconnus : fais un premier scan depuis pathofexile.com (bouton Coffres).');
+    report({ msg: 'Personnages : liste…' });
+    const list = (await ggg('/get-characters', { accountName: st.account, realm: REALM }) || []).filter(c => c.league === league);
+    const chars = [], failed = [];
+    for (let k = 0; k < list.length; k++) {
+      const c = list[k];
+      report({ msg: `Personnages ${k + 1}/${list.length} : ${c.name}`, p: k / list.length });
+      try {
+        const j = await ggg('/get-items', { accountName: st.account, character: c.name, realm: REALM });
+        chars.push({ name: c.name, class: c.class, level: c.level, league: c.league, items: j.items || [] });
+      } catch (e) {
+        failed.push({ name: c.name, error: e.message });
+        if (e.auth) throw e;
+      }
+    }
+    const out = { format: 'poe1-characters', at: new Date().toISOString(), account: st.account, league, chars, failed };
+    GM_setValue('lastChars', JSON.stringify(out));
+    report({ msg: `Personnages : ${chars.length} importé${chars.length > 1 ? 's' : ''}${failed.length ? `, ${failed.length} en échec` : ''}.`, p: 1, done: true });
     return out;
   }
 
@@ -439,7 +464,8 @@
     if (GM_getValue('scanLock', 0) > Date.now()) return;
     // Si la page n'a pas les cookies GGG, on laisse l'onglet pathofexile.com s'en charger pendant 1 h
     if (!ON_GGG && Date.now() - GM_getValue('authFailedAt', 0) < 3600000) return;
-    try { await runScan(report); } catch (e) { report({ msg: `Rescan auto : ${e.message}`, error: true }); }
+    try { await runScan(report); } catch (e) { report({ msg: `Rescan auto : ${e.message}`, error: true }); return; }
+    if (getSettings().withChars) { try { await runChars(() => {}); } catch (e) { logErr('personnages au rescan auto', e); } }
   }
 
   if (ON_GGG) gggPanel(); else viewerBridge();
@@ -451,6 +477,7 @@
     const send = (type, data) => window.postMessage(JSON.stringify({ src: 'poe-us', type, data }), '*');
     const report = d => send('status', d);
     const pushScan = () => { const s = GM_getValue('lastScan', null); if (s) send('scan', s); };
+    const pushChars = () => { const s = GM_getValue('lastChars', null); if (s) send('chars', s); };
     const pushPrices = p => p && send('prices', JSON.stringify(p));
     const pushSettings = () => send('settings', getSettings());
     const pushTrades = () => send('trades', JSON.stringify(GM_getValue('tradeEstimates', {})));
@@ -463,7 +490,7 @@
       greeted = true;
       // instance : permet à la page de repérer deux copies du script installées en même temps
       send('ready', { version: GM_info.script.version, inst: INSTANCE, scans: !!GM_getValue('lastScan', '') });
-      pushSettings(); pushTracking(); pushTrades(); pushScan();
+      pushSettings(); pushTracking(); pushTrades(); pushScan(); pushChars();
       const p = GM_getValue('ninjaPrices', null);
       if (p) pushPrices(p);
       // sans ligue connue (aucun scan dans ce script), pas de récupération automatique : la page fournit ses prix
@@ -484,7 +511,12 @@
         } else if (m.cmd === 'scan') {
           await runScan(report);
           pushScan();
+          // personnages importés avec chaque scan si la page l'a demandé
+          if (getSettings().withChars) { try { await runChars(report); pushChars(); } catch (e) { report({ msg: `Personnages : ${e.message}`, error: true }); } }
           if (!getSettings().ninjaRemote) pushPrices(await loadPrices(false, report));
+        } else if (m.cmd === 'chars') {
+          await runChars(report, (m.data && m.data.league) || '');
+          pushChars();
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report, (m.data && m.data.league) || ''));
         } else if (m.cmd === 'trade-prepare') {
@@ -518,6 +550,7 @@
 
     // Un scan fait depuis l'onglet GGG met la page à jour toute seule
     GM_addValueChangeListener('lastScan', (k, o, n, remote) => { if (remote && n) send('scan', n); });
+    GM_addValueChangeListener('lastChars', (k, o, n, remote) => { if (remote && n) send('chars', n); });
     GM_addValueChangeListener('ninjaPrices', (k, o, n, remote) => { if (remote && n) pushPrices(n); });
 
     // Le script se charge après la page : on se présente tout de suite, sans attendre son "hello"
@@ -534,7 +567,8 @@
       finally { pricesBusy = false; }
     }, 60000);
 
-    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); if (!getSettings().ninjaRemote) loadPrices(false, report).then(pushPrices).catch(e => logErr('prix poe.ninja après rescan auto', e)); } }), 60000);
+    let charsAt = GM_getValue('lastChars', '').slice(0, 90);
+    setInterval(() => autoTick(d => { report(d); if (d.done) { pushScan(); if (!getSettings().ninjaRemote) loadPrices(false, report).then(pushPrices).catch(e => logErr('prix poe.ninja après rescan auto', e)); } }).then(() => { const n = GM_getValue('lastChars', ''); if (n.slice(0, 90) !== charsAt) { charsAt = n.slice(0, 90); pushChars(); } }), 60000);
   }
 
   // =====================================================================
@@ -576,8 +610,7 @@
       <label for="acc">Compte (Nom#1234)</label>
       <input id="acc" placeholder="Détection…">
       <label for="league">Ligue</label>
-      <input id="league" list="leagues" placeholder="Standard">
-      <datalist id="leagues"></datalist>
+      <select id="league"><option value="">Chargement des ligues…</option></select>
       <div class="row"><button id="load">Charger les onglets</button></div>
       <div id="tabsWrap" style="display:none">
         <div class="row"><button id="all">Tout</button><button id="none">Rien</button></div>
@@ -617,16 +650,22 @@
       $('acc').dataset.init = '1';
       const st = getSettings();
       $('acc').value = st.account || '';
-      $('league').value = st.league || '';
+      const fillLeagues = (list, cur) => {
+        const all = [...new Set([...(cur ? [cur] : []), ...list])];
+        $('league').innerHTML = all.length ? all.map(l => `<option value="${esc(l)}">${esc(l)}</option>`).join('') : '<option value="">Aucune ligue trouvée</option>';
+        if (cur) $('league').value = cur;
+      };
+      fillLeagues([], st.league || '');
       $('auto').value = String(st.autoMinutes || 0);
       $('dl').checked = !!st.alsoDownload;
       if (!$('acc').value) { setStatus('Détection du compte…'); $('acc').value = await detectAccount(); $('acc').placeholder = 'Nom#1234'; }
       if ($('acc').value) {
         try {
           const chars = await ggg('/get-characters', { accountName: $('acc').value.trim(), realm: REALM });
-          const leagues = [...new Set((chars || []).map(c => c.league).filter(Boolean))];
-          $('leagues').innerHTML = leagues.map(l => `<option value="${esc(l)}">`).join('');
-          if (!$('league').value && leagues.length) $('league').value = leagues.find(l => !/standard|hardcore/i.test(l)) || leagues[0];
+          // ligues où le compte a des personnages : ligues en cours d'abord, Standard et Hardcore à la fin
+          const leagues = [...new Set((chars || []).map(c => c.league).filter(Boolean))].sort((a, b) => /standard|hardcore/i.test(a) - /standard|hardcore/i.test(b));
+          fillLeagues(leagues, st.league || leagues[0] || '');
+          if (!st.league && $('league').value) saveForm();
         } catch (e) { logErr('liste des ligues', e); }
       }
       const last = GM_getValue('lastScanAt', 0);
@@ -634,6 +673,8 @@
     };
 
     const saveForm = () => setSettings({ account: $('acc').value.trim(), league: $('league').value.trim() });
+    // changer de ligue : on enregistre tout de suite et on recharge la liste des onglets de cette ligue
+    $('league').onchange = () => { saveForm(); $('tabsWrap').style.display = 'none'; setStatus(`Ligue : ${$('league').value}. Charge les onglets puis lance un scan.`); };
     $('auto').onchange = () => setSettings({ autoMinutes: Number($('auto').value) });
     $('dl').onchange = () => setSettings({ alsoDownload: $('dl').checked });
 

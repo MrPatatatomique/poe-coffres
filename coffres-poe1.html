@@ -188,6 +188,25 @@
   .more{display:flex;margin:14px auto}
 
   .grid-wrap{padding:18px;display:flex;justify-content:center}
+  .eqv{color:var(--muted);font-size:11.5px;margin-top:2px}
+  .chsect{display:flex;justify-content:space-between;align-items:baseline;margin:14px 8px 6px;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .chsect .s{font:400 11px/1 var(--body);letter-spacing:0;text-transform:none}
+  .chimp{margin:0 8px;font-size:12px;padding:6px 10px}
+  .doll-wrap{padding:22px 18px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .doll{position:relative}
+  .dslot{position:absolute;box-sizing:border-box;min-width:0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:4px;background:#0f0c09;border:1px solid var(--line2);border-radius:6px;cursor:pointer;transition:border-color .1s,background .1s}
+  .dslot img{max-width:100%;max-height:100%;object-fit:contain}
+  .dslot:hover:not(:disabled),.dslot:focus-visible{border-color:var(--gold3);background:#1a140e;outline:none}
+  .dslot.sel{border-color:var(--gold2);background:#221a12}
+  .dslot.dempty{cursor:default;border-style:dashed;background:none}
+  .dslot.r1{border-color:#4d5a8f} .dslot.r2{border-color:#8a7b3a} .dslot.r3{border-color:#8a5a2e} .dslot.r4{border-color:#2d6b66}
+  .dslot .dl{font-size:9.5px;overflow-wrap:anywhere;color:#5f5444;text-align:center;line-height:1.2}
+  .dslot .dv{position:absolute;left:2px;right:2px;bottom:2px;font-size:10.5px;font-weight:600;color:var(--gold2);background:#000000b0;border-radius:3px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dslot .dv.h{color:var(--gold3);font-weight:500}
+  .doll-sw{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+  .doll-sw button{background:none;border:0;color:var(--muted);padding:5px 12px;font:500 12px/1 var(--body);cursor:pointer}
+  .doll-sw button.on{background:#2a2016;color:var(--gold2)}
+  .doll-note{color:var(--muted);font-size:12px;text-align:center}
   .grid{position:relative;background:#0a0907;border:1px solid var(--line2);border-radius:6px}
   .cell{position:absolute;border:1px solid #17140f}
   .gi{position:absolute;display:flex;align-items:center;justify-content:center;background:#ffffff06;border:1px solid #ffffff10;cursor:pointer;transition:border-color .1s,background .1s}
@@ -285,6 +304,14 @@
   .hdlinks a:hover{color:var(--gold2);border-color:var(--gold3)}
   .hdlinks svg{width:12px;height:12px}
   .bhint{color:var(--gold3);font-weight:500}
+  .pen{width:24px;height:24px;flex:none;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid transparent;border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+  .pen svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .pen:hover,.pen:focus-visible,.pen[aria-expanded="true"]{color:var(--gold2);border-color:var(--line3);outline:none}
+  .pen.on{color:var(--gold2)}
+  .pricebox .row,.tradebox .head{display:flex;justify-content:space-between;align-items:center}
+  .tradebox .head .hr{display:inline-flex;align-items:center;gap:8px}
+  .mline{display:flex;align-items:baseline;gap:6px;margin:4px 0 8px;font-size:13px;color:var(--text2)}
+  .mline b{color:var(--gold2);font-size:15px} .mline .s{margin:0 0 0 auto}
   .manbox{margin-top:12px;padding:12px 15px;border:1px solid var(--line2);border-radius:var(--r);background:#14100c}
   .manbox .row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   .manbox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -409,6 +436,11 @@
   .gbox{width:min(900px,100%)}
   .fbtns{display:flex;gap:6px;align-items:center}
   .fhead > span:first-child{white-space:nowrap}
+  .fttl{display:inline-flex;align-items:center;gap:8px}
+  .chev{width:22px;height:22px;flex:none;display:flex;align-items:center;justify-content:center;padding:0;border:0;border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+  .chev svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+  .chev[aria-expanded="false"] svg{transform:rotate(-90deg)}
+  .chev:hover,.chev:focus-visible{color:var(--gold2);background:#ffffff0a;outline:none}
   .wempty{padding:6px 8px 4px;font-size:12px;color:var(--muted);line-height:1.45}
   .wempty button{margin-top:8px}
   .wbox{width:min(720px,100%);height:min(640px,calc(100vh - 48px));display:flex;flex-direction:column;overflow:hidden}
@@ -558,6 +590,9 @@
         <div class="mp-sec">Coffres</div>
         <button role="menuitem" id="scanBtn" disabled><svg><use href="#i-refresh"/></svg><span><b>Rescanner maintenant</b><small>Relit tous les onglets choisis</small></span></button>
         <label class="mp-row" title="Même réglage que dans le panneau Coffres du site GGG"><svg><use href="#i-refresh"/></svg><span><b>Rescan automatique</b><small>Partagé avec le panneau du site GGG</small></span><select id="auto" aria-label="Rescan automatique"><option value="0">non</option><option value="15">15 min</option><option value="30">30 min</option><option value="60">1 h</option></select></label>
+        <div class="mp-sec">Personnages</div>
+        <button role="menuitem" id="charsBtn" disabled><svg><use href="#i-refresh"/></svg><span><b>Importer les personnages</b><small>Équipement et inventaire des personnages de la ligue</small></span></button>
+        <label class="mp-row" title="Ajoute 1 requête par personnage à chaque scan"><svg><use href="#i-refresh"/></svg><span><b>Avec chaque scan</b><small>Réimporte les personnages après chaque scan</small></span><input type="checkbox" id="withChars" aria-label="Importer les personnages avec chaque scan"></label>
         <div class="mp-sec">Prix</div>
         <button role="menuitem" id="reloadPrices"><svg><use href="#i-coin"/></svg><span><b>Recharger les prix</b><small>Dernière publication poe.ninja du dépôt (toutes les 30 min)</small></span></button>
         <div class="mp-sec">Fichiers</div>
@@ -580,6 +615,7 @@
         <div class="lb">Valeur estimée totale</div>
         <div class="vl" id="kTotal">—</div>
         <div class="sb" id="kTotalSub"></div>
+        <div class="sb eqv" id="kEquip" hidden></div>
       </div>
       <div class="hero-r">
         <div class="hc-head"><span class="hc-info" id="vhInfo">Évolution (relevé toutes les 15 min)</span>
@@ -594,7 +630,7 @@
       <div class="meter"><div id="kPricedBar" style="width:0"></div></div>
     </div>
     <div class="kpi trade">
-      <div class="lb">Estimations trade</div>
+      <div class="lb">Estimations · trade et manuel</div>
       <div class="vl" id="kTrade">—</div>
       <div class="sb" id="kTradeSub">aucune estimation</div>
     </div>
@@ -623,14 +659,14 @@
   <div class="main" id="mainView" hidden>
     <aside>
       <div class="follow-sect" id="followWrap" hidden>
-        <div class="sect fhead"><span>★ Suivis <span id="followCount"></span></span><button class="linkbtn" id="followToggle" aria-expanded="true">Masquer</button></div>
+        <div class="sect fhead"><span>★ Suivis <span id="followCount"></span></span><button class="chev" id="followToggle" aria-expanded="true" aria-label="Replier les suivis"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
         <div id="followList"></div>
       </div>
       <div class="follow-sect" id="watchWrap" hidden>
-        <div class="sect fhead"><span>◎ Surveillés <span id="watchCount"></span></span><span class="fbtns"><button class="linkbtn" id="watchToggle" aria-expanded="true">Masquer</button><button class="gh-more" id="watchAdd" title="Surveiller le prix d'un objet que tu n'as pas" aria-label="Ajouter un objet à surveiller">+</button></span></div>
+        <div class="sect fhead"><span class="fttl">◎ Surveillés <span id="watchCount"></span><button class="gh-more" id="watchAdd" title="Surveiller le prix d'un objet que tu n'as pas" aria-label="Ajouter un objet à surveiller">+</button></span><button class="chev" id="watchToggle" aria-expanded="true" aria-label="Replier les surveillés"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
         <div id="watchList"></div>
       </div>
-      <div class="sect">Onglets</div>
+      <div class="sect fhead"><span>Onglets</span><button class="chev" id="tabsToggle" aria-expanded="true" aria-label="Replier les onglets"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button></div>
       <div id="tabList"></div>
     </aside>
     <section class="center">
@@ -801,7 +837,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.7';
+  const REQ_SCRIPT = '2.7.0';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -850,6 +886,10 @@
       case 'settings':
         settings = m.data || {};
         $('auto').value = String(settings.autoMinutes || 0);
+        $('withChars').checked = !!settings.withChars;
+        $('charsBtn').disabled = false;
+        // réglage de ligue vide dans le script : on lui donne celle du scan affiché
+        if (!settings.league && data && data.league) cmd('settings', { league: data.league });
         break;
       case 'trades':
         try { trades = { ...localTrades, ...(JSON.parse(m.data) || {}) }; applyPrices(); } catch (e) { logErr('estimations trade reçues', e); }
@@ -885,6 +925,9 @@
         break;
       case 'scan':
         try { load(JSON.parse(m.data)); } catch (e) { status('Scan reçu illisible : ' + e.message, true); }
+        break;
+      case 'chars':
+        try { charData = JSON.parse(m.data); if (data) { buildItems(); applyPrices(); } setBusy('charsBtn', false); } catch (e) { status('Personnages reçus illisibles : ' + e.message, true); }
         break;
       case 'prices':
         try {
@@ -938,6 +981,14 @@
   };
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
 
+  function setChev(id, collapsed, what) {
+    $(id).setAttribute('aria-expanded', String(!collapsed));
+    $(id).setAttribute('aria-label', `${collapsed ? 'Déplier' : 'Replier'} ${what}`);
+    $(id).title = collapsed ? 'Déplier' : 'Replier';
+  }
+  const syncTabsFold = () => { const h = Number(store.get('poeTabsHidden', 0)) === 1; $('tabList').hidden = h; setChev('tabsToggle', h, 'les onglets'); };
+  $('tabsToggle').onclick = () => { store.set('poeTabsHidden', $('tabList').hidden ? 0 : 1); syncTabsFold(); };
+  syncTabsFold();
   $('followToggle').onclick = () => {
     const h = !$('followList').hidden;
     store.set('poeFollowHidden', h ? 1 : 0);
@@ -1045,9 +1096,16 @@
     const j = await getJson('data/uniques.json');
     if (j && j.db) { uniqueDb = j.db; uniqueSrc = j.source || 'Path of Building'; uniqueErr = ''; applyPrices(); }
   }
-  function pickLeagueFile(gggLeague) {
+  // Ligue terminée : ses fichiers sont dans data/archive/<ligue>/ (prix figés à la fin de la ligue)
+  let repoArchived = null;
+  function repoUrl(kind, sh) {
+    const f = repoPricesFile;
+    if (repoArchived) return /^history/.test(kind) ? `data/archive/${f}/history/${sh}.json` : `data/archive/${f}/${kind}.json`;
+    return /^history/.test(kind) ? `data/${kind}/${f}/${sh}.json` : `data/${kind}/${f}.json`;
+  }
+  function pickLeagueFile(gggLeague, list) {
     if (!repoLeagues) return null;
-    const g = (gggLeague || '').trim().toLowerCase(), L = repoLeagues.leagues;
+    const g = (gggLeague || '').trim().toLowerCase(), L = list || repoLeagues.leagues;
     if (!g) return null;
     const exact = L.find(l => l.id.toLowerCase() === g || (l.name || '').toLowerCase() === g);
     if (exact) return exact.file;
@@ -1064,7 +1122,7 @@
     const sig = `${repoPricesFile}|${prices.league}|${prices.fetchedAt}`;
     if (extraSig === sig) return extraReq || Promise.resolve();
     extraSig = sig;
-    extraReq = getJson(`data/prices-extra/${repoPricesFile}.json`).then(j => {
+    extraReq = getJson(repoUrl('prices-extra')).then(j => {
       extraReq = null;
       if (!j || !j.items) return;
       extraPrices = j; wCands = null;
@@ -1083,11 +1141,14 @@
   async function loadRepoPrices(force) {
     if (!ONLINE || !data) return;
     if (!repoLeagues) repoLeagues = await getJson('data/leagues.json');
-    const f = pickLeagueFile(data.league);
+    let f = pickLeagueFile(data.league), arch = null;
+    if (!f && repoLeagues.archived) { f = pickLeagueFile(data.league, repoLeagues.archived); arch = f ? repoLeagues.archived.find(l => l.file === f) : null; }
     if (!f) return;
-    const p = await getJson(`data/prices/${f}.json`);
+    const p = await getJson(arch ? `data/archive/${f}/prices.json` : `data/prices/${f}.json`);
     if (!p || !p.fetchedAt) return;
     repoPricesFile = f;
+    if (arch && !repoArchived) setTimeout(() => status(`Ligue ${arch.name} terminée : prix figés au ${new Date(p.fetchedAt).toLocaleDateString('fr-FR')} (archive).`), 0);
+    repoArchived = arch;
     const hadKeys = repoKeys.size;
     repoKeys = repoKeyMap(p);
     p.file = f; p.gggLeague = data.league;
@@ -1106,7 +1167,7 @@
     if (!k || !repoPricesFile) return null;
     const sh = shardOf(k), key = `${repoPricesFile}/${sh}`;
     if (hist[key]) { const e = hist[key][k]; if (!e) return []; let t = e[0]; return e[2].map((v, i) => { if (i) t += e[1][i - 1]; return [t * 60000, v]; }); }
-    if (!histReq[key]) histReq[key] = getJson(`data/history/${key}.json`).then(j => { hist[key] = j || {}; renderFollow(); if (selected !== null) select(selected); });
+    if (!histReq[key]) histReq[key] = getJson(repoUrl('history', sh)).then(j => { hist[key] = j || {}; renderFollow(); if (selected !== null) select(selected); });
     return null;
   }
   if (ONLINE) {
@@ -1133,7 +1194,7 @@
     const sameLeague = data && data.league === json.league;
     data = json;
     tabs = json.tabs || [];
-    items = json.items.map((it, idx) => enrich(it, idx));
+    buildItems();
     curIcons = {};
     for (const i of items) {
       if (i.type === 'Chaos Orb' && !curIcons.chaos) curIcons.chaos = i.raw.icon;
@@ -1152,6 +1213,32 @@
     applyPrices();
     loadRepoPrices();
   }
+
+  // Objets affichés : ceux du coffre, puis ceux des personnages de la même ligue (i.char), tenus à part des totaux
+  let charData = null;
+  const SLOT_FR = { Weapon: 'Arme', Offhand: 'Main gauche', Weapon2: 'Arme (II)', Offhand2: 'Main gauche (II)', Helm: 'Casque', BodyArmour: 'Armure', Gloves: 'Gants', Boots: 'Bottes', Amulet: 'Amulette', Ring: 'Anneau gauche', Ring2: 'Anneau droit', Ring3: 'Anneau', Belt: 'Ceinture', Flask: 'Flasque', MainInventory: 'Inventaire', Trinket: 'Babiole' };
+  const charsHere = () => charData && data && charData.league === data.league ? charData.chars : [];
+  function buildItems() {
+    items = data.items.map((it, idx) => enrich(it, idx));
+    charsHere().forEach((c, k) => {
+      const tabI = -(k + 1), tabN = `⚔ ${c.name}`;
+      for (const it of c.items) {
+        const top = enrich({ ...it, _tab: { i: tabI, n: tabN, type: 'Character' } }, items.length);
+        Object.assign(top, { char: c.name, slot: it.inventoryId });
+        items.push(top);
+        // gemmes et joyaux sertis : objets à part, rattachés à leur emplacement
+        for (const g of it.socketedItems || []) {
+          const sub = enrich({ ...g, _tab: { i: tabI, n: tabN, type: 'Character' } }, items.length);
+          Object.assign(sub, { char: c.name, slot: 'Socketed', parentSlot: it.inventoryId });
+          items.push(sub);
+        }
+      }
+    });
+    if (activeTab !== null && activeTab < 0 && !charsHere()[-activeTab - 1]) activeTab = null;
+  }
+  const stashItems = () => items.filter(i => !i.char);
+  $('charsBtn').onclick = () => { if (!bridge) return; setBusy('charsBtn', true); cmd('chars', { league: data ? data.league : '' }); };
+  $('withChars').onchange = () => { cmd('settings', { withChars: $('withChars').checked }); status($('withChars').checked ? 'Les personnages seront réimportés après chaque scan' : 'Personnages : import manuel seulement'); };
 
   function enrich(it, idx) {
     const name = clean(it.name), type = clean(it.typeLine);
@@ -1227,13 +1314,24 @@
     const mp = manualPrices[i.raw.id], div = P && P.divine;
     const inDiv = mp && div && mp.v >= div;
     const shown = mp ? (inDiv ? Math.round(mp.v / div * 100) / 100 : Math.round(mp.v * 100) / 100) : '';
-    return `<div class="manbox"><div class="row"><label class="lb" for="mpV">Prix manuel</label>${mp ? `<span class="s">fixé ${esc(ago(mp.at))}</span>` : ''}</div>
+    return `<div class="manbox" id="manBox" hidden><div class="row"><label class="lb" for="mpV">Prix manuel</label>${mp ? `<span class="s">fixé ${esc(ago(mp.at))}</span>` : ''}</div>
       <div class="mrow"><input id="mpV" type="number" inputmode="decimal" min="0" step="any" value="${shown}" placeholder="ex. 25">
         <select id="mpU" aria-label="Unité"><option value="c"${inDiv ? '' : ' selected'}>chaos</option>${div ? `<option value="div"${inDiv ? ' selected' : ''}>divine</option>` : ''}</select>
         <button class="btn primary" id="mpSave">${mp ? 'Modifier' : 'Fixer le prix'}</button>${mp ? '<button class="btn ghost" id="mpDel">Retirer</button>' : ''}</div>
-      <div class="s">Ton propre prix : compté dans les estimations à la place du trade.</div></div>`;
+      <div class="s">Ton propre prix : compté dans les estimations, à la place du trade.</div></div>`;
+  }
+  const penHtml = i => `<button class="pen${manualPrices[i.raw.id] ? ' on' : ''}" data-pen title="Prix manuel" aria-label="Fixer un prix manuel" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
+  function manualLine(i) {
+    const mp = manualPrices[i.raw.id];
+    return mp ? `<div class="mline"><span class="tbadge man">manuel</span><b>${esc(fmt(mp.v))}</b><span class="s">fixé ${esc(ago(mp.at))}</span></div>` : '';
   }
   function wireManual(i) {
+    document.querySelectorAll('#detailBody [data-pen]').forEach(b => b.onclick = () => {
+      const box = $('manBox'); if (!box) return;
+      box.hidden = !box.hidden;
+      document.querySelectorAll('#detailBody [data-pen]').forEach(x => x.setAttribute('aria-expanded', String(!box.hidden)));
+      if (!box.hidden) { box.scrollIntoView({ block: 'nearest' }); $('mpV').focus(); $('mpV').select(); }
+    });
     if (!$('mpSave')) return;
     const save = () => {
       const n = parseFloat(String($('mpV').value).replace(',', '.'));
@@ -1496,8 +1594,7 @@
     renderWatch(wkeys);
     const hidden = Number(store.get('poeFollowHidden', 0)) === 1;
     $('followList').hidden = hidden;
-    $('followToggle').textContent = hidden ? 'Afficher' : 'Masquer';
-    $('followToggle').setAttribute('aria-expanded', String(!hidden));
+    setChev('followToggle', hidden, 'les suivis');
     $('followList').querySelectorAll('.unf').forEach(b => b.onclick = e => {
       e.stopPropagation();
       const f = follow[b.dataset.u];
@@ -1520,8 +1617,7 @@
     const hidden = Number(store.get('poeWatchHidden', 0)) === 1;
     $('watchList').hidden = hidden;
     $('watchToggle').hidden = !wkeys.length;
-    $('watchToggle').textContent = hidden ? 'Afficher' : 'Masquer';
-    $('watchToggle').setAttribute('aria-expanded', String(!hidden));
+    setChev('watchToggle', hidden, 'les surveillés');
     $('watchList').innerHTML = wkeys.length ? wkeys.map(followRow).join('')
       : `<div class="wempty">Suis le prix d'objets que tu n'as pas : uniques de ton build, threads, currency…<br><button class="btn" id="watchAdd2">+ Ajouter un objet</button></div>`;
     if ($('watchAdd2')) $('watchAdd2').onclick = e => openWatch(e.currentTarget);
@@ -1558,7 +1654,7 @@
   const POECDN = 'https://web.poecdn.com';
   function loadIcons() {
     if (wIcons || !ONLINE || !repoPricesFile) return Promise.resolve();
-    if (!wIconsReq) wIconsReq = getJson(`data/icons/${repoPricesFile}.json`).then(j => { wIcons = j || {}; });
+    if (!wIconsReq) wIconsReq = getJson(repoUrl('icons')).then(j => { wIcons = j || {}; });
     return wIconsReq;
   }
   const iconOf = name => wIcons && wIcons[name] ? (/^https?:/.test(wIcons[name]) ? wIcons[name] : POECDN + wIcons[name]) : '';
@@ -1786,7 +1882,7 @@
   // contenu d'un scan : identifiant de l'objet → [clé de prix, quantité, valeur unitaire]
   function scanContent() {
     const ids = {}, icons = {};
-    for (const i of items) {
+    for (const i of stashItems()) {
       const id = i.raw.id;
       if (!id) continue;
       ids[id] = [i.price ? pkey(i) : '', i.stack, i.price ? Math.round(i.price.unit * 100) / 100 : i.trade ? Math.round(i.trade.estimate) : 0, i.name || i.type];
@@ -2078,7 +2174,7 @@
   function loadShard(sh, recent) {
     const key = `${recent ? 'r:' : ''}${repoPricesFile}/${sh}`;
     if (hist[key]) return Promise.resolve();
-    if (!histReq[key]) histReq[key] = getJson(`data/${recent ? 'history-recent' : 'history'}/${repoPricesFile}/${sh}.json`).then(j => { hist[key] = j || {}; });
+    if (!histReq[key]) histReq[key] = getJson(repoUrl(recent ? 'history-recent' : 'history', sh)).then(j => { hist[key] = j || {}; });
     return histReq[key];
   }
   function shardSeries(k, recent) {
@@ -2096,7 +2192,7 @@
     try {
       const qty = new Map(), unit = new Map();
       let fixed = 0;
-      for (const i of items) {
+      for (const i of stashItems()) {
         if (i.price && i.price.hk) { qty.set(i.price.hk, (qty.get(i.price.hk) || 0) + i.stack); unit.set(i.price.hk, i.price.unit); }
         else if (i.price) fixed += i.price.total;
         else if (i.trade) fixed += i.trade.estimate;
@@ -2167,7 +2263,8 @@
   window.addEventListener('resize', () => { if (data) drawValueChart(); });
 
   function renderKpis() {
-    const safe = items.filter(i => i.price), traded = items.filter(i => i.trade);
+    const stash = stashItems(), equip = items.filter(i => i.char);
+    const safe = stash.filter(i => i.price), traded = stash.filter(i => i.trade);
     const sSafe = safe.reduce((s, i) => s + i.price.total, 0), sTrade = traded.reduce((s, i) => s + i.trade.estimate, 0), sum = sSafe + sTrade;
     const money = (c, el) => { const big = P && P.divine && c >= P.divine; $(el).innerHTML = `${curImg(big ? 'divine' : 'chaos')}${esc(fmt(c) || '0 c')}`; return big; };
     if (P) {
@@ -2184,9 +2281,12 @@
       $('kTotalSub').textContent = bridge ? 'chargement des prix…' : 'prix indisponibles sans le script';
 
     }
-    $('kSafeSub').textContent = `${safe.length} objets cotés sur ${items.length}`;
-    $('kPricedBar').style.width = items.length ? `${(safe.length / items.length) * 100}%` : '0';
-    const unvalued = items.length - safe.length - traded.length;
+    $('kSafeSub').textContent = `${safe.length} objets cotés sur ${stash.length}`;
+    $('kPricedBar').style.width = stash.length ? `${(safe.length / stash.length) * 100}%` : '0';
+    const unvalued = stash.length - safe.length - traded.length;
+    const eqVal = equip.reduce((a, i) => a + val(i), 0), nChars = charsHere().length;
+    $('kEquip').hidden = !nChars;
+    if (nChars) $('kEquip').textContent = `+ équipement de ${nChars} personnage${nChars > 1 ? 's' : ''} : ${fmt(eqVal) || '0 c'} (à part)`;
     if (traded.length) {
       $('kTrade').textContent = fmt(sTrade) || '0 c';
       const oldest = Math.min(...traded.map(i => i.trade.at));
@@ -2195,7 +2295,7 @@
     } else { $('kTrade').textContent = '—'; $('kTradeSub').textContent = `aucune estimation · ${unvalued} objet${unvalued > 1 ? 's' : ''} non valorisé${unvalued > 1 ? 's' : ''}`; }
     renderFresh();
     // Les plus précieux
-    const top = items.filter(i => val(i) > 0).sort((a, b) => val(b) - val(a)).slice(0, 12);
+    const top = stash.filter(i => val(i) > 0).sort((a, b) => val(b) - val(a)).slice(0, 12);
     $('topWrap').hidden = !top.length;
     $('top').innerHTML = top.map(i => `<button class="chip" data-i="${i.idx}" title="${esc(i.label)} — ${esc(i.tabN)}">
       <img src="${esc(i.raw.icon)}" alt=""><span><div class="t r${i.rarity}">${esc(i.name || i.type)}</div><div class="p">${i.trade ? '<span class="tbadge">trade</span>' : ''}${esc(fmt(val(i)))}</div></span></button>`).join('');
@@ -2205,7 +2305,7 @@
     if (!data) return;
     const sAt = data.scannedAt ? Date.parse(data.scannedAt) : 0;
     $('kScan').textContent = ago(sAt);
-    $('kPrices').textContent = prices ? `${ago(prices.fetchedAt)}${data && prices.league && prices.league !== data.league ? ` · ${prices.league}` : ''}` : '—';
+    $('kPrices').textContent = prices && repoArchived && prices.fromRepo ? `figés (ligue terminée)` : prices ? `${ago(prices.fetchedAt)}${data && prices.league && prices.league !== data.league ? ` · ${prices.league}` : ''}` : '—';
     $('kPrices').className = prices && Date.now() - prices.fetchedAt > 3600000 ? 'old' : '';
 
   }
@@ -2232,14 +2332,22 @@
   // =================== Onglets ===================
   function renderTabs() {
     const counts = new Map(), values = new Map();
-    items.forEach(i => { counts.set(i.tabI, (counts.get(i.tabI) || 0) + 1); const v = val(i); if (v) values.set(i.tabI, (values.get(i.tabI) || 0) + v); });
-    const allVal = [...values.values()].reduce((a, b) => a + b, 0);
-    const maxVal = Math.max(1, ...values.values());
+    items.forEach(i => { if (i.slot === 'Socketed') { const v = val(i); if (v) values.set(i.tabI, (values.get(i.tabI) || 0) + v); return; } counts.set(i.tabI, (counts.get(i.tabI) || 0) + 1); const v = val(i); if (v) values.set(i.tabI, (values.get(i.tabI) || 0) + v); });
+    const allVal = [...values].filter(([k]) => k >= 0).reduce((a, [, b]) => a + b, 0);
+    const maxVal = Math.max(1, ...[...values].filter(([k]) => k >= 0).map(([, v]) => v));
+    const cl = charsHere();
     const btn = (key, label, n, v, colour, bar) => `<button class="tab${activeTab === key ? ' active' : ''}" data-k="${key ?? ''}">
       <div class="tr1"><span class="sw" style="background:${colour}"></span><span class="nm">${esc(label)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
       <div class="tr2"><span class="ct">${n} obj.</span><span class="bar"><div style="width:${bar}%"></div></span></div></button>`;
-    $('tabList').innerHTML = btn(null, 'Tous les onglets', items.length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
-      tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('');
+    const charBtn = (c, k) => { const key = -(k + 1), v = values.get(key) || 0; return `<button class="tab chartab${activeTab === key ? ' active' : ''}" data-k="${key}">
+      <div class="tr1"><span class="sw" style="background:var(--gold3)"></span><span class="nm">${esc(c.name)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
+      <div class="tr2"><span class="ct">${esc(c.class)} · niv. ${c.level}</span></div></button>`; };
+    const at = charData && charData.at ? ago(Date.parse(charData.at)) : '';
+    $('tabList').innerHTML = btn(null, 'Tous les onglets', stashItems().length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
+      tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('') +
+      (cl.length ? `<div class="chsect"><span>Personnages · à part</span><span class="s">${esc(at)}</span></div>` + cl.map(charBtn).join('')
+        : bridge && data ? `<div class="chsect"><span>Personnages</span></div><button class="btn ghost chimp" id="charsImp">Importer l'équipement</button>` : '');
+    if ($('charsImp')) $('charsImp').onclick = () => $('charsBtn').click();
     $('tabList').querySelectorAll('.tab').forEach(b => b.onclick = () => {
       activeTab = b.dataset.k === '' ? null : Number(b.dataset.k);
       shown = PAGE; renderTabs(); render();
@@ -2256,7 +2364,7 @@
     const q = $('q').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
     const r = $('rarity').value, l = Number($('links').value), c = $('corr').checked, u = $('unid').checked, pr = $('priced').checked, bh = $('bhOnly').checked;
     return items.filter(i =>
-      (activeTab === null || i.tabI === activeTab) &&
+      (activeTab === null ? !i.char : i.tabI === activeTab) &&
       (r === '' || i.rarity === Number(r)) &&
       i.links >= l && (!c || i.corrupted) && (!u || i.unid) && (!pr || val(i) > 0) && (!bh || (i.baseHint && i.baseHint.v >= 10)) &&
       q.every(w => i.search.includes(w)));
@@ -2267,6 +2375,13 @@
     if (!data) return;
     const list = filtered();
     const tab = tabs.find(t => t.i === activeTab);
+    const isChar = activeTab !== null && activeTab < 0;
+    $('vGrid').textContent = isChar ? 'Équipement' : 'Grille';
+    if (view === 'grid' && isChar) {
+      const tot = list.reduce((a, i) => a + val(i), 0);
+      $('count').innerHTML = `<span><b>${list.length}</b> objet${list.length > 1 ? 's' : ''}</span>${tot ? `<span>·</span><span>valeur <b>${esc(fmt(tot))}</b> (à part du coffre)</span>` : ''}`;
+      renderDoll(list); return;
+    }
     const gridOk = view === 'grid' && tab && GRID_TYPES[tab.type];
     const tot = list.reduce((s, i) => s + val(i), 0);
     $('count').innerHTML = `<span><b>${list.length}</b> objet${list.length > 1 ? 's' : ''}</span>` + (tot ? `<span>·</span><span>valeur <b>${esc(fmt(tot))}</b></span>` : '') +
@@ -2308,6 +2423,33 @@
     const more = $('more'); if (more) more.onclick = () => { shown += PAGE; render(); };
   }
 
+  // Vue équipement, disposée comme l'écran de personnage du jeu (unités de 46 px)
+  const DOLL = { Weapon: [0, 0, 2, 4], Helm: [3.5, 0, 2, 2], Offhand: [7, 0, 2, 4], Amulet: [5.75, 1, 1, 1], BodyArmour: [3.5, 2.25, 2, 3], Ring: [2.25, 3.25, 1, 1], Ring2: [5.75, 3.25, 1, 1], Gloves: [0, 4.5, 2, 2], Belt: [3.5, 5.5, 2, 1], Boots: [7, 4.5, 2, 2] };
+  let dollSwap = false;
+  function renderDoll(list) {
+    const U = 46, by = new Map();
+    for (const i of list) {
+      if (!i.slot || i.slot === 'Socketed') continue;
+      const swap = /^(Weapon|Offhand)2$/.test(i.slot), main = /^(Weapon|Offhand)$/.test(i.slot);
+      if ((dollSwap && main) || (!dollSwap && swap)) continue; // un seul jeu d'armes à la fois
+      by.set(i.slot === 'Flask' ? `Flask${i.raw.x}` : i.slot.replace(/2$/, swap ? '' : '2'), i);
+    }
+    const sockVal = slot => list.filter(i => i.parentSlot === slot).reduce((a, i) => a + val(i), 0);
+    const box = (key, [x, y, w, h], label) => {
+      const i = by.get(key), v = i ? val(i) + sockVal(i.slot) : 0, hint = i && !v && i.baseHint ? i.baseHint.v : 0;
+      return `<button class="dslot${i ? ` r${i.rarity}` : ' dempty'}${i && selected === i.idx ? ' sel' : ''}" ${i ? `data-i="${i.idx}"` : 'disabled'} style="left:${x * U}px;top:${y * U}px;width:${w * U}px;height:${h * U}px" title="${esc(i ? `${i.label} — ${label}${v ? ` — ${fmt(v)}` : ''}` : `${label} : vide`)}" aria-label="${esc(label)}${i ? ` : ${esc(i.label)}` : ' vide'}">
+        ${i ? `<img loading="lazy" src="${esc(i.raw.icon)}" alt="">${v ? `<span class="dv">${esc(fmt(v))}</span>` : hint ? `<span class="dv h">base ${esc(fmt(hint))}</span>` : ''}` : `<span class="dl">${esc(label)}</span>`}</button>`;
+    };
+    let html = Object.entries(DOLL).map(([k, g]) => box(k, g, SLOT_FR[k])).join('');
+    for (let f = 0; f < 5; f++) html += box(`Flask${f}`, [2 + f, 6.9, 1, 2], `Flasque ${f + 1}`);
+    const hasSwap = list.some(i => /^(Weapon|Offhand)2$/.test(i.slot));
+    const inv = list.filter(i => i.slot === 'MainInventory' || (i.slot && !DOLL[i.slot] && !/^(Flask|Socketed|Weapon2|Offhand2)$/.test(i.slot)));
+    $('view').innerHTML = `<div class="doll-wrap">${hasSwap ? `<div class="doll-sw" role="group" aria-label="Jeu d'armes"><button class="${dollSwap ? '' : 'on'}" data-sw="0">Armes I</button><button class="${dollSwap ? 'on' : ''}" data-sw="1">Armes II</button></div>` : ''}
+      <div class="doll" style="width:${9 * U}px;height:${8.9 * U}px">${html}</div>
+      <div class="doll-note">${list.filter(i => i.slot === 'Socketed').length} gemmes et joyaux sertis (comptés avec leur emplacement)${inv.length ? ` · ${inv.length} objet${inv.length > 1 ? 's' : ''} dans l'inventaire : voir la vue Liste` : ''}</div></div>`;
+    $('view').querySelectorAll('.dslot[data-i]').forEach(b => b.onclick = () => select(Number(b.dataset.i)));
+    $('view').querySelectorAll('[data-sw]').forEach(b => b.onclick = () => { dollSwap = b.dataset.sw === '1'; render(); });
+  }
   function renderGrid(list, size) {
     const cell = size === 24 ? 26 : 50, px = cell * size;
     let html = `<div class="grid-wrap"><div class="grid" style="width:${px + 2}px;height:${px + 2}px">`;
@@ -2372,7 +2514,7 @@
         ${sec(mods(r.utilityMods, '') + (r.flavourText ? `<div class="flav">${esc(clean(r.flavourText.join(' ')))}</div>` : '') + (r.descrText ? `<div class="prop">${esc(clean(r.descrText))}</div>` : ''))}
         ${sec((i.corrupted ? '<div class="corrtxt">Corrompu</div>' : '') + (i.unid ? '<div class="prop">Non identifié</div>' : '') + (r.note ? `<div class="prop">Note : <b>${esc(r.note)}</b></div>` : ''))}
       </div></div>
-      <div class="pricebox${pr ? '' : ' none'}"${chart || (!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2)) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div></div>${pr
+      <div class="pricebox${pr ? '' : ' none'}"${chart || (!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2)) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div>${!pr && !i.ghost && i.raw.id ? penHtml(i) : ''}</div>${!pr ? manualLine(i) : ''}${pr
         ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
            <div class="s">${i.stack > 1 ? `${esc(fmt(pr.unit))} × ${nf(i.stack, 0)} · ` : ''}${big ? `${fmtC(pr.total)} c · ` : ''}${esc(pr.src)}${pr.variant ? ` · ${esc(pr.variant)}` : ''} ${chgHtml(trend6(pr))}</div>
            ${pr.approx ? '<div class="s">Plusieurs variantes à des prix différents : la moins chère est retenue.</div>' : ''}`
@@ -2382,7 +2524,7 @@
       ${!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2) ? (i.baseHint ? `<div class="pricebox none"><div class="row"><div class="lb">Prix poe.ninja</div></div>${baseHintHtml(i.baseHint)}</div>` : '') + tradeSection(i) : ''}
       ${!pr && !i.ghost && i.raw.id ? manualHtml(i) : ''}
       ${(i.rarity === 3 || i.rarity === 9) && !i.ghost && !(i.roll && i.roll.pct !== null) ? `<div class="ubox">${uniqueDb ? 'Plages de rolls introuvables pour cet unique (ni dans Path of Building, ni sur poe.ninja).' : uniqueErr ? esc(uniqueErr) : ONLINE ? 'Chargement de la base des uniques…' : 'Base des uniques disponible sur la version en ligne de la page.'}</div>` : ''}
-      <div class="loc">${esc(i.tabN)}${r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
+      <div class="loc">${esc(i.tabN)}${i.char ? ` · ${esc(i.slot === 'Socketed' ? `serti (${SLOT_FR[i.parentSlot] || i.parentSlot})` : SLOT_FR[i.slot] || i.slot)}` : r.x !== undefined ? ` · case ${r.x + 1}, ${r.y + 1}` : ''}</div>`;
     const fb = $('followBtn');
     if (fb) fb.onclick = () => { if (i.ghost) { delete follow[k]; saveTracking(); renderFollow(); render(); $('detailBody').innerHTML = EMPTY_DETAIL; status(`${i.label} n'est plus suivi`); } else toggleFollow(i); };
     wireChart();
@@ -2452,7 +2594,7 @@
     const id = i.raw.id, rec = trades[id], busy = tradeBusy.has(id);
     if (!drafts[id] && rec) drafts[id] = { mods: rec.mods, extras: rec.extras || [] };
     const d = drafts[id];
-    const head = `<div class="head"><span class="lb">Estimation trade</span>${rec ? `<span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span>` : ''}</div>`;
+    const head = `<div class="head"><span class="lb">Estimation trade</span><span class="hr">${rec ? `<span class="s" style="margin:0" title="${esc(new Date(rec.at).toLocaleString('fr-FR'))}">${esc(ago(rec.at))}</span>` : ''}${penHtml(i)}</span></div>${manualLine(i)}`;
     if (!d && tradeStats) { drafts[id] = { mods: parseModsLocal(i.raw, tradeStats), extras: itemExtrasLocal(i.raw) }; return tradeSection(i); }
     if (!d && tradeStats === null && ONLINE) { loadTradeStats(); return `<div class="tradebox">${head}<div class="s">Préparation des critères de recherche…</div></div>`; }
     if (!d) {
@@ -2628,7 +2770,7 @@
       const d24 = short.filter(p => p[0] >= now - 24 * H).map(p => p[1]);
       if (d24.length >= 3) { const m = d24.reduce((a, b) => a + b, 0) / d24.length; vol = Math.sqrt(d24.reduce((a, b) => a + (b - m) ** 2, 0) / d24.length) / m; }
     }
-    const totalValue = items.reduce((a, x) => a + val(x), 0);
+    const totalValue = stashItems().reduce((a, x) => a + val(x), 0);
     const held = qty * pr.unit;
     const dshort = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
     const chgTile = (label, c, sub) => `<div class="zt"><span class="zl">${label}</span><span class="zv ${c === null || c === undefined ? '' : c > 0.0005 ? 'up' : c < -0.0005 ? 'down' : ''}">${c === null || c === undefined || !isFinite(c) ? '—' : `${c > 0.0005 ? '▲' : c < -0.0005 ? '▼' : '='} ${pctFmt(c)}`}</span><span class="zs">${sub || '&nbsp;'}</span></div>`;
