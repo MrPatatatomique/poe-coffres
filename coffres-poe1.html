@@ -794,7 +794,7 @@
   const REQ_SCRIPT = '2.6.6';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
-  let extraPrices = null, extraReq = null;
+  let extraPrices = null, extraReq = null, extraSig = '';
   let uniqueSrc = 'Path of Building', repoLeagues = null, repoPricesFile = null, repoKeys = new Map(), hist = {}, histReq = {}, scriptVersion = '';
   const mt = m => typeof m === 'string' ? m : (m && (m.text ?? m.description ?? m.name)) || '';
   { const j = store.get('poeTracking', {}); follow = j.follow || {}; history = j.history || {}; }
@@ -1046,8 +1046,12 @@
   // Prix annexes (bases, joyaux cluster…) : chargés à l'ouverture de la recherche, ou si un surveillé en a besoin
   function loadExtraPrices() {
     if (!ONLINE || !repoPricesFile || !prices) return Promise.resolve();
-    if (extraPrices && extraPrices.league === prices.league && extraPrices.fetchedAt >= prices.fetchedAt) return Promise.resolve();
-    if (!extraReq) extraReq = getJson(`data/prices-extra/${repoPricesFile}.json`).then(j => {
+    // une seule tentative par version des prix : le fichier annexe peut être plus ancien que des prix
+    // récupérés par le script, et le recharger relancerait applyPrices() en boucle
+    const sig = `${repoPricesFile}|${prices.league}|${prices.fetchedAt}`;
+    if (extraSig === sig) return extraReq || Promise.resolve();
+    extraSig = sig;
+    extraReq = getJson(`data/prices-extra/${repoPricesFile}.json`).then(j => {
       extraReq = null;
       if (!j || !j.items) return;
       extraPrices = j; wCands = null;
