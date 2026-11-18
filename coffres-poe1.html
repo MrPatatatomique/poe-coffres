@@ -855,7 +855,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.7.0';
+  const REQ_SCRIPT = '2.7.1';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -1260,7 +1260,7 @@
   let charsTimer = 0;
   function importChars() {
     if (!bridge) { status('Le script Violentmonkey n\'est pas connecté : impossible d\'importer les personnages.', true); return; }
-    if (vnum(scriptVersion) < vnum('2.7.0')) { status(`Mets à jour le script Violentmonkey (v${scriptVersion} installée, v2.7.0 requise) pour importer les personnages.`, true); return; }
+    if (vnum(scriptVersion) < vnum('2.7.1')) { status(`Mets à jour le script Violentmonkey (v${scriptVersion} installée, v2.7.1 requise) pour importer les personnages.`, true); return; }
     setBusy('charsBtn', true); $('charsImp').classList.add('spin');
     status('Import des personnages…', false, true);
     cmd('chars', { league: data ? data.league : '' });

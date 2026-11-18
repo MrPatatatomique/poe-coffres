@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.7.0
+// @version      2.7.1
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -127,13 +127,14 @@
     const league = leagueHint || st.league;
     if (!st.account || !league) throw new Error('Compte et ligue inconnus : fais un premier scan depuis pathofexile.com (bouton Coffres).');
     report({ msg: 'Personnages : liste…' });
-    const list = (await ggg('/get-characters', { accountName: st.account, realm: REALM }) || []).filter(c => c.league === league);
+    const onWait = ms => report({ msg: `Personnages : limite de requêtes GGG, reprise dans ${Math.ceil(ms / 1000)} s…` });
+    const list = (await ggg('/get-characters', { accountName: st.account, realm: REALM }, 'GET', onWait) || []).filter(c => c.league === league);
     const chars = [], failed = [];
     for (let k = 0; k < list.length; k++) {
       const c = list[k];
       report({ msg: `Personnages ${k + 1}/${list.length} : ${c.name}`, p: k / list.length });
       try {
-        const j = await ggg('/get-items', { accountName: st.account, character: c.name, realm: REALM });
+        const j = await ggg('/get-items', { accountName: st.account, character: c.name, realm: REALM }, 'GET', onWait);
         chars.push({ name: c.name, class: c.class, level: c.level, league: c.league, items: j.items || [] });
       } catch (e) {
         failed.push({ name: c.name, error: e.message });
@@ -515,8 +516,19 @@
           if (getSettings().withChars) { try { await runChars(report); pushChars(); } catch (e) { report({ msg: `Personnages : ${e.message}`, error: true }); } }
           if (!getSettings().ninjaRemote) pushPrices(await loadPrices(false, report));
         } else if (m.cmd === 'chars') {
-          await runChars(report, (m.data && m.data.league) || '');
-          pushChars();
+          const league = (m.data && m.data.league) || '';
+          const before = GM_getValue('lastChars', '').slice(0, 90);
+          GM_setValue('charsRequest', { at: Date.now(), league });
+          report({ msg: 'Personnages : demande transmise à l\'onglet pathofexile.com…' });
+          // un onglet pathofexile.com ouvert (même en arrière-plan) répond en quelques secondes
+          for (let t = 0; t < 40; t++) {
+            await sleep(1500);
+            const st = GM_getValue('charsStatus', null);
+            if (st && st.at > Date.now() - 3000 && st.msg) report(st);
+            if (GM_getValue('lastChars', '').slice(0, 90) !== before) { pushChars(); return; }
+            if (st && st.error && st.at > Date.now() - 3000) return;
+          }
+          report({ msg: 'Personnages : aucun onglet pathofexile.com n\'a répondu. Ouvre pathofexile.com (connecté) dans ce navigateur, puis relance l\'import, ou utilise le bouton Personnages du panneau Coffres.', error: true });
         } else if (m.cmd === 'prices') {
           pushPrices(await loadPrices(true, report, (m.data && m.data.league) || ''));
         } else if (m.cmd === 'trade-prepare') {
@@ -623,6 +635,7 @@
       </select>
       <div class="row">
         <button id="scan">Scanner maintenant</button>
+        <button id="chars" title="Équipement et inventaire des personnages de la ligue">Personnages</button>
         <label class="chk"><input type="checkbox" id="dl"> Télécharger aussi le JSON</label>
       </div>
       <div class="bar"><div id="prog"></div></div>
@@ -707,12 +720,28 @@
     $('all').onclick = () => { root.querySelectorAll('#tabs input').forEach(c => (c.checked = true)); saveSelection(); };
     $('none').onclick = () => { root.querySelectorAll('#tabs input').forEach(c => (c.checked = false)); saveSelection(); };
 
+    const doChars = async (league, rep = report) => {
+      $('chars').disabled = true;
+      try { await runChars(rep, league); } catch (e) { rep({ msg: `Personnages : ${e.message}`, error: true }); }
+      $('chars').disabled = false;
+      GM_setValue('charsLock', 0);
+    };
+    $('chars').onclick = () => { saveForm(); doChars(''); };
+    // demandes venues de la page : on exécute ici (cookies et Cloudflare OK) et on publie la progression
+    GM_addValueChangeListener('charsRequest', (k, o, n, remote) => {
+      if (!remote || !n || Date.now() - n.at > 60000) return;
+      if (GM_getValue('charsLock', 0) > Date.now()) return; // un seul onglet GGG traite la demande
+      GM_setValue('charsLock', Date.now() + 90000);
+      const relay = d => { report(d); GM_setValue('charsStatus', { msg: d.msg, error: !!d.error, at: Date.now() }); };
+      doChars(n.league || '', relay);
+    });
     $('scan').onclick = async () => {
       saveForm();
       $('scan').disabled = $('load').disabled = true;
       try {
         const scan = await runScan(report);
         if (getSettings().alsoDownload) download(scan);
+        if (getSettings().withChars) await doChars('');
         if (!getSettings().ninjaRemote) loadPrices(false, () => {}).catch(e => logErr('prix poe.ninja après scan', e));
       } catch (e) { setStatus(e.message, true); }
       $('scan').disabled = $('load').disabled = false;
