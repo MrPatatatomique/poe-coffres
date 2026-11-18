@@ -786,7 +786,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.6.5';
+  const REQ_SCRIPT = '2.6.6';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null;
@@ -916,7 +916,7 @@
   $('reloadPrices').onclick = async () => {
     status('Rechargement des prix…', false, true);
     if (ONLINE && data) { repoLeagues = null; await loadRepoPrices(true); }
-    else if (bridge) cmd('prices');
+    else if (bridge) cmd('prices', { league: data ? data.league : '' });
     status(prices ? `Prix du ${new Date(prices.fetchedAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })}` : 'Prix indisponibles', !prices);
   };
   $('auto').onchange = () => { cmd('settings', { autoMinutes: Number($('auto').value) }); status(Number($('auto').value) ? `Rescan automatique toutes les ${$('auto').selectedOptions[0].text.replace('toutes les ', '')}` : 'Rescan automatique désactivé'); };
