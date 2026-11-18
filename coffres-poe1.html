@@ -189,7 +189,28 @@
 
   .grid-wrap{padding:18px;display:flex;justify-content:center}
   .eqv{color:var(--muted);font-size:11.5px;margin-top:2px}
-  .chnote{margin:6px 8px 0;font-size:11px;color:var(--muted)}
+  .tab .cls{width:22px;height:22px;border-radius:50%;object-fit:cover;flex:none;border:1px solid var(--line3);background:#0c0a08}
+  .tab .tr2.cl2{padding-left:30px}
+  .gmi{display:inline-flex;gap:1px;margin-left:6px;vertical-align:middle}
+  .gmi img{width:16px;height:16px;object-fit:contain}
+  .dgems{position:absolute;top:2px;right:2px;display:flex;flex-direction:column;gap:1px}
+  .dgems img{width:13px;height:13px;object-fit:contain;filter:drop-shadow(0 0 1px #000)}
+  .gemlist{display:flex;flex-direction:column;gap:2px;text-align:left}
+  .gemrow{display:flex;align-items:center;gap:8px;width:100%;padding:4px 6px;border:0;border-radius:6px;background:none;color:var(--text2);font-size:12.5px;text-align:left}
+  button.gemrow{cursor:pointer} button.gemrow:hover,button.gemrow:focus-visible{background:#ffffff08;outline:none}
+  .gemrow img{width:22px;height:22px;object-fit:contain;flex:none}
+  .gemrow .gn{flex:1;min-width:0;color:#1ba29b} .gemrow .gl{color:var(--muted);font-size:11.5px} .gemrow .gp{color:var(--gold2);font-weight:600;font-variant-numeric:tabular-nums}
+  .hovercard{position:fixed;z-index:200;width:300px;pointer-events:none;background:#0b0907f2;border:1px solid var(--line3);border-radius:8px;box-shadow:0 10px 30px #000c;overflow:hidden;font-size:12px;text-align:center}
+  .hovercard .hhd{padding:7px 10px}
+  .hovercard .hn{font:600 14px/1.25 var(--title)} .hovercard .hb{font:600 12.5px/1.2 var(--title);opacity:.85}
+  .hovercard .hbd{padding:6px 12px 8px}
+  .hovercard .hsep{height:1px;margin:6px 20%;background:var(--line2)}
+  .hovercard .hp{color:var(--muted)} .hovercard .hp b{color:var(--text)}
+  .hovercard .hm{color:#8888ff} .hovercard .hm.en{color:#b4b4ff} .hovercard .hm.cr{color:#b8daf2} .hovercard .hm.fr{color:#a29162} .hovercard .hm.corr{color:#d20000}
+  .hovercard .hgems{display:flex;flex-direction:column;gap:2px;text-align:left}
+  .hovercard .hgems div{display:flex;align-items:center;gap:6px;color:#1ba29b}
+  .hovercard .hgems img{width:16px;height:16px} .hovercard .hgems span{color:var(--muted)} .hovercard .hgems b{margin-left:auto;color:var(--gold2)}
+  .hovercard .hpr{padding:6px 10px;border-top:1px solid var(--line2);background:#15110d;color:var(--muted)} .hovercard .hpr b{color:var(--gold2)}
   .gh-more svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
   .gh-more.spin svg{animation:spin .9s linear infinite}
   .chsect{display:flex;justify-content:space-between;align-items:baseline;margin:14px 8px 6px;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -223,10 +244,10 @@
   .detail{border-left:1px solid var(--line);overflow:auto;background:#110e0bcc;padding:12px 16px 20px}
   .card{border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;background:#0b0907}
   .card .hd{position:relative;text-align:center;padding:12px 12px 14px;border-bottom:1px solid var(--line2)}
-  .card .hd.f0{background:linear-gradient(#2a2a2a,#1a1a1a)} .card .hd.f1{background:linear-gradient(#26264a,#16162a)}
-  .card .hd.f2{background:linear-gradient(#3f3a1c,#221f10)} .card .hd.f3{background:linear-gradient(#45260f,#251407)}
-  .card .hd.f4{background:linear-gradient(#123c39,#0a201f)} .card .hd.f5,.card .hd.f6{background:linear-gradient(#2c2820,#18160f)}
-  .card .hd.f9{background:linear-gradient(#26381e,#141e10)}
+  .card .hd.f0,.hovercard .hhd.f0{background:linear-gradient(#2a2a2a,#1a1a1a)} .card .hd.f1,.hovercard .hhd.f1{background:linear-gradient(#26264a,#16162a)}
+  .card .hd.f2,.hovercard .hhd.f2{background:linear-gradient(#3f3a1c,#221f10)} .card .hd.f3,.hovercard .hhd.f3{background:linear-gradient(#45260f,#251407)}
+  .card .hd.f4,.hovercard .hhd.f4{background:linear-gradient(#123c39,#0a201f)} .card .hd.f5,.hovercard .hhd.f5,.card .hd.f6,.hovercard .hhd.f6{background:linear-gradient(#2c2820,#18160f)}
+  .card .hd.f9,.hovercard .hhd.f9{background:linear-gradient(#26381e,#141e10)}
   .card .hd .n{font:700 16px/1.25 var(--title);letter-spacing:.02em}
   .card .hd .t{font:500 14px/1.3 var(--title)}
   .card .art{display:flex;justify-content:center;padding:14px 0 6px}
@@ -758,6 +779,7 @@
   <div class="mback" data-close></div>
   <div class="mbox gbox" role="dialog" aria-modal="true" aria-labelledby="gTitle" id="gBox"></div>
 </div>
+<div class="hovercard" id="hoverCard" hidden aria-hidden="true"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
 
 <script>
@@ -1257,13 +1279,13 @@
       const tabI = -(k + 1), tabN = `⚔ ${c.name}`;
       for (const it of c.items) {
         const top = enrich({ ...it, _tab: { i: tabI, n: tabN, type: 'Character' } }, items.length);
-        Object.assign(top, { char: c.name, slot: it.inventoryId });
+        Object.assign(top, { char: c.name, slot: it.inventoryId, gems: [] });
         items.push(top);
         // gemmes et joyaux sertis : objets à part, rattachés à leur emplacement
         for (const g of it.socketedItems || []) {
           const sub = enrich({ ...g, _tab: { i: tabI, n: tabN, type: 'Character' } }, items.length);
-          Object.assign(sub, { char: c.name, slot: 'Socketed', parentSlot: it.inventoryId });
-          items.push(sub);
+          Object.assign(sub, { char: c.name, slot: 'Socketed', parentSlot: it.inventoryId, parent: top.idx, socket: g.socket });
+          items.push(sub); top.gems.push(sub);
         }
       }
     });
@@ -1922,6 +1944,8 @@
     if (h < 24) return `il y a ${h} h${m % 60 ? ` ${String(m % 60).padStart(2, '0')}` : ''}`;
     return new Date(ts).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
   }
+  const gemsOf = i => i.gems && i.gems.length ? i.gems : (i.raw.socketedItems || []).map(g => ({ raw: g, name: clean(g.name), type: clean(g.typeLine), rarity: g.frameType ?? 4, price: null, trade: null, idx: null, gemLevel: parseInt(((g.properties || []).find(p => p.name === 'Level') || { values: [['1']] }).values[0][0]) || 1 }));
+  const gemIcons = (i, cls = 'gmi') => { const g = gemsOf(i); return g.length ? `<span class="${cls}">${g.map(x => `<img src="${esc(x.raw.icon)}" alt="" title="${esc(x.type)}" onerror="this.style.visibility='hidden'">`).join('')}</span>` : ''; };
   function socketsHtml(i) {
     if (!i.groups.length) return '';
     return `<span class="sockets" title="${esc(i.sockets)}">${i.groups.map(g => g.map(c => `<span class="sk ${esc(c)}"></span>`).join('<span class="lk"></span>')).join('<span class="gap"></span>')}</span>`;
@@ -2393,8 +2417,8 @@
       <div class="tr1"><span class="sw" style="background:${colour}"></span><span class="nm">${esc(label)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
       <div class="tr2"><span class="ct">${n} obj.</span><span class="bar"><div style="width:${bar}%"></div></span></div></button>`;
     const charBtn = (c, k) => { const key = -(k + 1), v = values.get(key) || 0; return `<button class="tab chartab${activeTab === key ? ' active' : ''}" data-k="${key}">
-      <div class="tr1"><span class="sw" style="background:var(--gold3)"></span><span class="nm">${esc(c.name)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
-      <div class="tr2"><span class="ct">${esc(c.class)} · niv. ${c.level}</span></div></button>`; };
+      <div class="tr1"><img class="cls" src="https://assets.poe.ninja/poe1/classes/${esc(String(c.class).toLowerCase().replace(/[^a-z]/g, ''))}.webp" alt="" onerror="this.style.visibility='hidden'"><span class="nm">${esc(c.name)}</span><span class="v">${v ? esc(fmt(v)) : ''}</span></div>
+      <div class="tr2 cl2"><span class="ct">${esc(c.class)} · niv. ${c.level}</span></div></button>`; };
     const at = charData && charData.at ? ago(Date.parse(charData.at)) : '';
     $('tabList').innerHTML = btn(null, 'Tous les onglets', stashItems().length, allVal, 'linear-gradient(135deg,var(--gold2),var(--gold3))', P ? 100 : 0) +
       tabs.map(t => btn(t.i, t.n, counts.get(t.i) || 0, values.get(t.i) || 0, t.colour ? `rgb(${t.colour.r},${t.colour.g},${t.colour.b})` : '#444', ((values.get(t.i) || 0) / maxVal) * 100)).join('') +
@@ -2402,7 +2426,7 @@
     // personnages : section à part, sous les surveillés
     $('charWrap').hidden = !data || (!cl.length && !bridge);
     $('charCount').textContent = cl.length ? `(${cl.length})` : '';
-    $('charList').innerHTML = cl.length ? cl.map(charBtn).join('') + `<div class="chnote">Valeur à part du coffre · importés ${esc(at)}</div>`
+    $('charList').innerHTML = cl.length ? cl.map(charBtn).join('')
       : `<div class="wempty">Équipement et inventaire de tes personnages de la ligue, cotés à part.<br><button class="btn" id="charsImp2">Importer les personnages</button></div>`;
     if ($('charsImp2')) $('charsImp2').onclick = importChars;
     const ch = Number(store.get('poeCharsHidden', 0)) === 1;
@@ -2467,7 +2491,7 @@
       <td class="tab-cell">${esc(i.tabN)}</td>
       <td class="num">${i.stack > 1 ? nf(i.stack, 0) : ''}</td>
       <td class="num">${i.ilvl || ''}</td>
-      <td>${socketsHtml(i)}</td>
+      <td>${socketsHtml(i)}${gemIcons(i)}</td>
       <td class="num price${i.trade ? ' tr' : ''}">${i.trade ? `<span class="tbadge${i.trade.manual ? ' man' : ''}">${i.trade.manual ? 'manuel' : 'trade'}</span>${esc(fmt(i.trade.estimate))}<span class="unit">${esc(ago(i.trade.at))}${i.baseHint ? ` · base ${esc(fmt(i.baseHint.v))}` : ''}</span>` : !i.price && i.baseHint ? `<span class="bhint" title="Valeur de la base seule sur poe.ninja (${esc(i.baseHint.label)}) : une piste, non comptée dans les totaux">base ${esc(fmt(i.baseHint.v))}</span><span class="unit">${esc(i.baseHint.label)}</span>` : i.price ? `${i.price.approx ? '<span class="approx">~</span>' : ''}${esc(fmt(i.price.total))}<span class="unit">${i.stack > 1 ? `${esc(fmt(i.price.unit))} / u ` : ''}${chgHtml(trend6(i.price))}</span>` : ''}</td>
       <td class="zc">${i.price ? `<button class="loupe" data-z="${i.idx}" title="Détails du prix" aria-label="Détails du prix de ${esc(i.name || i.type)}"><svg><use href="#i-search"/></svg></button>` : ''}</td></tr>`).join('');
     $('view').innerHTML = `<table><thead><tr>${COLS.map(([n, key, num]) => `<th class="${num ? 'num' : ''}${key === sortKey ? ' sorted' : ''}" ${key ? `data-s="${key}"` : ''}>${n}${key === sortKey ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>` +
@@ -2482,6 +2506,33 @@
     const more = $('more'); if (more) more.onclick = () => { shown += PAGE; render(); };
   }
 
+  // Carte de l'objet au survol (vue équipement et grille)
+  function hoverCardHtml(i) {
+    const r = i.raw;
+    const lines = (arr, cls) => (arr || []).flatMap(m => clean(mt(m)).split('\n')).map(l => `<div class="hm ${cls}">${esc(l)}</div>`).join('');
+    const props = (r.properties || []).slice(0, 8).map(p => { const v = (p.values || []).map(x => clean(x[0])).join(', '); const n = clean(p.name); return /%\d/.test(n) ? '' : `<div class="hp">${esc(n)}${v ? ` : <b>${esc(v)}</b>` : ''}</div>`; }).join('');
+    const blocks = [props, i.ilvl ? `<div class="hp">Niveau d'objet : <b>${i.ilvl}</b></div>${i.groups.length ? `<div class="hp">${socketsHtml(i)}</div>` : ''}` : '',
+      lines(r.enchantMods, 'en'), lines(r.implicitMods, ''), lines(r.fracturedMods, 'fr') + lines(r.explicitMods, '') + lines(r.craftedMods, 'cr'),
+      i.corrupted ? '<div class="hm corr">Corrompu</div>' : '', i.unid ? '<div class="hp">Non identifié</div>' : '',
+      gemsOf(i).length ? `<div class="hgems">${gemsOf(i).map(g => `<div><img src="${esc(g.raw.icon)}" alt="" onerror="this.style.visibility='hidden'">${esc(g.type)} <span>${g.gemLevel}${g.gemQuality ? `/${g.gemQuality}` : ''}</span>${val(g) ? `<b>${esc(fmt(val(g)))}</b>` : ''}</div>`).join('')}</div>` : ''].filter(Boolean);
+    const v = val(i), hint = !v && i.baseHint ? i.baseHint.v : 0;
+    return `<div class="hhd f${i.rarity}"><div class="hn r${i.rarity}">${esc(i.name || i.type)}</div>${i.name ? `<div class="hb r${i.rarity}">${esc(i.type)}</div>` : ''}</div>
+      <div class="hbd">${blocks.join('<div class="hsep"></div>')}</div>
+      ${v || hint ? `<div class="hpr">${v ? `${i.trade && i.trade.manual ? 'manuel' : i.trade ? 'trade' : 'poe.ninja'} <b>${esc(fmt(v))}</b>` : `base <b>${esc(fmt(hint))}</b>`}</div>` : ''}`;
+  }
+  function hoverCard(el) {
+    const tip = $('hoverCard');
+    const place = e => {
+      const w = tip.offsetWidth, h = tip.offsetHeight, m = 14;
+      let x = e.clientX + m, y = e.clientY + m;
+      if (x + w > innerWidth - 8) x = e.clientX - w - m;
+      if (y + h > innerHeight - 8) y = Math.max(8, innerHeight - h - 8);
+      tip.style.left = `${Math.max(8, x)}px`; tip.style.top = `${y}px`;
+    };
+    el.addEventListener('mouseenter', e => { const i = items[Number(el.dataset.i)]; if (!i) return; tip.innerHTML = hoverCardHtml(i); tip.hidden = false; place(e); });
+    el.addEventListener('mousemove', place);
+    el.addEventListener('mouseleave', () => { tip.hidden = true; });
+  }
   // Vue équipement, disposée comme l'écran de personnage du jeu (unités de 46 px)
   const DOLL = { Weapon: [0, 0, 2, 4], Helm: [3.5, 0, 2, 2], Offhand: [7, 0, 2, 4], Amulet: [5.75, 1, 1, 1], BodyArmour: [3.5, 2.25, 2, 3], Ring: [2.25, 3.25, 1, 1], Ring2: [5.75, 3.25, 1, 1], Gloves: [0, 4.5, 2, 2], Belt: [3.5, 5.5, 2, 1], Boots: [7, 4.5, 2, 2] };
   let dollSwap = false;
@@ -2497,7 +2548,7 @@
     const box = (key, [x, y, w, h], label) => {
       const i = by.get(key), v = i ? val(i) + sockVal(i.slot) : 0, hint = i && !v && i.baseHint ? i.baseHint.v : 0;
       return `<button class="dslot${i ? ` r${i.rarity}` : ' dempty'}${i && selected === i.idx ? ' sel' : ''}" ${i ? `data-i="${i.idx}"` : 'disabled'} style="left:${x * U}px;top:${y * U}px;width:${w * U}px;height:${h * U}px" title="${esc(i ? `${i.label} — ${label}${v ? ` — ${fmt(v)}` : ''}` : `${label} : vide`)}" aria-label="${esc(label)}${i ? ` : ${esc(i.label)}` : ' vide'}">
-        ${i ? `<img loading="lazy" src="${esc(i.raw.icon)}" alt="">${v ? `<span class="dv">${esc(fmt(v))}</span>` : hint ? `<span class="dv h">base ${esc(fmt(hint))}</span>` : ''}` : `<span class="dl">${esc(label)}</span>`}</button>`;
+        ${i ? `<img loading="lazy" src="${esc(i.raw.icon)}" alt="">${gemIcons(i, 'dgems')}${v ? `<span class="dv">${esc(fmt(v))}</span>` : hint ? `<span class="dv h">base ${esc(fmt(hint))}</span>` : ''}` : `<span class="dl">${esc(label)}</span>`}</button>`;
     };
     let html = Object.entries(DOLL).map(([k, g]) => box(k, g, SLOT_FR[k])).join('');
     for (let f = 0; f < 5; f++) html += box(`Flask${f}`, [2 + f, 6.9, 1, 2], `Flasque ${f + 1}`);
@@ -2506,7 +2557,7 @@
     $('view').innerHTML = `<div class="doll-wrap">${hasSwap ? `<div class="doll-sw" role="group" aria-label="Jeu d'armes"><button class="${dollSwap ? '' : 'on'}" data-sw="0">Armes I</button><button class="${dollSwap ? 'on' : ''}" data-sw="1">Armes II</button></div>` : ''}
       <div class="doll" style="width:${9 * U}px;height:${8.9 * U}px">${html}</div>
       <div class="doll-note">${list.filter(i => i.slot === 'Socketed').length} gemmes et joyaux sertis (comptés avec leur emplacement)${inv.length ? ` · ${inv.length} objet${inv.length > 1 ? 's' : ''} dans l'inventaire : voir la vue Liste` : ''}</div></div>`;
-    $('view').querySelectorAll('.dslot[data-i]').forEach(b => b.onclick = () => select(Number(b.dataset.i)));
+    $('view').querySelectorAll('.dslot[data-i]').forEach(b => { b.onclick = () => select(Number(b.dataset.i)); hoverCard(b); });
     $('view').querySelectorAll('[data-sw]').forEach(b => b.onclick = () => { dollSwap = b.dataset.sw === '1'; render(); });
   }
   function renderGrid(list, size) {
@@ -2522,7 +2573,7 @@
         <img loading="lazy" src="${esc(r.icon)}" alt="">${i.stack > 1 ? `<span class="st">${i.stack}</span>` : ''}</div>`;
     }
     $('view').innerHTML = html + '</div></div>';
-    $('view').querySelectorAll('.gi').forEach(g => g.onclick = () => select(Number(g.dataset.i)));
+    $('view').querySelectorAll('.gi').forEach(g => { g.onclick = () => select(Number(g.dataset.i)); hoverCard(g); });
   }
 
   // =================== Détail ===================
@@ -2572,6 +2623,7 @@
         ${sec(mods(r.fracturedMods, 'fr') + mods(r.explicitMods, '') + mods(r.craftedMods, 'cr'))}
         ${sec(mods(r.utilityMods, '') + (r.flavourText ? `<div class="flav">${esc(clean(r.flavourText.join(' ')))}</div>` : '') + (r.descrText ? `<div class="prop">${esc(clean(r.descrText))}</div>` : ''))}
         ${sec((i.corrupted ? '<div class="corrtxt">Corrompu</div>' : '') + (i.unid ? '<div class="prop">Non identifié</div>' : '') + (r.note ? `<div class="prop">Note : <b>${esc(r.note)}</b></div>` : ''))}
+        ${gemsOf(i).length ? sec(`<div class="gemlist">${gemsOf(i).map(g => `<${g.idx !== null ? `button data-gem="${g.idx}"` : 'div'} class="gemrow"><img src="${esc(g.raw.icon)}" alt="" onerror="this.style.visibility='hidden'"><span class="gn">${esc(g.type)}</span><span class="gl">niv. ${g.gemLevel}${g.gemQuality ? ` · ${g.gemQuality} %` : ''}</span><span class="gp">${val(g) ? esc(fmt(val(g))) : ''}</span></${g.idx !== null ? 'button' : 'div'}>`).join('')}</div>`) : ''}
       </div></div>
       <div class="pricebox${pr ? '' : ' none'}"${chart || (!pr && !i.ghost && i.raw.id && (i.rarity === 1 || i.rarity === 2)) ? ' hidden' : ''}><div class="row"><div class="lb">Prix poe.ninja</div>${!pr && !i.ghost && i.raw.id ? penHtml(i) : ''}</div>${!pr ? manualLine(i) : ''}${pr
         ? `<div class="v">${curImg(big ? 'divine' : 'chaos')}${pr.approx ? '~' : ''}${esc(fmt(pr.total))}</div>
@@ -2589,6 +2641,7 @@
     wireChart();
     wireTrade(i);
     wireManual(i);
+    $('detailBody').querySelectorAll('[data-gem]').forEach(b => b.onclick = () => select(Number(b.dataset.gem)));
     if ($('lnkItemTrade')) $('lnkItemTrade').onclick = e => { e.preventDefault(); window.open(tradeUrlFor(i), '_blank', 'noopener'); };
     $('detail').classList.add('show');
   }
