@@ -858,7 +858,7 @@
   let trades = { ...localTrades }, tradeBusy = new Set(), settings = {}, lstShown = {};
   let tradeLive = '', tradeStarted = {};
   let drafts = {}, draftReq = new Set(), draftErr = {}, uniqueDb = null, uniqueErr = '';
-  const REQ_SCRIPT = '2.7.2';
+  const REQ_SCRIPT = '2.7.3';
   const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
   const ONLINE = location.protocol.startsWith('http');
   let extraPrices = null, extraReq = null, extraSig = '';
@@ -886,7 +886,16 @@
     switch (m.type) {
       case 'ready':
         // deux copies du script (ancienne installation gardée à côté de la nouvelle) : chacune a ses propres données
-        if (m.data.inst) { scriptInst.set(m.data.inst, m.data); if (scriptInst.size > 1 && !dupWarned) { dupWarned = true; status(`Deux copies du script Violentmonkey sont actives (${[...scriptInst.values()].map(x => `v${x.version}`).join(' et ')}). Supprime l'ancienne dans le tableau de bord Violentmonkey : chacune a ses propres réglages et scans.`, true); } }
+        // une copie ancienne (sans identifiant d'instance) à côté d'une récente : deux scripts actifs
+        if (!m.data.inst) { scriptInst.set(`old-${m.data.version}`, m.data); }
+        if (m.data.inst || scriptInst.size > 1) { if (m.data.inst) scriptInst.set(m.data.inst, m.data); if (scriptInst.size > 1 && !dupWarned) { dupWarned = true; status(`Deux copies du script Violentmonkey sont actives (${[...scriptInst.values()].map(x => `v${x.version}`).join(' et ')}). Supprime l'ancienne dans ton gestionnaire de scripts (Violentmonkey, Tampermonkey ou Greasemonkey) : chacune a ses propres réglages et scans.`, true); } }
+        // plusieurs copies : la page affiche et utilise la version la plus récente
+        if (bridge && vnum(m.data.version) > vnum(scriptVersion)) {
+          scriptVersion = m.data.version;
+          $('verInfo').textContent = `Page connectée au script v${m.data.version}`;
+          $('mpVer').textContent = `Script Violentmonkey v${m.data.version}`; $('mpVer').classList.remove('old');
+          if (vnum(m.data.version) >= vnum(REQ_SCRIPT)) $('updBar').hidden = true;
+        }
         if (bridge) return;
         bridge = true;
         scriptVersion = m.data.version;

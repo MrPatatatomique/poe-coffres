@@ -6,7 +6,7 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.7.2
+// @version      2.7.3
 // @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
@@ -613,6 +613,7 @@
       .hd .x{margin-left:auto;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:none;color:#8f826d;cursor:pointer;padding:0}
       .hd .x:hover,.hd .x:focus-visible{color:#e6dccb;background:#ffffff0d;outline:none}
       .bd{padding:4px 14px 12px;overflow:auto}
+      .dup{margin:10px 14px 0;padding:9px 11px;border:1px solid #9a4a3f;border-radius:8px;background:#2a1512;color:#ffb4a8;font-size:12px}
       .sec{padding-top:12px}
       .st{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#8f826d}
       .st span{font:inherit;letter-spacing:inherit}
@@ -652,6 +653,7 @@
     <div class="panel" id="panel" role="dialog" aria-labelledby="pTitle">
       <div class="hd"><span class="ic">${ICON}</span><div><h2 id="pTitle">Coffres PoE1</h2><div class="sub">Scanner · script v${VER}</div></div>
         <button class="x" id="close" aria-label="Fermer le panneau"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+      <div class="dup" id="dup" hidden role="alert"></div>
       <div class="bd">
         <div class="sec">
           <div class="st">Compte</div>
@@ -701,6 +703,15 @@
     const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "à l'instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `le ${new Date(t).toLocaleDateString('fr-FR')}`; };
     const fabState = () => { const last = GM_getValue('lastScanAt', 0); $('fabDot').classList.toggle('ok', Date.now() - last < 3 * 3600000); $('fab').title = `Coffres PoE1 · script v${VER}${last ? ` · dernier scan ${ago(last)}` : ''}`; };
     fabState(); setInterval(fabState, 60000);
+    // une autre copie du script (autre gestionnaire de scripts, ancienne installation) ajoute son propre bouton
+    setTimeout(() => {
+      const others = [...document.body.children].filter(e => e !== host && e.shadowRoot && e.shadowRoot.getElementById('fab'));
+      if (!others.length) return;
+      const v = others.map(e => (e.shadowRoot.getElementById('fab').textContent.match(/v[\d.]+/) || ['ancienne version'])[0]);
+      $('dup').hidden = false;
+      $('dup').textContent = `Une autre copie de ce script est active dans ce navigateur (${v.join(', ')}). Elle a ses propres réglages et scans : supprime-la dans ton gestionnaire de scripts (Violentmonkey, Tampermonkey ou Greasemonkey), puis recharge la page.`;
+      if (!$('panel').classList.contains('open')) $('fab').click();
+    }, 2500);
     $('close').onclick = () => $('fab').click();
     root.addEventListener('keydown', e => { if (e.key === 'Escape' && $('panel').classList.contains('open')) $('fab').click(); });
     $('fab').onclick = async () => {
