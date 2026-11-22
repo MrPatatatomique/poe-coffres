@@ -1,7 +1,8 @@
 name: Vérifications
 
 # À chaque push et pull request : la copie de shared/ninja.js dans le script Violentmonkey est à jour,
-# et les transformations poe.ninja donnent les lignes attendues.
+# les transformations poe.ninja donnent les lignes attendues, et la page passe son test de bout en bout
+# dans Chromium (tools/test-page.mjs). En cas d'échec, la capture d'écran est jointe à l'exécution.
 on:
   push:
     branches: [main]
@@ -23,3 +24,14 @@ jobs:
         run: node tools/build-userscript.mjs --check
       - name: Tests poe.ninja
         run: node tools/test-ninja.mjs
+      - name: Installer Playwright et Chromium
+        run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
+      - name: Test de la page
+        run: node tools/test-page.mjs
+      - name: Capture en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capture-echec
+          path: /tmp/coffres-test-echec.png
+          if-no-files-found: ignore

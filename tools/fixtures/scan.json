@@ -1,0 +1,21 @@
+{
+  "format": "poe1-stash-scan", "version": 1, "scannedAt": "2026-11-22T12:00:00.000Z",
+  "account": "Testeur#0001", "league": "Covens", "realm": "pc",
+  "tabs": [{ "i": 0, "n": "$", "type": "CurrencyStash" }, { "i": 1, "n": "Butin", "type": "QuadStash" }],
+  "failedTabs": [],
+  "items": [
+    { "id": "div", "typeLine": "Divine Orb", "baseType": "Divine Orb", "name": "", "frameType": 5, "stackSize": 3, "icon": "", "x": 0, "y": 0, "w": 1, "h": 1, "_tab": { "i": 0, "n": "$", "type": "CurrencyStash" } },
+    { "id": "deck", "typeLine": "Stacked Deck", "baseType": "Stacked Deck", "name": "", "frameType": 5, "stackSize": 10, "icon": "", "x": 1, "y": 0, "w": 1, "h": 1, "_tab": { "i": 0, "n": "$", "type": "CurrencyStash" } },
+    { "id": "chaos", "typeLine": "Chaos Orb", "baseType": "Chaos Orb", "name": "", "frameType": 5, "stackSize": 50, "icon": "", "x": 2, "y": 0, "w": 1, "h": 1, "_tab": { "i": 0, "n": "$", "type": "CurrencyStash" } },
+    { "id": "hh", "name": "Headhunter", "typeLine": "Leather Belt", "baseType": "Leather Belt", "frameType": 3, "identified": true, "ilvl": 84, "icon": "", "x": 0, "y": 0, "w": 2, "h": 1,
+      "explicitModifiers": [], "explicitMods": ["+50 to maximum Life"], "_tab": { "i": 1, "n": "Butin", "type": "QuadStash" } },
+    { "id": "gem", "typeLine": "Bladefall of Trarthus", "baseType": "Bladefall of Trarthus", "name": "", "frameType": 4, "icon": "", "x": 2, "y": 0, "w": 1, "h": 1,
+      "properties": [{ "name": "Level", "values": [["1", 0]] }], "_tab": { "i": 1, "n": "Butin", "type": "QuadStash" } },
+    { "id": "boots", "name": "Doom Stride", "typeLine": "Velour Boots", "baseType": "Velour Boots", "frameType": 2, "identified": true, "ilvl": 85, "icon": "", "x": 3, "y": 0, "w": 2, "h": 2,
+      "influences": { "redeemer": true, "hunter": true }, "explicitMods": ["+70 to maximum Life", "30% increased Movement Speed"], "_tab": { "i": 1, "n": "Butin", "type": "QuadStash" } },
+    { "id": "cluster", "typeLine": "Large Cluster Jewel", "baseType": "Large Cluster Jewel", "name": "", "frameType": 0, "identified": true, "ilvl": 84, "icon": "", "x": 5, "y": 0, "w": 1, "h": 1,
+      "enchantMods": ["Adds 8 Passive Skills", "Added Small Passive Skills grant: Minions deal 10% increased Damage"], "_tab": { "i": 1, "n": "Butin", "type": "QuadStash" } },
+    { "id": "ring", "name": "Loath Loop", "typeLine": "Iron Ring", "baseType": "Iron Ring", "frameType": 2, "identified": true, "ilvl": 82, "icon": "", "x": 6, "y": 0, "w": 1, "h": 1,
+      "explicitMods": ["+20 to Strength"], "_tab": { "i": 1, "n": "Butin", "type": "QuadStash" } }
+  ]
+}

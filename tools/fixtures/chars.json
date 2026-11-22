@@ -1,0 +1,11 @@
+{
+  "format": "poe1-characters", "at": "2026-11-22T12:05:00.000Z", "account": "Testeur#0001", "league": "Covens", "failed": [],
+  "chars": [{ "name": "Patate", "class": "Necromancer", "level": 92, "league": "Covens", "items": [
+    { "id": "c-belt", "name": "Headhunter", "typeLine": "Leather Belt", "baseType": "Leather Belt", "frameType": 3, "identified": true, "ilvl": 84, "icon": "", "w": 2, "h": 1, "inventoryId": "Belt" },
+    { "id": "c-ring", "name": "Grim Coil", "typeLine": "Iron Ring", "baseType": "Iron Ring", "frameType": 2, "identified": true, "ilvl": 70, "icon": "", "w": 1, "h": 1, "inventoryId": "Ring" },
+    { "id": "c-body", "name": "Kaom's Heart", "typeLine": "Glorious Plate", "baseType": "Glorious Plate", "frameType": 3, "identified": true, "ilvl": 80, "icon": "", "w": 2, "h": 3, "inventoryId": "BodyArmour",
+      "sockets": [{ "group": 0, "sColour": "R" }], "socketedItems": [
+        { "id": "c-gem", "typeLine": "Bladefall of Trarthus", "baseType": "Bladefall of Trarthus", "frameType": 4, "icon": "", "socket": 0, "properties": [{ "name": "Level", "values": [["1", 0]] }] } ] },
+    { "id": "c-flask", "typeLine": "Divine Life Flask", "baseType": "Divine Life Flask", "frameType": 0, "icon": "", "w": 1, "h": 2, "x": 0, "inventoryId": "Flask" }
+  ] }]
+}
