@@ -1,12 +1,12 @@
 name: Relance des données
 
 # Les tâches planifiées de GitHub sont souvent retardées ou sautées (2 passages sur 24 h au lieu de 48).
-# Cette tâche sert d'horloge : elle déclenche « Données et publication » à h:07 et h:37 pendant ~5 h 40,
+# Cette tâche sert d'horloge : elle déclenche « Données et publication » à h:07 et h:37 pendant ~5 h 30,
 # puis se relance elle-même. Le cron ci-dessous ne sert qu'à redémarrer la boucle si elle s'arrête.
 # Un déclenchement manuel (workflow_dispatch) depuis l'onglet Actions démarre aussi la boucle.
 on:
   schedule:
-    - cron: '23 */4 * * *'
+    - cron: '23 */2 * * *'
   workflow_dispatch:
 
 permissions:
@@ -30,13 +30,18 @@ jobs:
       - name: Déclencher les données toutes les 30 min
         run: |
           start=$(date +%s)
-          while [ $(( $(date +%s) - start )) -lt 20400 ]; do   # 5 h 40
+          # 5 h 30 au maximum, attente comprise : la tâche doit finir avant sa limite de 350 min,
+          # sinon GitHub l'annule et l'étape « Se relancer » ne s'exécute pas (boucle arrêtée jusqu'au cron)
+          LIMIT=19800
+          while true; do
             now=$(date +%s); m=$(( (now / 60) % 60 ))
             # prochaine minute 7 ou 37
             if   [ $m -lt 7 ];  then t=7
             elif [ $m -lt 37 ]; then t=37
             else t=67; fi
-            sleep $(( (t - m) * 60 - now % 60 ))
+            wait=$(( (t - m) * 60 - now % 60 ))
+            if [ $(( now + wait - start )) -ge $LIMIT ]; then echo "$(date -u +%H:%M) fin de cycle, relance"; break; fi
+            sleep $wait
             if gh run list --workflow data.yml --status in_progress --json databaseId -q 'length' | grep -qx 0 \
                && gh run list --workflow data.yml --status queued --json databaseId -q 'length' | grep -qx 0; then
               gh workflow run data.yml --ref main && echo "$(date -u +%H:%M) données déclenchées"
