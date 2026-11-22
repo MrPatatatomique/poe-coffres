@@ -4,6 +4,7 @@
 import { mkdir, readFile, writeFile, readdir, rm, rename } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { PoeNinja } from './ninja.mjs';
 
 const OUT = process.argv[2] || 'data';
 const NINJA = 'https://poe.ninja/poe1/api/economy';
@@ -11,16 +12,8 @@ const UA = 'poe-coffres/1.0 (+https://github.com/MrPatatatomique/poe-coffres)';
 const POB = 'https://raw.githubusercontent.com/PathOfBuildingCommunity/PathOfBuilding/dev/src/Data/Uniques';
 const POB_FILES = ['amulet', 'axe', 'belt', 'body', 'boots', 'bow', 'claw', 'dagger', 'fishing', 'flask', 'gloves', 'graft', 'helmet', 'jewel', 'mace', 'quiver', 'ring', 'shield', 'staff', 'sword', 'tincture', 'wand', 'Special/New'];
 
-export const EXCHANGE_TYPES = ['Currency', 'Fragment', 'Runegraft', 'AllflameEmber', 'Tattoo', 'Omen', 'DjinnCoin', 'Ducat', 'EnshroudingCrystal', 'DivinationCard', 'Artifact', 'Oil', 'DeliriumOrb', 'Scarab', 'Astrolabe', 'Thread', 'Fossil', 'Resonator', 'Essence'];
-export const STASH_CURRENCY_TYPES = ['Currency', 'Fragment'];
-export const ITEM_TYPES = ['UniqueWeapon', 'UniqueArmour', 'UniqueAccessory', 'UniqueFlask', 'UniqueJewel', 'UniqueTincture', 'UniqueRelic', 'UniqueMap', 'SkillGem', 'Map', 'BlightedMap', 'BlightRavagedMap', 'ValdoMap', 'Invitation', 'Memory', 'Incubator', 'Vial', 'Wombgift', 'Corpse', 'Viscera',
-  // ajoutées le 18/11 : cotation par ligne exacte (ilvl, influences, enchantement…), pas encore appliquée aux objets du coffre
-  'BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt'];
-// Base Types : ~16 000 lignes, on ne garde que celles qui valent au moins 5 c
-const MIN_CHAOS = { BaseType: 5 };
-// Catégories publiées à part (prices-extra/<ligue>.json, chargé par la page seulement quand il sert) :
-// elles doublaient la taille du fichier de prix principal.
-export const EXTRA_TYPES = ['BaseType', 'ImbuedGem', 'ClusterJewel', 'ForbiddenJewel', 'Flask', 'ScryingOrb', 'IncursionTemple', 'Beast', 'ShrineBelt'];
+// Catégories et transformations poe.ninja : source unique partagée avec le script Violentmonkey (shared/ninja.js)
+export const { EXCHANGE_TYPES, STASH_CURRENCY_TYPES, ITEM_TYPES, EXTRA_TYPES } = PoeNinja;
 
 // Historique : 30 min sur 7 jours, puis 2 h jusqu'à 30 jours, puis 6 h jusqu'à la fin de la ligue
 const TIERS = [[7 * 1440, 30], [30 * 1440, 120], [Infinity, 360]];
@@ -62,10 +55,10 @@ async function fetchLeague(league, prev = null) {
   for (const t of EXCHANGE_TYPES) {
     const j = await getJson(`${NINJA}/exchange/current/overview${q(t)}`);
     if (j) {
-      const names = new Map((j.items || []).map(i => [i.id, i.name]));
-      for (const i of j.items || []) icon(i.name, i.image);
-      out.exchange[t] = (j.lines || []).map(l => ({ k: `x|${l.id}`, name: names.get(l.id), v: l.primaryValue, sp: l.sparkline?.data })).filter(l => l.name);
-      if (t === 'Currency' && j.core) out.core = { primary: j.core.primary, rates: j.core.rates };
+      const r = PoeNinja.exchangeLines(j);
+      r.icons.forEach(([n, u]) => icon(n, u));
+      out.exchange[t] = r.lines;
+      if (t === 'Currency' && r.core) out.core = r.core;
     }
     if (!out.exchange[t] || !out.exchange[t].length) fallback('exchange', t);
     await sleep(250);
@@ -73,10 +66,10 @@ async function fetchLeague(league, prev = null) {
   for (const t of STASH_CURRENCY_TYPES) {
     const j = await getJson(`${NINJA}/stash/current/currency/overview${q(t)}`);
     if (j) {
-      out.currency[t] = (j.lines || []).map(l => ({ k: `c|${l.detailsId}`, name: l.currencyTypeName, v: l.chaosEquivalent, sp: l.receiveSparkLine?.data }));
-      const tid = new Map((j.currencyDetails || []).map(d => [d.name, d.tradeId]));
-      for (const d of j.currencyDetails || []) icon(d.name, d.icon);
-      for (const l of j.lines || []) { const t2 = tid.get(l.currencyTypeName); if (t2 && l.chaosEquivalent > 0) out.tradeIds[t2] = l.chaosEquivalent; }
+      const r = PoeNinja.currencyLines(j);
+      r.icons.forEach(([n, u]) => icon(n, u));
+      out.currency[t] = r.lines;
+      Object.assign(out.tradeIds, r.tradeIds);
     }
     if (!out.currency[t] || !out.currency[t].length) fallback('currency', t);
     await sleep(250);
@@ -84,19 +77,9 @@ async function fetchLeague(league, prev = null) {
   for (const t of ITEM_TYPES) {
     const j = await getJson(`${NINJA}/stash/current/item/overview${q(t)}`);
     if (j) {
-      for (const l of j.lines || []) icon(l.name, l.icon);
-      out.items[t] = (j.lines || []).filter(l => !(l.chaosValue < (MIN_CHAOS[t] || 0))).map(l => ({
-        k: `i|${t}|${l.detailsId}|${l.links || 0}`,
-        name: l.name, baseType: l.baseType, variant: l.variant, links: l.links || 0,
-        gemLevel: l.gemLevel, gemQuality: l.gemQuality || 0, corrupted: !!l.corrupted,
-        mapTier: l.mapTier, itemClass: l.itemClass, v: l.chaosValue, listings: l.listingCount,
-        ...(l.levelRequired ? { ilvl: l.levelRequired } : {}), ...(l.itemType ? { itemType: l.itemType } : {}),
-        sp: (l.sparkLine?.data || []).some(x => x !== null) ? l.sparkLine.data : l.lowConfidenceSparkLine?.data,
-        ...(/^Unique/.test(t) ? {
-          ranges: (l.explicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)),
-          iranges: (l.implicitModifiers || []).map(m => m.text).filter(x => /\(-?[\d.]+-/.test(x)),
-        } : {}),
-      }));
+      const r = PoeNinja.itemLines(t, j);
+      r.icons.forEach(([n, u]) => icon(n, u));
+      out.items[t] = r.lines;
     }
     if (!out.items[t] || !out.items[t].length) fallback('items', t);
     await sleep(250);

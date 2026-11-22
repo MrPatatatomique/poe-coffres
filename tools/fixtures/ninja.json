@@ -1,0 +1,51 @@
+{
+  "exchange": {
+    "core": { "primary": "chaos", "rates": { "divine": 0.0059 } },
+    "items": [
+      { "id": "divine", "name": "Divine Orb", "image": "/gen/image/divine.png" },
+      { "id": "stacked-deck", "name": "Stacked Deck", "image": "/gen/image/deck.png" }
+    ],
+    "lines": [
+      { "id": "divine", "primaryValue": 168.7, "sparkline": { "data": [0, 1.5, 2] } },
+      { "id": "stacked-deck", "primaryValue": 2.15, "sparkline": { "data": [0, -3] } },
+      { "id": "orphelin", "primaryValue": 9 }
+    ]
+  },
+  "currency": {
+    "currencyDetails": [
+      { "name": "Chaos Orb", "tradeId": "chaos", "icon": "https://web.poecdn.com/gen/image/chaos.png" },
+      { "name": "Mirror Shard", "tradeId": "mirror-shard", "icon": "https://web.poecdn.com/gen/image/shard.png" }
+    ],
+    "lines": [
+      { "currencyTypeName": "Chaos Orb", "detailsId": "chaos-orb", "chaosEquivalent": 1, "receiveSparkLine": { "data": [0] } },
+      { "currencyTypeName": "Mirror Shard", "detailsId": "mirror-shard", "chaosEquivalent": 3500 }
+    ]
+  },
+  "uniques": {
+    "lines": [
+      { "name": "Headhunter", "baseType": "Leather Belt", "detailsId": "headhunter", "chaosValue": 9000, "listingCount": 42, "itemClass": 3,
+        "sparkLine": { "data": [null, null] }, "lowConfidenceSparkLine": { "data": [0, 4] }, "icon": "https://web.poecdn.com/gen/image/hh.png",
+        "explicitModifiers": [{ "text": "+(40-55) to maximum Life" }, { "text": "When you Kill a Rare monster…" }],
+        "implicitModifiers": [{ "text": "+(25-40) to maximum Life" }] },
+      { "name": "Tabula Rasa", "baseType": "Simple Robe", "detailsId": "tabula-rasa-6l", "links": 6, "chaosValue": 12, "listingCount": 7 }
+    ]
+  },
+  "gems": {
+    "lines": [
+      { "name": "Bladefall of Trarthus", "detailsId": "bladefall-of-trarthus-1", "variant": "1", "gemLevel": 1, "chaosValue": 15, "listingCount": 345 },
+      { "name": "Bladefall of Trarthus", "detailsId": "bladefall-of-trarthus-1-20c", "variant": "1/20c", "gemLevel": 1, "gemQuality": 20, "corrupted": true, "chaosValue": 168 }
+    ]
+  },
+  "bases": {
+    "lines": [
+      { "name": "Velour Boots", "detailsId": "velour-boots-85-redeemer-hunter", "variant": "Redeemer/Hunter", "levelRequired": 85, "itemType": "Boots", "chaosValue": 36000 },
+      { "name": "Iron Ring", "detailsId": "iron-ring-82", "levelRequired": 82, "chaosValue": 1 }
+    ]
+  },
+  "leagues": [
+    { "id": "Standard", "name": "Standard" },
+    { "id": "Hardcore", "name": "Hardcore" },
+    { "id": "Covens", "name": "Covens" },
+    { "id": "Hardcore Covens", "name": "Hardcore Covens" }
+  ]
+}

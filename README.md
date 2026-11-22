@@ -73,6 +73,12 @@ Les données sont stockées dans la branche `data`, réécrite à chaque passage
 
 Violentmonkey vérifie les mises à jour du script tous les jours. La page est toujours à jour puisqu'elle est servie par GitHub Pages.
 
+## Développement
+
+- `shared/ninja.js` : **source unique** des catégories et des transformations poe.ninja (lignes de prix, clés d'historique, choix de la ligue). Elle sert à `tools/update-data.mjs` et au script Violentmonkey.
+- Le script en contient une copie entre les marqueurs `@@ninja-begin` / `@@ninja-end`. Après une modification de `shared/ninja.js` : `node tools/build-userscript.mjs`, puis augmenter `@version` du script.
+- `node tools/test-ninja.mjs` : tests des transformations sur `tools/fixtures/ninja.json` et vérification que la copie du script est à jour. Lancés par la tâche « Vérifications » à chaque push.
+
 ---
 
 Outil non officiel, sans lien avec Grinding Gear Games ni poe.ninja. Respecte leurs limites d'utilisation.
