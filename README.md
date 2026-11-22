@@ -79,7 +79,8 @@ Violentmonkey vérifie les mises à jour du script tous les jours. La page est t
 - Le script en contient une copie entre les marqueurs `@@ninja-begin` / `@@ninja-end`. Après une modification de `shared/ninja.js` : `node tools/build-userscript.mjs`, puis augmenter `@version` du script.
 - `node tools/test-ninja.mjs` : tests des transformations sur `tools/fixtures/ninja.json` et vérification que la copie du script est à jour.
 - `node tools/test-page.mjs` : test de bout en bout de la page dans Chromium (`npm install` puis `npx playwright install chromium`, ou `CHROME_PATH=/usr/bin/google-chrome` pour un Chrome déjà installé). Il construit un faux site à partir de `tools/fixtures/` (prix, historique, scan, personnages) et vérifie totaux, cotation des gemmes et des bases, fenêtres, prix manuel, surveillés, personnages, prix d'une autre ligue, archives et absence d'erreur JavaScript.
-- `npm test` lance les deux. La tâche « Vérifications » les exécute à chaque push.
+- `docs/protocole.md` : messages échangés entre la page et le script, relais vers l'onglet pathofexile.com, clés de stockage. `node tools/test-protocol.mjs` vérifie que tout ce que le code utilise y est documenté.
+- `npm test` lance les trois. La tâche « Vérifications » les exécute à chaque push.
 
 ---
 

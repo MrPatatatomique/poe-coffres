@@ -24,6 +24,8 @@ jobs:
         run: node tools/build-userscript.mjs --check
       - name: Tests poe.ninja
         run: node tools/test-ninja.mjs
+      - name: Protocole page ↔ script documenté
+        run: node tools/test-protocol.mjs
       - name: Installer Playwright et Chromium
         run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
       - name: Test de la page

@@ -4,7 +4,7 @@
   "description": "Coffres PoE1 : outils de développement (tests). La page et le script n'ont aucune dépendance.",
   "scripts": {
     "build": "node tools/build-userscript.mjs",
-    "test": "node tools/test-ninja.mjs && node tools/test-page.mjs"
+    "test": "node tools/test-ninja.mjs && node tools/test-protocol.mjs && node tools/test-page.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
