@@ -13,6 +13,19 @@ Scanne tes coffres Path of Exile 1, estime leur valeur et suit l'évolution des 
 
 Page : **https://mrpatatatomique.github.io/poe-coffres/**
 
+## Path of Exile 2
+
+Page PoE2 : **https://mrpatatatomique.github.io/poe-coffres/coffres-poe2.html**
+
+GGG ne publie pas les coffres PoE2 (ni par l'API officielle, ni par celle du site) : la page ne peut pas les scanner. Elle propose :
+
+- **Prix poe.ninja PoE2** de toutes les catégories (monnaies, essences, runes, cœurs d'âme, uniques, tablettes…), en divines et en exalts, mis à jour toutes les heures, avec historique ;
+- **Surveillés** : ☆ sur un prix pour suivre son cours ;
+- **Mes ventes** : avec le script, lit tes annonces du site de trade PoE2 (onglets publics, 100 plus récentes) et les compare aux prix poe.ninja ;
+- **Coller un objet** : en jeu, `Ctrl+C` sur l'objet puis `Ctrl+V` sur la page (client en anglais). Monnaies, uniques et tablettes sont cotés ; les rares et magiques n'ont pas de prix poe.ninja.
+
+Comme pour PoE1, les ventes passent par un onglet pathofexile.com ouvert et connecté.
+
 ## Installation
 
 1. Installe l'extension **[Violentmonkey]** (Firefox ou Chrome).
@@ -79,8 +92,9 @@ Violentmonkey vérifie les mises à jour du script tous les jours. La page est t
 - Le script en contient une copie entre les marqueurs `@@ninja-begin` / `@@ninja-end`. Après une modification de `shared/ninja.js` : `node tools/build-userscript.mjs`, puis augmenter `@version` du script.
 - `node tools/test-ninja.mjs` : tests des transformations sur `tools/fixtures/ninja.json` et vérification que la copie du script est à jour.
 - `node tools/test-page.mjs` : test de bout en bout de la page dans Chromium (`npm install` puis `npx playwright install chromium`, ou `CHROME_PATH=/usr/bin/google-chrome` pour un Chrome déjà installé). Il construit un faux site à partir de `tools/fixtures/` (prix, historique, scan, personnages) et vérifie totaux, cotation des gemmes et des bases, fenêtres, prix manuel, surveillés, personnages, prix d'une autre ligue, archives et absence d'erreur JavaScript.
+- `tools/ninja2.mjs` et `tools/update-poe2.mjs` : prix et historique PoE2 (dossier `data/poe2/` de la branche data), appelés par `tools/update-data.mjs`. `node tools/test-poe2.mjs` les teste sur `tools/fixtures/ninja2.json`, `node tools/test-page2.mjs` teste `coffres-poe2.html` dans Chromium.
 - `docs/protocole.md` : messages échangés entre la page et le script, relais vers l'onglet pathofexile.com, clés de stockage. `node tools/test-protocol.mjs` vérifie que tout ce que le code utilise y est documenté.
-- `npm test` lance les trois. La tâche « Vérifications » les exécute à chaque push.
+- `npm test` lance le tout. La tâche « Vérifications » les exécute à chaque push.
 
 ---
 

@@ -5,6 +5,7 @@ import { mkdir, readFile, writeFile, readdir, rm, rename } from 'node:fs/promise
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PoeNinja } from './ninja.mjs';
+import { updatePoe2 } from './update-poe2.mjs';
 
 const OUT = process.argv[2] || 'data';
 const NINJA = 'https://poe.ninja/poe1/api/economy';
@@ -23,9 +24,9 @@ const MIN_HISTORY_CHAOS = 1; // on n'historise pas ce qui vaut moins de 1 chaos 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 export const slug = s => String(s).replace(/[^\w-]+/g, '_');
 export function shardOf(key) { let h = 5381; for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0; return h % SHARDS; }
-const round = v => v >= 100 ? Math.round(v) : v >= 10 ? Math.round(v * 10) / 10 : Math.round(v * 100) / 100;
+export const round = v => v >= 100 ? Math.round(v) : v >= 10 ? Math.round(v * 10) / 10 : Math.round(v * 100) / 100;
 
-async function getJson(url, tries = 3) {
+export async function getJson(url, tries = 3) {
   for (let k = 0; k < tries; k++) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
@@ -125,13 +126,17 @@ export function decodeShard(o) {
 }
 
 async function updateHistory(dir, prices, recentDir) {
-  const now = Math.floor(prices.fetchedAt / 60000);
   const snap = new Map();
   const add = (k, v, always) => { if (k && v > 0 && (always || v >= MIN_HISTORY_CHAOS) && !snap.has(k)) snap.set(k, round(v)); };
   const stale = new Set(prices.stale || []);
   for (const [sec, always] of [['exchange', true], ['currency', true], ['items', false]]) {
     for (const [t, lines] of Object.entries(prices[sec])) if (!stale.has(`${sec}|${t}`)) for (const l of lines) add(l.k, l.v, always);
   }
+  return writeHistory(dir, snap, Math.floor(prices.fetchedAt / 60000), recentDir);
+}
+
+// snap : Map clé → valeur du passage ; now : minutes depuis 1970. Partagé avec l'historique PoE2 (tools/update-poe2.mjs).
+export async function writeHistory(dir, snap, now, recentDir) {
   await mkdir(dir, { recursive: true });
   const shards = Array.from({ length: SHARDS }, () => new Map());
   for (const [k, v] of snap) shards[shardOf(k)].set(k, v);
@@ -327,6 +332,8 @@ async function main() {
   console.log(`uniques : ${nu}`);
   const ns = await updateTradeStats(OUT);
   console.log(`mods du trade : ${ns}`);
+  // PoE2 : indépendant, un échec n'empêche pas la publication des données PoE1
+  try { await updatePoe2(join(OUT, 'poe2')); } catch (e) { console.warn(`PoE2 : ${e.message}`); }
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main().catch(e => { console.error(e); process.exit(1); });

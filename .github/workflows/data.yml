@@ -56,7 +56,7 @@ jobs:
       - name: Assembler le site
         run: |
           mkdir -p _site/data
-          cp coffres-poe1.html index.html poe-stash-scanner.user.js manifest.webmanifest icon.svg icon-192.png icon-512.png README.md _site/
+          cp coffres-poe1.html coffres-poe2.html index.html poe-stash-scanner.user.js manifest.webmanifest icon.svg icon-192.png icon-512.png README.md _site/
           touch _site/.nojekyll
           rsync -a --exclude .git data/ _site/data/
 

@@ -1,6 +1,6 @@
 # Protocole page ↔ script
 
-La page (`coffres-poe1.html`) et le script Violentmonkey (`poe-stash-scanner.user.js`) communiquent par `window.postMessage`, dans l'onglet de la page. Le script, lui, partage son stockage (`GM_setValue`) entre tous les onglets : c'est ce qui permet à l'onglet de la page de confier un travail à un onglet pathofexile.com.
+Les pages (`coffres-poe1.html`, `coffres-poe2.html`) et le script Violentmonkey (`poe-stash-scanner.user.js`) communiquent par `window.postMessage`, dans l'onglet de la page. Le script, lui, partage son stockage (`GM_setValue`) entre tous les onglets : c'est ce qui permet à l'onglet de la page de confier un travail à un onglet pathofexile.com.
 
 `node tools/test-protocol.mjs` vérifie que chaque commande et chaque message utilisés dans le code figurent dans ce document.
 
@@ -37,7 +37,20 @@ Les gros contenus (scan, prix, personnages…) voyagent eux-mêmes en **chaîne 
 3. La page compare `ready.version` à `REQ_SCRIPT` : si le script est plus ancien, elle affiche le bandeau de mise à jour.
 4. Plusieurs copies du script (autre gestionnaire, ancienne installation) envoient chacune `ready` : la page le signale et garde la version la plus récente.
 
-## Commandes (page → script)
+## Page PoE2
+
+`coffres-poe2.html` prend ses prix dans les fichiers publiés par le dépôt (`data/poe2/`) : le script ne lui fournit que les objets mis en vente, puisque GGG ne publie pas les coffres PoE2. Le script repère cette page à son nom (`coffres-poe2` dans l'adresse) et n'y active que les échanges ci-dessous.
+
+| Sens | Nom | `data` | Effet |
+|---|---|---|---|
+| page → script | `hello` | — | Le script répond `ready`, `settings` et, s'il en a, `listed2`. |
+| page → script | `listed2` | `{ league }` | Recherche des annonces du compte sur le site de trade PoE2, **relayée** à un onglet pathofexile.com. Progression en `status`, résultat en `listed2`. |
+| page → script | `settings` | objet partiel | Comme pour la page PoE1. |
+| script → page | `listed2` | chaîne JSON | `{ format: "poe2-listed", at, account, league, total, results: [{ id, listing: { price, stash, indexed }, item }] }`. `item` est l'objet brut du site de trade ; le trade ne renvoie que les 100 annonces les plus récentes. |
+
+Les autres messages (`ready`, `settings`, `status`) sont les mêmes que pour la page PoE1. La page PoE2 exige le script en version 2.9.0 au moins (`REQ_SCRIPT`).
+
+## Commandes (page PoE1 → script)
 
 | Commande | `data` | Effet |
 |---|---|---|
@@ -53,7 +66,7 @@ Les gros contenus (scan, prix, personnages…) voyagent eux-mêmes en **chaîne 
 | `trade-store` | estimation | Enregistre une estimation calculée par la page (pont local ou overlay). |
 | `trade-delete` | `{ itemId }` | Supprime une estimation. |
 
-## Messages (script → page)
+## Messages (script → page PoE1)
 
 | Message | `data` | Contenu |
 |---|---|---|
@@ -72,13 +85,13 @@ Les gros contenus (scan, prix, personnages…) voyagent eux-mêmes en **chaîne 
 
 ## Relais vers l'onglet pathofexile.com
 
-Utilisé par `scan` et `chars` quand la commande arrive dans l'onglet de la page.
+Utilisé par `scan`, `chars` et `listed2` quand la commande arrive dans l'onglet de la page.
 
-1. Le script de la page écrit `gggRequest = { id, kind: "scan" | "chars", data, at }`.
+1. Le script de la page écrit `gggRequest = { id, kind: "scan" | "chars" | "listed2", data, at }`.
 2. Un onglet pathofexile.com (écouteur `GM_addValueChangeListener`) prend la demande s'il n'y a pas de verrou actif (`gggLock = { id, until }`, prolongé de 60 s à chaque étape). Il publie aussitôt un accusé de réception dans `gggStatus`.
 3. Il exécute le travail et publie chaque étape dans `gggStatus = { id, msg, p, error, done, at }`.
 4. Le script de la page relaie chaque `gggStatus` en `status`. Il abandonne si aucun accusé n'arrive en **8 s** (« aucun onglet pathofexile.com n'a pris la demande »), ou si plus rien n'arrive pendant **3 min**.
-5. Le résultat (`lastScan`, `lastChars`) est vu par l'écouteur de l'onglet de la page, qui l'envoie à la page (`scan`, `chars`).
+5. Le résultat (`lastScan`, `lastChars`, `lastListed2`) est vu par l'écouteur de l'onglet de la page, qui l'envoie à la page (`scan`, `chars`, `listed2`).
 
 ## Stockage partagé du script
 
@@ -87,6 +100,7 @@ Utilisé par `scan` et `chars` quand la commande arrive dans l'onglet de la page
 | `settings` | Réglages (voir le message `settings`). |
 | `lastScan`, `lastScanAt` | Dernier scan (chaîne JSON) et sa date. |
 | `lastChars` | Derniers personnages importés (chaîne JSON). |
+| `lastListed2` | Dernières annonces PoE2 lues (chaîne JSON, voir le message `listed2`). |
 | `ninjaPrices` | Prix poe.ninja mémorisés, avec `gggLeague`. |
 | `tradeEstimates`, `tradeStats` | Estimations trade, liste des mods du site de trade. |
 | `follow`, `priceHistory` | Suivis et historique de prix. |
@@ -94,11 +108,13 @@ Utilisé par `scan` et `chars` quand la commande arrive dans l'onglet de la page
 | `authFailedAt` | Dernier refus d'authentification GGG (pause du rescan automatique). |
 | `gggRequest`, `gggStatus`, `gggLock` | Relais vers l'onglet pathofexile.com (voir ci-dessus). |
 
-## Côté page (stockage du navigateur)
+## Côté pages (stockage du navigateur)
 
-Ces clés `localStorage` ne concernent que la page, mais elles sont listées ici pour être complet. Leur format est versionné par `poeSchema`, et la page purge les plus anciennes données à chaque ouverture.
+Ces clés `localStorage` ne concernent que les pages, mais elles sont listées ici pour être complet. Leur format est versionné par `poeSchema`, et la page purge les plus anciennes données à chaque ouverture.
 
-`poeTracking`, `poeTrades`, `poeManual`, `poeFarm`, `poeQtyHist`, `poeValueHist`, `poeErrors`, `poeSchema`, ainsi que les préférences d'affichage (`poeFollowHidden`, `poeWatchHidden`, `poeTabsHidden`, `poeCharsHidden`, `poeGainRange`, `poeVhRange`).
+Page PoE2 : `poe2League` (ligue affichée), `poe2Items` (objets collés, par ligue), `poe2Listed` (dernières annonces reçues), `poe2Watch` (prix surveillés), `poe2Errors`.
+
+Page PoE1 : `poeTracking`, `poeTrades`, `poeManual`, `poeFarm`, `poeQtyHist`, `poeValueHist`, `poeErrors`, `poeSchema`, ainsi que les préférences d'affichage (`poeFollowHidden`, `poeWatchHidden`, `poeTabsHidden`, `poeCharsHidden`, `poeGainRange`, `poeVhRange`).
 
 ## Faire évoluer le protocole
 

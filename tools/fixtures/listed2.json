@@ -1,0 +1,12 @@
+{
+ "format": "poe2-listed", "at": "2026-11-24T19:00:00.000Z", "account": "Testeur#0001", "league": "Forbidden Rites", "total": 3,
+ "results": [
+  { "id": "a1", "listing": { "price": { "type": "~price", "amount": 2, "currency": "divine" }, "stash": { "name": "Vente", "x": 0, "y": 0 }, "indexed": "2026-11-24T18:00:00Z" },
+    "item": { "name": "Mageblood", "typeLine": "Utility Belt", "baseType": "Utility Belt", "rarity": "Unique", "frameType": 3, "ilvl": 82, "icon": "https://web.poecdn.com/gen/image/mageblood.png",
+      "implicitMods": ["+1 Charm Slot"], "explicitMods": ["+38 to [Strength|Strength]", "Charms gain 30% more charges"] } },
+  { "id": "a2", "listing": { "price": { "type": "~price", "amount": 50, "currency": "exalted" }, "stash": { "name": "Vente" } },
+    "item": { "name": "", "typeLine": "Exalted Orb", "baseType": "Exalted Orb", "rarity": "Currency", "frameType": 5, "stackSize": 100, "icon": "https://web.poecdn.com/gen/image/exalted.png" } },
+  { "id": "a3", "listing": { "price": { "type": "~price", "amount": 1, "currency": "divine" }, "stash": { "name": "Vente" } },
+    "item": { "name": "Storm Loop", "typeLine": "Sapphire Ring", "baseType": "Sapphire Ring", "rarity": "Rare", "frameType": 2, "ilvl": 79, "explicitMods": ["+70 to maximum Life"] } }
+ ]
+}

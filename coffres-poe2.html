@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coffres PoE2</title>
+<meta name="description" content="Prix poe.ninja Path of Exile 2, objets en vente et objets collés depuis le jeu">
+<meta name="theme-color" content="#120f0c">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0a08; --bg2:#100e0b; --panel:#15120e; --panel2:#1c1813; --panel3:#241e17;
+    --line:#2b241b; --line2:#3e3324; --line3:#5a4a32;
+    --text:#e2dbcd; --text2:#b8ae9c; --muted:#857b6b;
+    --gold:#c8a35a; --gold2:#ecd29a; --gold3:#8a6d36;
+    --normal:#c8c8c8; --magic:#8f8fff; --rare:#ffff77; --unique:#c8692c; --gem:#1ba29b; --currency:#aa9e82;
+    --corrupt:#e03b3b; --ok:#86c06c; --err:#ff8a7a;
+    --r:10px;
+    --title:"Cinzel",Georgia,serif;
+    --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg);color:var(--text);font:14px/1.45 var(--body);-webkit-font-smoothing:antialiased}
+  button,input,select,textarea{font:inherit;color:inherit}
+  ::selection{background:#c8a35a55}
+  *{scrollbar-color:#3a3024 transparent;scrollbar-width:thin}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  input,select,textarea{background:#0c0a08;border:1px solid var(--line2);border-radius:8px;padding:7px 10px;transition:border-color .15s}
+  input:hover,select:hover,textarea:hover{border-color:var(--line3)}
+  svg.i{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  .btn{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(#231d16,#1a1611);border:1px solid var(--line2);border-radius:8px;padding:7px 13px;cursor:pointer;color:var(--gold2);white-space:nowrap;text-decoration:none;transition:border-color .15s,background .15s}
+  .btn:hover:not(:disabled){border-color:var(--gold3);background:linear-gradient(#2b231a,#1f1a14)}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn.primary{border-color:var(--gold3);background:linear-gradient(#3a2d18,#261d11)}
+  .btn.ghost{background:none;border-color:transparent;color:var(--text2)}
+  .btn.ghost:hover:not(:disabled){border-color:var(--line2);color:var(--gold2)}
+  .btn.spin svg{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .app{display:grid;grid-template-rows:auto auto auto 1fr;height:100%}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:linear-gradient(#17130e,#120f0c);flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:11px}
+  .brand svg{width:30px;height:30px}
+  .brand h1{margin:0;font:700 19px/1 var(--title);letter-spacing:.06em;color:var(--gold2)}
+  .brand .g{font:600 10.5px/1 var(--body);letter-spacing:.1em;padding:3px 6px;border:1px solid var(--gold3);border-radius:5px;color:var(--gold)}
+  .led{display:inline-flex;align-items:center;gap:6px;color:var(--text2);font-size:12px;white-space:nowrap}
+  .dot{width:7px;height:7px;border-radius:50%;background:#555;flex:none}
+  .dot.on{background:var(--ok)}
+  .spacer{flex:1}
+  .ext{display:flex;gap:2px}
+  .ext a{padding:5px 10px;font-size:13px}
+  .lgsel{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+  .lgsel select{padding:5px 9px;font-size:13px;color:var(--gold2)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:12px;padding:14px 20px;border-bottom:1px solid var(--line)}
+  .kpi{background:#17130f;border:1px solid var(--line2);border-radius:var(--r);padding:12px 15px;min-width:0}
+  .kpi.hero{border-color:var(--gold3);background:#1b1610}
+  .kpi .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .kpi .vl{display:flex;align-items:center;gap:8px;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .kpi.hero .vl{font:700 26px/1.1 var(--title);color:var(--gold2)}
+  .kpi .sb{color:var(--muted);font-size:12px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cur{width:24px;height:24px;object-fit:contain;flex:none}
+  .cur.xs{width:16px;height:16px;vertical-align:-3px}
+  .old{color:var(--err)}
+
+  .main{display:grid;grid-template-columns:260px minmax(0,1fr) 360px;min-height:0}
+  aside{border-right:1px solid var(--line);overflow:auto;padding:12px 10px;background:#110e0bcc}
+  .sect{display:flex;align-items:center;justify-content:space-between;font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:4px 8px 10px}
+  .plus{width:22px;height:22px;display:flex;align-items:center;justify-content:center;padding:0;border:1px solid var(--line2);border-radius:6px;background:#15110c;color:var(--text2);font:600 15px/1 var(--body);cursor:pointer}
+  .plus:hover,.plus:focus-visible{color:var(--gold2);border-color:var(--gold3);background:#2a2016;outline:none}
+  .wrow{display:grid;grid-template-columns:28px minmax(0,1fr) auto;grid-template-rows:auto auto;column-gap:9px;align-items:center;width:100%;padding:6px 8px;border:1px solid transparent;border-radius:8px;background:none;text-align:left;cursor:pointer}
+  .wrow:hover{background:var(--panel2)}
+  .wrow.sel{background:linear-gradient(90deg,#2a2016,#1c1813);border-color:var(--line3)}
+  .wrow img{grid-row:1/3;width:28px;height:28px;object-fit:contain}
+  .wrow .nm{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .wrow .v{font-size:12px;color:var(--gold2);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .wrow .ct{grid-column:2/4;font-size:11px;color:var(--muted)}
+  .up{color:var(--ok)} .down{color:var(--err)}
+  .anote{margin:6px 8px 14px;color:var(--muted);font-size:12px}
+
+  .center{display:flex;flex-direction:column;min-width:0;min-height:0}
+  .tabs{display:flex;gap:4px;padding:10px 16px 0;border-bottom:1px solid var(--line)}
+  .tabs button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px 9px;color:var(--muted);cursor:pointer;font-weight:500}
+  .tabs button.on{color:var(--gold2);border-bottom-color:var(--gold)}
+  .tabs .n{color:var(--muted);font-weight:400;font-size:12px;margin-left:4px}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .search{position:relative;flex:1;min-width:220px}
+  .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .search input{width:100%;padding-left:32px}
+  .count{color:var(--muted);font-size:12.5px;padding:7px 16px;border-bottom:1px solid var(--line)}
+  .count b{color:var(--gold2);font-weight:600}
+  .view{flex:1;overflow:auto;min-height:0}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th{position:sticky;top:0;z-index:1;background:#14110d;text-align:left;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th.num{text-align:right}
+  td{padding:6px 12px;border-bottom:1px solid #1b1712;vertical-align:middle}
+  td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--text2)}
+  td.price{color:var(--gold2);font-weight:600}
+  td.price small{display:block;color:var(--muted);font-size:11px;font-weight:400}
+  tr.it{cursor:pointer}
+  tr.it td:first-child{border-left:2px solid transparent}
+  tr.it:hover td{background:#1a1611}
+  tr.it.sel td{background:#251e15}
+  tr.it.sel td:first-child{border-left-color:var(--gold)}
+  .icw{width:40px;height:40px;display:flex;align-items:center;justify-content:center}
+  .icw img{max-width:38px;max-height:38px;object-fit:contain}
+  .nm1{font-weight:600;font-size:13.5px}
+  .base{color:var(--muted);font-size:12px}
+  .tag{display:inline-block;font-size:10.5px;font-weight:600;padding:0 6px;border-radius:4px;margin-left:7px;vertical-align:1px;border:1px solid var(--line2);color:var(--text2)}
+  .tag.corr{color:var(--corrupt);background:#e03b3b1a;border-color:#e03b3b55}
+  .tag.sale{color:#7fb8cc;border-color:#3c6a7a}
+  .tag.low{color:var(--muted)}
+  .r0{color:var(--normal)} .r1{color:var(--magic)} .r2{color:var(--rare)} .r3{color:var(--unique)} .r4{color:var(--gem)} .r5{color:var(--currency)}
+  .del{width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;border:1px solid transparent;border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+  .del:hover,.del:focus-visible{color:var(--err);border-color:#5a2b25;outline:none}
+  .star{border:0;background:none;color:var(--muted);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:6px}
+  .star.on{color:var(--gold2)}
+  .star:hover,.star:focus-visible{background:#ffffff0a;outline:none}
+
+  .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px 30px;text-align:center;color:var(--text2)}
+  .empty h2{margin:0;color:var(--gold2);font:700 18px/1.2 var(--title)}
+  .empty p{margin:0;max-width:520px;color:var(--muted)}
+  .empty .acts{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  kbd{font:600 11px/1 var(--body);padding:2px 5px;border:1px solid var(--line3);border-bottom-width:2px;border-radius:4px;color:var(--text2)}
+
+  .detail{border-left:1px solid var(--line);overflow:auto;background:#110e0bcc;padding:12px 16px 20px}
+  .card{border:1px solid var(--line2);border-radius:var(--r);overflow:hidden;background:#0b0907}
+  .card .hd{position:relative;text-align:center;padding:12px 40px 14px;border-bottom:1px solid var(--line2)}
+  .card .hd.f0{background:linear-gradient(#2a2a2a,#1a1a1a)} .card .hd.f1{background:linear-gradient(#26264a,#16162a)}
+  .card .hd.f2{background:linear-gradient(#3f3a1c,#221f10)} .card .hd.f3{background:linear-gradient(#45260f,#251407)}
+  .card .hd.f4{background:linear-gradient(#123c39,#0a201f)} .card .hd.f5{background:linear-gradient(#2c2820,#18160f)}
+  .card .hd .n{font:700 16px/1.25 var(--title)} .card .hd .t{font:500 14px/1.3 var(--title)}
+  .card .hd .star{position:absolute;top:8px;right:8px}
+  .card .art{display:flex;justify-content:center;padding:14px 0 6px}
+  .card .art img{max-height:140px}
+  .card .bd{padding:4px 14px 12px;font-size:13px;text-align:center}
+  .card .sec{padding:8px 0;position:relative}
+  .card .sec+.sec::before{content:"";position:absolute;top:0;left:15%;right:15%;height:1px;background:var(--line2)}
+  .card .sec:empty{display:none}
+  .prop{color:#7f7f7f} .prop b{color:#e8e8e8;font-weight:500}
+  .mod{color:#8f8fff} .mod.rn{color:#b8daf2} .mod.en{color:#b4b4ff} .mod.im{color:#8f8fff}
+  .corrtxt{color:var(--corrupt)}
+  .pricebox{margin-top:12px;padding:13px 15px;border:1px solid var(--gold3);border-radius:var(--r);background:#17120c}
+  .pricebox.none{border-color:var(--line2);background:#13100c}
+  .pricebox .lb{font:600 10.5px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .pricebox .v{display:flex;align-items:center;gap:8px;font:700 22px/1.1 var(--title);color:var(--gold2)}
+  .pricebox .s{color:var(--muted);font-size:12px;margin-top:5px}
+  .pricebox .row{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--text2);margin-top:6px}
+  .pricebox .row b{color:var(--gold2);font-weight:600}
+  .hchart{margin-top:12px}
+  .hchart .hh{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:4px}
+  .hchart .rng{display:flex;gap:2px}
+  .hchart .rng button{background:none;border:0;border-radius:5px;padding:2px 6px;font-size:10.5px;color:var(--muted);cursor:pointer}
+  .hchart .rng button.on{background:#3a2a12;color:var(--gold2)}
+  .hchart svg{display:block;width:100%;height:90px;overflow:visible}
+  .hchart .hl{fill:none;stroke:var(--gold);stroke-width:1.8;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+  .hchart .ha{fill:#c8a35a1f}
+  .hchart .hs{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+  .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:70%;color:var(--muted);font-size:13px;text-align:center;padding:20px}
+
+  .modal{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:24px;background:#000000a8}
+  .mbox{width:min(620px,100%);background:#120f0c;border:1px solid var(--line3);border-radius:12px;box-shadow:0 20px 60px #000c;display:flex;flex-direction:column;max-height:calc(100vh - 48px)}
+  .mbox .mh{display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line)}
+  .mbox .mh h2{margin:0;flex:1;font:700 16px/1.2 var(--title);color:var(--gold2)}
+  .mbox .mb{padding:14px 16px;overflow:auto}
+  .mbox .mb p{margin:0 0 10px;color:var(--text2);font-size:13px}
+  .mbox textarea{width:100%;height:220px;resize:vertical;font:12.5px/1.4 ui-monospace,Consolas,monospace}
+  .mbox .mf{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+  .x{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:none;color:var(--muted);cursor:pointer}
+  .x:hover,.x:focus-visible{color:var(--text);background:#ffffff0d;outline:none}
+  .perr{color:var(--err);font-size:12.5px;min-height:1.2em;margin-top:8px}
+
+  .toast{position:fixed;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;pointer-events:none;display:flex;align-items:center;gap:10px;max-width:min(680px,90vw);padding:10px 16px;border:1px solid var(--line3);border-radius:10px;background:#1a1510f2;box-shadow:0 10px 30px #000c;font-size:13px;transition:opacity .2s,transform .2s;z-index:40}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .toast.err{border-color:#a5443a;color:var(--err)}
+  .toast .spinner{width:14px;height:14px;border:2px solid var(--gold3);border-top-color:var(--gold2);border-radius:50%;animation:spin .8s linear infinite;flex:none}
+  .updbar{padding:8px 16px;background:#3a1a16;color:#ffd2c8;font-size:13px;text-align:center}
+  .updbar a{color:var(--gold2)}
+
+  @media (max-width:1100px){
+    .main{grid-template-columns:220px minmax(0,1fr)}
+    .detail{grid-column:1/-1;border-left:0;border-top:1px solid var(--line)}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  }
+  @media (max-width:700px){
+    .main{grid-template-columns:minmax(0,1fr)}
+    aside{border-right:0;border-bottom:1px solid var(--line)}
+    header{padding:10px 12px}
+    .kpis{padding:10px 12px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chest" viewBox="0 0 48 48" fill="none" stroke-width="2.4" stroke-linejoin="round"><path d="M6 20a10 10 0 0 1 10-10h16a10 10 0 0 1 10 10v4H6z"/><path d="M6 24h36v14H6z"/><path d="M20 21h8v8h-8z"/><path d="M12 10v14M36 10v14"/></symbol>
+</svg>
+<div class="app">
+  <div class="updbar" id="updBar" role="alert" hidden></div>
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true"><defs><linearGradient id="g1" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#f2d9a0"/><stop offset="1" stop-color="#9a7638"/></linearGradient></defs><use href="#i-chest" stroke="url(#g1)"/></svg>
+      <h1>Coffres</h1><span class="g">PoE2</span>
+    </div>
+    <label class="lgsel">Ligue <select id="league" aria-label="Ligue PoE2"><option>Chargement…</option></select></label>
+    <span class="led" id="scriptLed" title="Script Violentmonkey non détecté"><span class="dot" id="dot"></span><span id="ledTxt">Script</span></span>
+    <span class="spacer"></span>
+    <div class="ext">
+      <a class="btn ghost" id="lnkTrade" href="https://www.pathofexile.com/trade2" target="_blank" rel="noopener"><svg class="i"><use href="#i-ext"/></svg>Trade</a>
+      <a class="btn ghost" id="lnkNinja" href="https://poe.ninja/poe2/economy" target="_blank" rel="noopener"><svg class="i"><use href="#i-ext"/></svg>poe.ninja</a>
+      <a class="btn ghost" href="coffres-poe1.html" title="Page des coffres PoE1">PoE1</a>
+    </div>
+    <button class="btn" id="pasteBtn" title="Ajouter un objet copié en jeu (Ctrl+C sur l'objet)"><svg class="i"><use href="#i-paste"/></svg>Coller un objet</button>
+    <button class="btn primary" id="listedBtn" disabled title="Lit tes annonces du site de trade PoE2 (onglets publics)"><svg class="i"><use href="#i-refresh"/></svg>Mes ventes</button>
+  </header>
+
+  <section class="kpis">
+    <div class="kpi hero"><div class="lb">Valeur de mes objets</div><div class="vl" id="kTotal">—</div><div class="sb" id="kTotalSub">aucun objet</div></div>
+    <div class="kpi"><div class="lb">En vente</div><div class="vl" id="kSale">—</div><div class="sb" id="kSaleSub">prix demandés</div></div>
+    <div class="kpi"><div class="lb">Divine Orb</div><div class="vl" id="kRate">—</div><div class="sb" id="kRateSub">—</div></div>
+    <div class="kpi"><div class="lb">Prix poe.ninja</div><div class="vl" id="kFresh">—</div><div class="sb" id="kFreshSub">mis à jour toutes les heures</div></div>
+  </section>
+
+  <div class="main">
+    <aside>
+      <div class="sect"><span>◎ Surveillés <span id="watchCount"></span></span><button class="plus" id="watchAdd" title="Surveiller un objet : choisis-le dans l'onglet Prix" aria-label="Ajouter un objet à surveiller">+</button></div>
+      <div id="watchList"></div>
+    </aside>
+    <section class="center">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tMine" class="on" aria-selected="true">Mes objets<span class="n" id="nMine"></span></button>
+        <button role="tab" id="tPrices" aria-selected="false">Prix poe.ninja<span class="n" id="nPrices"></span></button>
+      </div>
+      <div class="filters">
+        <label class="search"><svg class="i"><use href="#i-search"/></svg><input type="search" id="q" placeholder="Rechercher…  /" aria-label="Rechercher"></label>
+        <select id="cat" aria-label="Catégorie"></select>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="view" id="view"></div>
+    </section>
+    <section class="detail" id="detail"><div class="placeholder">Clique sur un objet ou un prix pour voir son détail et son historique.</div></section>
+  </div>
+</div>
+
+<div class="modal" id="pModal" hidden>
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+    <div class="mh"><h2 id="pTitle">Coller un objet</h2><button class="x" id="pClose" aria-label="Fermer"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="mb">
+      <p>En jeu, survole l'objet et fais <kbd>Ctrl</kbd>+<kbd>C</kbd>, puis colle le texte ici. Tu peux aussi faire <kbd>Ctrl</kbd>+<kbd>V</kbd> n'importe où sur la page. Jeu en anglais uniquement : poe.ninja ne connaît que les noms anglais.</p>
+      <label for="pText" class="base">Texte de l'objet</label>
+      <textarea id="pText" spellcheck="false" placeholder="Item Class: Stackable Currency&#10;Rarity: Currency&#10;Exalted Orb&#10;--------&#10;Stack Size: 12/5000"></textarea>
+      <div class="perr" id="pErr" role="alert"></div>
+    </div>
+    <div class="mf"><button class="btn ghost" id="pCancel">Annuler</button><button class="btn primary" id="pAdd">Ajouter l'objet</button></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"><span class="spinner" id="toastSpin" hidden></span><span id="toastMsg"></span></div>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const ONLINE = location.protocol.startsWith('http');
+  const POECDN = 'https://web.poecdn.com';
+  const REQ_SCRIPT = '2.9.0';
+  const vnum = v => String(v || '0').split('.').map(Number).reduce((a, n) => a * 1000 + (n || 0), 0);
+  const store = {
+    get: (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { console.warn('[Coffres] stockage plein', e); } },
+  };
+  const getJson = async url => { try { const r = await fetch(url, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch { return null; } };
+  const nf = (v, d) => v.toLocaleString('fr-FR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "à l'instant" : m < 60 ? `il y a ${m} min` : m < 1440 ? `il y a ${Math.floor(m / 60)} h` : `le ${new Date(t).toLocaleDateString('fr-FR')}`; };
+
+  // =================== Toast et erreurs ===================
+  let toastTimer = 0;
+  function logError(msg) {
+    const h = store.get('poe2Errors', []);
+    if (h.length && h[h.length - 1].m === msg && Date.now() - h[h.length - 1].t < 5000) return;
+    h.push({ t: Date.now(), m: String(msg).slice(0, 500) });
+    if (h.length > 100) h.splice(0, h.length - 100);
+    store.set('poe2Errors', h);
+  }
+  function status(msg, err = false, busy = false) {
+    if (msg && err) logError(msg);
+    clearTimeout(toastTimer);
+    if (!msg) { $('toast').classList.remove('show'); return; }
+    $('toastMsg').textContent = msg;
+    $('toastSpin').hidden = !busy;
+    $('toast').className = 'toast show' + (err ? ' err' : '');
+    if (!busy) toastTimer = setTimeout(() => $('toast').classList.remove('show'), err ? 8000 : 3500);
+  }
+
+  // =================== État ===================
+  let leagues = [], league = store.get('poe2League', ''), file = '';
+  let P = null;                // prix de la ligue (fichier data/poe2/prices/<ligue>.json)
+  let lines = [], byKey = new Map(), byName = new Map(), byUnique = new Map(), byTablet = new Map(), icons = {};
+  let pasted = store.get('poe2Items', {});      // { ligue: [objet…] }
+  let listed = store.get('poe2Listed', null);   // dernier résultat du script (objets en vente)
+  let watch = store.get('poe2Watch', []);       // clés de lignes de prix
+  let tab = 'mine', selected = null, bridge = false, scriptVersion = '', settings = {};
+  let hist = {}, histReq = {}, range = '7d';
+
+  const CAT_FR = {
+    Currency: 'Monnaies', Fragments: 'Fragments', Abyss: 'Os abyssaux', UncutGems: 'Gemmes non taillées', LineageSupportGems: 'Gemmes de lignée',
+    Essences: 'Essences', SoulCores: "Cœurs d'âme", Idols: 'Idoles', Runes: 'Runes', Ritual: 'Présages', Expedition: 'Expédition',
+    Delirium: 'Émotions liquides', Breach: 'Catalyseurs', Verisium: 'Vérisium',
+    UniqueWeapons: 'Armes uniques', UniqueArmours: 'Armures uniques', UniqueAccessories: 'Bijoux uniques', UniqueFlasks: 'Flacons uniques',
+    UniqueCharms: 'Charmes uniques', UniqueJewels: 'Joyaux uniques', UniqueSanctumRelics: 'Reliques uniques', UniqueTablets: 'Tablettes uniques', PrecursorTablets: 'Tablettes',
+  };
+
+  // =================== Prix ===================
+  const iconUrl = name => { const p = icons[name]; return p ? (p.startsWith('http') ? p : POECDN + p) : ''; };
+  const rate = id => (byKey.get(`x|${id}`) || {}).v || 0; // valeur en divines d'une monnaie (id du trade = id poe.ninja)
+  const exPerDiv = () => (P && P.core && P.core.rates && P.core.rates.exalted) || (rate('exalted') ? 1 / rate('exalted') : 0);
+  // affichage : en divines à partir de 1, sinon en exalts
+  function fmt(v) {
+    if (!(v > 0)) return '—';
+    if (v >= 1 || !exPerDiv()) return `${nf(v, v >= 100 ? 0 : v >= 10 ? 1 : 2)} div`;
+    const ex = v * exPerDiv();
+    return `${nf(ex, ex >= 100 ? 0 : ex >= 10 ? 1 : 2)} ex`;
+  }
+  function fmtBoth(v) {
+    if (!(v > 0)) return '—';
+    const ex = v * exPerDiv();
+    return `${nf(v, v >= 100 ? 0 : v >= 1 ? 2 : 3)} div${ex ? ` · ${nf(ex, ex >= 100 ? 0 : 1)} ex` : ''}`;
+  }
+
+  async function loadLeagues() {
+    if (!ONLINE) return;
+    const j = await getJson('data/poe2/leagues.json');
+    leagues = (j && j.leagues) || [];
+    if (!leagues.length) { $('league').innerHTML = '<option>Aucune ligue publiée</option>'; return; }
+    if (!leagues.some(l => l.id === league)) league = leagues[0].id;
+    $('league').innerHTML = leagues.map(l => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('');
+    $('league').value = league;
+    await loadPrices();
+  }
+  async function loadPrices() {
+    const lg = leagues.find(l => l.id === league);
+    if (!lg) return;
+    file = lg.file;
+    const [p, ic] = await Promise.all([getJson(`data/poe2/prices/${file}.json`), getJson(`data/poe2/icons/${file}.json`)]);
+    if (!p) { status(`Pas encore de prix publiés pour ${league}.`, true); return; }
+    P = p; icons = ic || {}; hist = {}; histReq = {};
+    buildIndex();
+    renderAll();
+  }
+  function buildIndex() {
+    lines = []; byKey = new Map(); byName = new Map(); byUnique = new Map(); byTablet = new Map();
+    for (const [t, ls] of Object.entries(P.exchange || {})) for (const l of ls) { const x = { ...l, sec: 'exchange', type: t }; lines.push(x); byKey.set(l.k, x); if (!byName.has(l.name)) byName.set(l.name, x); }
+    for (const [t, ls] of Object.entries(P.items || {})) for (const l of ls) {
+      const x = { ...l, sec: 'items', type: t }; lines.push(x); byKey.set(l.k, x);
+      if (t === 'PrecursorTablets') byTablet.set(`${l.base}|${l.var || ''}`, x);
+      else { const k = `${l.name}|${l.base}`; (byUnique.get(k) || byUnique.set(k, []).get(k)).push(x); }
+    }
+  }
+
+  // Ligne de prix d'un objet : unique (nom + base), tablette (base + rareté), sinon monnaie ou fragment par nom
+  function lineFor(it) {
+    if (!P) return null;
+    if (it.rarity === 'Unique') {
+      const c = byUnique.get(`${it.name}|${it.base}`) || [...byUnique.entries()].find(([k]) => k.startsWith(`${it.name}|`))?.[1];
+      if (!c) return null;
+      return c.find(l => !!l.cr === !!it.corrupted) || c[0];
+    }
+    const tb = byTablet.get(`${it.base}|${it.rarity}`);
+    if (tb) return tb;
+    if (it.gemLevel && /^Uncut /.test(it.base)) return byName.get(`${it.base} (Level ${it.gemLevel})`) || null;
+    if (it.rarity === 'Rare' || it.rarity === 'Magic') return null;
+    return byName.get(it.base) || byName.get(it.name) || null;
+  }
+  function valueOf(it) {
+    const l = lineFor(it);
+    return l ? { line: l, unit: l.v, total: l.v * (it.qty || 1) } : null;
+  }
+  // prix demandé : « 2 div », « 50 ex » ; l'équivalent n'est ajouté que pour les autres monnaies
+  const CUR_SHORT = { divine: 'div', exalted: 'ex', chaos: 'chaos' };
+  function askTxt(it) {
+    const pr = it.listing && it.listing.price;
+    if (!pr || !(pr.amount > 0)) return { main: '', sub: '' };
+    const main = `${nf(pr.amount, pr.amount % 1 ? 1 : 0)} ${CUR_SHORT[pr.currency] || pr.currency}`;
+    const v = listPrice(it);
+    return { main, sub: CUR_SHORT[pr.currency] || !v ? '' : fmt(v) };
+  }
+  const listPrice = it => (it.listing && it.listing.price && it.listing.price.amount > 0 ? it.listing.price.amount * (it.listing.price.currency === 'divine' ? 1 : rate(it.listing.price.currency)) : 0);
+
+  // =================== Objets : annonces du trade et textes collés ===================
+  const RARITY = ['Normal', 'Magic', 'Rare', 'Unique', 'Gem', 'Currency'];
+  const clean = s => String(s ?? '').replace(/\[([^\]|]+)\|([^\]]+)\]/g, '$2').replace(/\[([^\]]+)\]/g, '$1');
+  function fromTrade(r) {
+    const it = r.item || {};
+    const level = (it.properties || []).find(p => /^Level$/.test(clean(p.name)));
+    return {
+      id: `t:${r.id}`, src: 'listed', name: clean(it.name), base: clean(it.baseType || it.typeLine), rarity: it.rarity || RARITY[it.frameType] || 'Normal',
+      cls: '', ilvl: it.ilvl, qty: it.stackSize || 1, corrupted: !!it.corrupted, icon: it.icon,
+      gemLevel: level ? parseInt(level.values?.[0]?.[0], 10) || undefined : undefined,
+      props: (it.properties || []).filter(p => p.values && p.values.length).map(p => `${clean(p.name)}: ${p.values.map(v => clean(v[0])).join(', ')}`),
+      mods: { im: (it.implicitMods || []).map(clean), en: (it.enchantMods || []).map(clean), rn: (it.runeMods || []).map(clean), ex: [...(it.fracturedMods || []), ...(it.explicitMods || []), ...(it.desecratedMods || [])].map(clean) },
+      listing: r.listing,
+    };
+  }
+  // Texte copié en jeu (Ctrl+C), client anglais
+  function parseItemText(text) {
+    const blocks = String(text).replace(/\r/g, '').split(/\n-{4,}\n/).map(b => b.split('\n').map(l => l.trim()).filter(Boolean));
+    const head = blocks[0] || [];
+    const cls = (head.find(l => /^Item Class:/.test(l)) || '').replace(/^Item Class:\s*/, '');
+    const rar = (head.find(l => /^Rarity:/.test(l)) || '').replace(/^Rarity:\s*/, '');
+    if (!rar) throw new Error("ce n'est pas le texte d'un objet (ligne « Rarity: » absente). Copie l'objet en jeu avec Ctrl+C, client en anglais.");
+    const names = head.filter(l => !/^(Item Class|Rarity):/.test(l));
+    const it = { id: `p:${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, src: 'paste', at: Date.now(), cls, rarity: rar, name: '', base: '', qty: 1, props: [], mods: { im: [], en: [], rn: [], ex: [] } };
+    if (names.length >= 2) { it.name = names[0]; it.base = names[1]; } else it.base = it.name = names[0] || '';
+    if (rar === 'Magic' || rar === 'Normal') { const tb = [...byTablet.keys()].map(k => k.split('|')[0]).find(b => it.base.includes(b)); if (tb) it.base = tb; }
+    // blocs séparés par « -------- » : propriétés, Item Level, implicites, explicites, puis texte d'ambiance (ignoré)
+    const TAG = /\s*\((implicit|rune|enchant)\)$/;
+    let afterIlvl = false, gotEx = false;
+    for (const b of blocks.slice(1)) {
+      const stack = b.find(l => /^Stack Size:/.test(l));
+      if (stack) { it.qty = parseInt(stack.replace(/^Stack Size:\s*/, '').split('/')[0].replace(/[\s,.\u00a0]/g, ''), 10) || 1; continue; }
+      const il = b.find(l => /^Item Level:/.test(l));
+      if (il) { it.ilvl = parseInt(il.replace(/\D+/g, ''), 10) || undefined; afterIlvl = true; continue; }
+      if (b.length === 1 && b[0] === 'Corrupted') { it.corrupted = true; continue; }
+      if (b.every(l => TAG.test(l))) {
+        for (const l of b) it.mods[{ implicit: 'im', rune: 'rn', enchant: 'en' }[l.match(TAG)[1]]].push(l.replace(TAG, ''));
+        continue;
+      }
+      if (!afterIlvl && b.some(l => /^[A-Z][\w' ]{1,30}: \S/.test(l))) {
+        for (const l of b) { const lv = l.match(/^Level:\s*(\d+)/); if (lv) it.gemLevel = +lv[1]; it.props.push(l); }
+        continue;
+      }
+      if (afterIlvl && !gotEx && !/^(Unidentified|Note:)/.test(b[0])) { it.mods.ex = b.filter(l => !/^Note:/.test(l)); gotEx = true; }
+    }
+    if (it.rarity === 'Currency' || it.rarity === 'Gem') it.mods = { im: [], en: [], rn: [], ex: [] };
+    return it;
+  }
+
+  const listedHere = () => (listed && listed.league === league ? listed.results.map(fromTrade) : []);
+  const pastedHere = () => pasted[league] || [];
+  const mine = () => [...listedHere(), ...pastedHere()];
+  function addPasted(text) {
+    const it = parseItemText(text);
+    (pasted[league] = pasted[league] || []).unshift(it);
+    store.set('poe2Items', pasted);
+    tab = 'mine'; selected = it.id;
+    renderAll();
+    const v = valueOf(it);
+    status(v ? `${it.name || it.base}${it.qty > 1 ? ` ×${it.qty}` : ''} ajouté : ${fmt(v.total)}.` : `${it.name || it.base} ajouté, sans prix poe.ninja (les rares et magiques ne sont pas cotés).`);
+  }
+
+  // =================== Historique ===================
+  function shardOf(key) { let h = 5381; for (let i = 0; i < key.length; i++) h = ((h * 33) ^ key.charCodeAt(i)) >>> 0; return h % 64; }
+  function series(k, full) {
+    const sh = shardOf(k), id = `${full ? 'history' : 'history-recent'}/${file}/${sh}`;
+    if (hist[id]) { const e = hist[id][k]; if (!e) return []; let t = e[0]; return e[2].map((v, i) => { if (i) t += e[1][i - 1]; return [t * 60000, v]; }); }
+    if (!histReq[id] && ONLINE) histReq[id] = getJson(`data/poe2/${id}.json`).then(j => { hist[id] = j || {}; renderDetail(); renderWatch(); });
+    return null;
+  }
+  function chartHtml(k) {
+    const full = range === 'all';
+    const s = series(k, full);
+    const head = `<div class="hh"><span>Historique</span><span class="rng">${[['24h', '24 h'], ['7d', '7 j'], ['all', 'Tout']].map(([r, t]) => `<button data-r="${r}" class="${range === r ? 'on' : ''}">${t}</button>`).join('')}</span></div>`;
+    if (s === null) return `<div class="hchart">${head}<div class="base">Chargement…</div></div>`;
+    const from = range === '24h' ? Date.now() - 86400000 : range === '7d' ? Date.now() - 7 * 86400000 : 0;
+    const pts = s.filter(p => p[0] >= from);
+    if (pts.length < 2) return `<div class="hchart">${head}<div class="base">Pas encore assez de relevés (un par heure).</div></div>`;
+    const t0 = pts[0][0], t1 = pts[pts.length - 1][0], vs = pts.map(p => p[1]), lo = Math.min(...vs), hi = Math.max(...vs), dv = hi - lo || hi || 1;
+    const X = t => ((t - t0) / (t1 - t0 || 1)) * 100, Y = v => 86 - ((v - lo) / dv) * 80;
+    const path = pts.map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(2)},${Y(p[1]).toFixed(2)}`).join('');
+    const first = vs[0], last = vs[vs.length - 1], ch = first ? ((last - first) / first) * 100 : 0;
+    return `<div class="hchart">${head}<svg viewBox="0 0 100 90" preserveAspectRatio="none" role="img" aria-label="Évolution du prix"><path class="ha" d="${path}L100,90L0,90Z"/><path class="hl" d="${path}"/></svg>
+      <div class="hs"><span>min ${fmt(lo)}</span><span class="${ch >= 0 ? 'up' : 'down'}">${ch >= 0 ? '+' : ''}${nf(ch, 1)} %</span><span>max ${fmt(hi)}</span></div></div>`;
+  }
+
+  // =================== Rendu ===================
+  const rcls = r => ({ Normal: 0, Magic: 1, Rare: 2, Unique: 3, Gem: 4, Currency: 5 })[r] ?? 5;
+  const lineRarity = l => (l.sec === 'items' ? (l.type === 'PrecursorTablets' ? ({ Normal: 'Normal', Magic: 'Magic', Rare: 'Rare' })[l.var] || 'Normal' : 'Unique') : /Gems$/.test(l.type) ? 'Gem' : 'Currency');
+  const lineIcon = l => iconUrl(l.type === 'PrecursorTablets' ? l.base : l.name);
+  const change7 = l => (Array.isArray(l.sp) ? [...l.sp].reverse().find(v => typeof v === 'number') : null);
+
+  function renderKpis() {
+    const its = mine();
+    let tot = 0, priced = 0, sale = 0, nSale = 0;
+    for (const it of its) { const v = valueOf(it); if (v) { tot += v.total; priced++; } const lp = listPrice(it); if (lp) { sale += lp; nSale++; } }
+    $('kTotal').textContent = its.length ? fmtBoth(tot) : '—';
+    $('kTotalSub').textContent = its.length ? `${its.length} objet${its.length > 1 ? 's' : ''}, ${priced} coté${priced > 1 ? 's' : ''} par poe.ninja` : 'aucun objet';
+    $('kSale').textContent = nSale ? fmtBoth(sale) : '—';
+    $('kSaleSub').textContent = listed && listed.league === league ? `${nSale} annonce${nSale > 1 ? 's' : ''} · lues ${ago(Date.parse(listed.at))}` : bridge ? 'clique sur « Mes ventes »' : 'nécessite le script Violentmonkey';
+    const ex = exPerDiv(), ch = P && P.core && P.core.rates && P.core.rates.chaos;
+    $('kRate').innerHTML = ex ? `${iconUrl('Divine Orb') ? `<img class="cur" src="${esc(iconUrl('Divine Orb'))}" alt="">` : ''}${nf(ex, 0)} ex` : '—';
+    $('kRateSub').textContent = ch ? `${nf(ch, 1)} chaos` : '—';
+    $('kFresh').textContent = P ? ago(P.fetchedAt) : '—';
+    $('kFresh').classList.toggle('old', !!P && Date.now() - P.fetchedAt > 3 * 3600000);
+    $('kFreshSub').textContent = P ? `${lines.length} prix · ${P.league}` : 'mis à jour toutes les heures';
+  }
+
+  function renderWatch() {
+    $('watchCount').textContent = watch.length ? `· ${watch.length}` : '';
+    if (!watch.length) { $('watchList').innerHTML = `<div class="anote">Ajoute des objets depuis l'onglet Prix (étoile ☆) pour suivre leur cours.</div>`; return; }
+    $('watchList').innerHTML = watch.map(k => {
+      const l = byKey.get(k);
+      if (!l) return `<button class="wrow" data-k="${esc(k)}"><span></span><span class="nm">${esc(k.split('|')[1])}</span><span class="v">—</span><span class="ct">absent de cette ligue</span></button>`;
+      const c = change7(l);
+      return `<button class="wrow${selected === k ? ' sel' : ''}" data-k="${esc(k)}">${lineIcon(l) ? `<img src="${esc(lineIcon(l))}" alt="">` : '<span></span>'}<span class="nm r${rcls(lineRarity(l))}">${esc(l.name)}${l.cr ? ' (corrompu)' : ''}</span><span class="v">${fmt(l.v)}</span><span class="ct">${CAT_FR[l.type] || l.type}${typeof c === 'number' ? ` · <span class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${nf(c, 1)} % / 7 j</span>` : ''}</span></button>`;
+    }).join('');
+    $('watchList').querySelectorAll('.wrow').forEach(b => b.onclick = () => { selected = b.dataset.k; if (tab !== 'prices') setTab('prices', true); renderView(); renderDetail(); renderWatch(); });
+  }
+
+  function fillCats() {
+    const cur = $('cat').value;
+    if (tab === 'mine') $('cat').innerHTML = '<option value="">Toutes sources</option><option value="listed">En vente</option><option value="paste">Collés</option>';
+    else $('cat').innerHTML = '<option value="">Toutes catégories</option>' + [...new Set(lines.map(l => l.type))].map(t => `<option value="${esc(t)}">${esc(CAT_FR[t] || t)}</option>`).join('');
+    if ([...$('cat').options].some(o => o.value === cur)) $('cat').value = cur;
+  }
+  function setTab(t, keepSel) {
+    tab = t;
+    $('tMine').classList.toggle('on', t === 'mine'); $('tMine').setAttribute('aria-selected', String(t === 'mine'));
+    $('tPrices').classList.toggle('on', t === 'prices'); $('tPrices').setAttribute('aria-selected', String(t === 'prices'));
+    $('q').value = ''; fillCats(); $('cat').value = '';
+    if (!keepSel) selected = null;
+    renderView(); renderDetail();
+  }
+
+  const matchQ = (q, ...f) => !q || f.some(x => String(x || '').toLowerCase().includes(q));
+  function renderView() {
+    $('nMine').textContent = mine().length || '';
+    $('nPrices').textContent = lines.length || '';
+    const q = $('q').value.trim().toLowerCase(), cat = $('cat').value;
+    if (tab === 'mine') {
+      const all = mine();
+      if (!all.length) {
+        $('count').textContent = '';
+        $('view').innerHTML = `<div class="empty"><h2>Aucun objet pour ${esc(league || 'cette ligue')}</h2>
+          <p>GGG ne publie pas les coffres PoE2 : la page ne peut pas les lire. Ajoute tes objets en les copiant en jeu (<kbd>Ctrl</kbd>+<kbd>C</kbd> puis <kbd>Ctrl</kbd>+<kbd>V</kbd> ici), ou récupère ceux que tu as mis en vente dans des onglets publics.</p>
+          <div class="acts"><button class="btn" id="eaPaste"><svg class="i"><use href="#i-paste"/></svg>Coller un objet</button><button class="btn primary" id="eaListed" ${bridge ? '' : 'disabled title="Installe le script Violentmonkey"'}><svg class="i"><use href="#i-refresh"/></svg>Mes ventes</button></div></div>`;
+        $('eaPaste').onclick = openPaste; $('eaListed').onclick = askListed;
+        return;
+      }
+      const rows = all.filter(it => (!cat || it.src === cat) && matchQ(q, it.name, it.base, ...it.mods.ex)).map(it => ({ it, v: valueOf(it), lp: listPrice(it) }))
+        .sort((a, b) => ((b.v ? b.v.total : 0) - (a.v ? a.v.total : 0)) || (b.lp - a.lp));
+      const sum = rows.reduce((a, r) => a + (r.v ? r.v.total : 0), 0);
+      $('count').innerHTML = `<b>${rows.length}</b> objet${rows.length > 1 ? 's' : ''} · valeur poe.ninja <b>${fmt(sum)}</b>`;
+      $('view').innerHTML = `<table><thead><tr><th></th><th>Objet</th><th>Source</th><th class="num">Qté</th><th class="num">Prix poe.ninja</th><th class="num">Prix demandé</th><th></th></tr></thead><tbody>${rows.map(({ it, v }) => {
+        const ic = it.icon || (v && lineIcon(v.line)) || iconUrl(it.base);
+        const ask = askTxt(it);
+        return `<tr class="it${selected === it.id ? ' sel' : ''}" data-id="${esc(it.id)}"><td><div class="icw">${ic ? `<img src="${esc(ic)}" alt="" loading="lazy">` : ''}</div></td>
+          <td><div class="nm1 r${rcls(it.rarity)}">${esc(it.name || it.base)}${it.corrupted ? '<span class="tag corr">corrompu</span>' : ''}</div>${it.name && it.name !== it.base ? `<div class="base">${esc(it.base)}</div>` : ''}</td>
+          <td>${it.src === 'listed' ? `<span class="tag sale">en vente</span>${it.listing && it.listing.stash ? `<div class="base">${esc(it.listing.stash.name)}</div>` : ''}` : `<span class="tag">collé</span><div class="base">${it.at ? ago(it.at) : ''}</div>`}</td>
+          <td class="num">${it.qty > 1 ? nf(it.qty, 0) : ''}</td>
+          <td class="num price">${v ? `${fmt(v.total)}${it.qty > 1 ? `<small>${fmt(v.unit)} l'unité</small>` : ''}` : '<span class="base">non coté</span>'}</td>
+          <td class="num">${esc(ask.main)}${ask.sub ? `<small class="base" style="display:block">${ask.sub}</small>` : ''}</td>
+          <td>${it.src === 'paste' ? `<button class="del" data-del="${esc(it.id)}" title="Retirer cet objet" aria-label="Retirer ${esc(it.name || it.base)}"><svg class="i"><use href="#i-trash"/></svg></button>` : ''}</td></tr>`;
+      }).join('')}</tbody></table>`;
+      $('view').querySelectorAll('tr.it').forEach(tr => tr.onclick = e => { if (e.target.closest('[data-del]')) return; selected = tr.dataset.id; renderView(); renderDetail(); });
+      $('view').querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+        pasted[league] = pastedHere().filter(x => x.id !== b.dataset.del); store.set('poe2Items', pasted);
+        if (selected === b.dataset.del) selected = null;
+        renderAll();
+      });
+      return;
+    }
+    if (!P) { $('count').textContent = ''; $('view').innerHTML = `<div class="empty"><h2>Prix indisponibles</h2><p>Les prix PoE2 de cette ligue ne sont pas encore publiés.</p></div>`; return; }
+    const rows = lines.filter(l => (!cat || l.type === cat) && matchQ(q, l.name, l.base)).sort((a, b) => b.v - a.v);
+    const shownRows = rows.slice(0, 300);
+    $('count').innerHTML = `<b>${rows.length}</b> prix${rows.length > shownRows.length ? ` · 300 premiers affichés, affine la recherche` : ''} · ☆ pour surveiller`;
+    $('view').innerHTML = `<table><thead><tr><th></th><th>Objet</th><th>Catégorie</th><th class="num">Annonces</th><th class="num">7 j</th><th class="num">Prix</th><th></th></tr></thead><tbody>${shownRows.map(l => {
+      const c = change7(l), ic = lineIcon(l), low = l.sec === 'items' && l.n < 3;
+      return `<tr class="it${selected === l.k ? ' sel' : ''}" data-k="${esc(l.k)}"><td><div class="icw">${ic ? `<img src="${esc(ic)}" alt="" loading="lazy">` : ''}</div></td>
+        <td><div class="nm1 r${rcls(lineRarity(l))}">${esc(l.name)}${l.cr ? '<span class="tag corr">corrompu</span>' : ''}${l.var && l.type === 'PrecursorTablets' ? `<span class="tag">${esc(l.var)}</span>` : ''}</div>${l.base && l.base !== l.name ? `<div class="base">${esc(l.base)}</div>` : ''}</td>
+        <td class="base">${esc(CAT_FR[l.type] || l.type)}</td>
+        <td class="num">${l.sec === 'items' ? `${nf(l.n, 0)}${low ? ' <span class="tag low" title="Trop peu d\'annonces : prix peu fiable">peu fiable</span>' : ''}` : ''}</td>
+        <td class="num">${typeof c === 'number' ? `<span class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${nf(c, 1)} %</span>` : ''}</td>
+        <td class="num price">${fmt(l.v)}</td>
+        <td><button class="star${watch.includes(l.k) ? ' on' : ''}" data-w="${esc(l.k)}" aria-pressed="${watch.includes(l.k)}" title="${watch.includes(l.k) ? 'Ne plus surveiller' : 'Surveiller ce prix'}">${watch.includes(l.k) ? '★' : '☆'}</button></td></tr>`;
+    }).join('')}</tbody></table>`;
+    $('view').querySelectorAll('tr.it').forEach(tr => tr.onclick = e => { if (e.target.closest('[data-w]')) return; selected = tr.dataset.k; renderView(); renderDetail(); renderWatch(); });
+    $('view').querySelectorAll('[data-w]').forEach(b => b.onclick = () => toggleWatch(b.dataset.w));
+  }
+  function toggleWatch(k) {
+    watch = watch.includes(k) ? watch.filter(x => x !== k) : [...watch, k];
+    store.set('poe2Watch', watch);
+    renderView(); renderWatch(); renderDetail();
+  }
+
+  function renderDetail() {
+    const box = $('detail');
+    if (!selected) { box.innerHTML = '<div class="placeholder">Clique sur un objet ou un prix pour voir son détail et son historique.</div>'; return; }
+    let it = null, l = null;
+    if (tab === 'mine' || selected.startsWith('t:') || selected.startsWith('p:')) it = mine().find(x => x.id === selected);
+    if (!it) l = byKey.get(selected);
+    if (!it && !l) { box.innerHTML = '<div class="placeholder">Objet introuvable dans cette ligue.</div>'; return; }
+    if (it) {
+      const v = valueOf(it); l = v && v.line;
+      const ic = it.icon || (l && lineIcon(l)) || iconUrl(it.base);
+      const mods = [...it.mods.en.map(m => `<div class="mod en">${esc(m)}</div>`), ...it.mods.rn.map(m => `<div class="mod rn">${esc(m)}</div>`)].join('');
+      box.innerHTML = `<div class="card"><div class="hd f${rcls(it.rarity)}">${it.name && it.name !== it.base ? `<div class="n r${rcls(it.rarity)}">${esc(it.name)}</div>` : ''}<div class="t r${rcls(it.rarity)}">${esc(it.base)}</div>${l ? `<button class="star${watch.includes(l.k) ? ' on' : ''}" data-w="${esc(l.k)}" title="Surveiller ce prix">${watch.includes(l.k) ? '★' : '☆'}</button>` : ''}</div>
+        ${ic ? `<div class="art"><img src="${esc(ic)}" alt=""></div>` : ''}
+        <div class="bd"><div class="sec">${it.props.map(p => `<div class="prop">${esc(p)}</div>`).join('')}${it.ilvl ? `<div class="prop">Item Level: <b>${it.ilvl}</b></div>` : ''}${it.qty > 1 ? `<div class="prop">Quantité : <b>${nf(it.qty, 0)}</b></div>` : ''}</div>
+        <div class="sec">${mods}</div><div class="sec">${it.mods.im.map(m => `<div class="mod im">${esc(m)}</div>`).join('')}</div><div class="sec">${it.mods.ex.map(m => `<div class="mod">${esc(m)}</div>`).join('')}</div>
+        ${it.corrupted ? '<div class="sec"><div class="corrtxt">Corrupted</div></div>' : ''}</div></div>
+        <div class="pricebox${v ? '' : ' none'}"><div class="lb">Prix poe.ninja</div><div class="v">${v ? fmtBoth(v.total) : '—'}</div>
+          <div class="s">${v ? `${it.qty > 1 ? `${fmt(v.unit)} l'unité · ` : ''}${l.sec === 'items' ? `${nf(l.n, 0)} annonces` : 'marché des monnaies'}` : it.rarity === 'Rare' || it.rarity === 'Magic' ? "Les objets rares et magiques n'ont pas de prix poe.ninja." : "Objet absent des prix poe.ninja de cette ligue."}</div>
+          ${askTxt(it).main ? `<div class="row"><span>Ton prix demandé</span><b>${esc(askTxt(it).main)}${askTxt(it).sub ? ` · ${askTxt(it).sub}` : ''}</b></div>` : ''}
+          ${it.listing && it.listing.stash ? `<div class="row"><span>Onglet</span><span>${esc(it.listing.stash.name)}</span></div>` : ''}
+          ${l ? chartHtml(l.k) : ''}</div>`;
+    } else {
+      const c = change7(l), ic = lineIcon(l);
+      box.innerHTML = `<div class="card"><div class="hd f${rcls(lineRarity(l))}"><div class="n r${rcls(lineRarity(l))}">${esc(l.name)}</div>${l.base && l.base !== l.name ? `<div class="t r${rcls(lineRarity(l))}">${esc(l.base)}</div>` : ''}<button class="star${watch.includes(l.k) ? ' on' : ''}" data-w="${esc(l.k)}" title="${watch.includes(l.k) ? 'Ne plus surveiller' : 'Surveiller ce prix'}">${watch.includes(l.k) ? '★' : '☆'}</button></div>
+        ${ic ? `<div class="art"><img src="${esc(ic)}" alt=""></div>` : ''}
+        <div class="bd"><div class="sec"><div class="prop">${esc(CAT_FR[l.type] || l.type)}${l.var ? ` · ${esc(l.var)}` : ''}${l.cr ? ' · <span class="corrtxt">corrompu</span>' : ''}${l.lvl ? ` · niveau ${l.lvl}` : ''}</div></div></div></div>
+        <div class="pricebox"><div class="lb">Prix poe.ninja</div><div class="v">${fmtBoth(l.v)}</div>
+          <div class="s">${l.sec === 'items' ? `${nf(l.n, 0)} annonces${l.n < 3 ? ' · prix peu fiable' : ''}` : `marché des monnaies${l.vol ? ` · volume ${fmt(l.vol)}` : ''}`}${typeof c === 'number' ? ` · <span class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${nf(c, 1)} % sur 7 j</span>` : ''}</div>
+          ${chartHtml(l.k)}</div>`;
+    }
+    box.querySelectorAll('[data-w]').forEach(b => b.onclick = () => toggleWatch(b.dataset.w));
+    box.querySelectorAll('.rng button').forEach(b => b.onclick = () => { range = b.dataset.r; renderDetail(); });
+  }
+
+  function renderAll() { fillCats(); renderKpis(); renderWatch(); renderView(); renderDetail(); }
+
+  // =================== Coller un objet ===================
+  function openPaste() { $('pErr').textContent = ''; $('pText').value = ''; $('pModal').hidden = false; $('pText').focus(); }
+  function closePaste() { $('pModal').hidden = true; $('pasteBtn').focus(); }
+  $('pasteBtn').onclick = openPaste;
+  $('pClose').onclick = $('pCancel').onclick = closePaste;
+  $('pModal').addEventListener('click', e => { if (e.target === $('pModal')) closePaste(); });
+  $('pAdd').onclick = () => {
+    try { addPasted($('pText').value); closePaste(); }
+    catch (e) { $('pErr').textContent = `Objet illisible : ${e.message}`; }
+  };
+  const inField = e => e.target instanceof Element && !!e.target.closest('input,textarea,select');
+  document.addEventListener('paste', e => {
+    if (!$('pModal').hidden || inField(e)) return;
+    const t = e.clipboardData && e.clipboardData.getData('text');
+    if (!t || !/Rarity:/.test(t)) return;
+    e.preventDefault();
+    try { addPasted(t); } catch (err) { status(`Objet illisible : ${err.message}`, true); }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('pModal').hidden) closePaste();
+    if (e.key === '/' && !inField(e)) { e.preventDefault(); $('q').focus(); }
+  });
+
+  // icône introuvable (image retirée de poecdn) : on la masque plutôt que d'afficher une image cassée
+  document.addEventListener('error', e => { if (e.target instanceof HTMLImageElement) e.target.style.visibility = 'hidden'; }, true);
+
+  // =================== Interface ===================
+  $('league').onchange = () => { league = $('league').value; store.set('poe2League', league); selected = null; loadPrices(); };
+  $('tMine').onclick = () => setTab('mine');
+  $('tPrices').onclick = () => setTab('prices');
+  $('watchAdd').onclick = () => { setTab('prices'); $('q').focus(); };
+  $('q').oninput = renderView;
+  $('cat').onchange = renderView;
+  $('listedBtn').onclick = askListed;
+  function askListed() {
+    if (!bridge) return status('Installe le script Violentmonkey pour lire tes ventes.', true);
+    if (vnum(scriptVersion) < vnum(REQ_SCRIPT)) return status(`Mets à jour le script Violentmonkey (v${REQ_SCRIPT} requise).`, true);
+    $('listedBtn').disabled = true; $('listedBtn').classList.add('spin');
+    status('Ventes PoE2 : demande envoyée…', false, true);
+    cmd('listed2', { league });
+  }
+
+  // =================== Pont avec le userscript ===================
+  const cmd = (c, d) => window.postMessage(JSON.stringify({ src: 'poe-viewer', cmd: c, data: d }), '*');
+  const scriptInst = new Map();
+  window.addEventListener('message', ev => {
+    if (ev.source !== window || typeof ev.data !== 'string') return;
+    let m; try { m = JSON.parse(ev.data); } catch { return; }
+    if (!m || m.src !== 'poe-us') return;
+    switch (m.type) {
+      case 'ready':
+        scriptInst.set(m.data.inst || `old-${m.data.version}`, m.data);
+        if (scriptInst.size > 1) status(`Deux copies du script Violentmonkey sont actives (${[...scriptInst.values()].map(x => `v${x.version}`).join(' et ')}). Supprime l'ancienne dans ton gestionnaire de scripts.`, true);
+        if (bridge && vnum(m.data.version) <= vnum(scriptVersion)) return;
+        bridge = true; scriptVersion = m.data.version;
+        $('dot').classList.add('on');
+        $('scriptLed').title = `Script Violentmonkey v${m.data.version} connecté`;
+        $('ledTxt').textContent = `Script v${m.data.version}`;
+        $('listedBtn').disabled = false;
+        if (vnum(m.data.version) < vnum(REQ_SCRIPT)) {
+          $('updBar').hidden = false;
+          $('updBar').innerHTML = `Ton script Violentmonkey (v${esc(m.data.version)}) ne gère pas PoE2 (v${REQ_SCRIPT} requise). <a href="poe-stash-scanner.user.js">Mettre à jour le script</a>, puis recharge la page.`;
+        } else $('updBar').hidden = true;
+        renderAll();
+        break;
+      case 'settings':
+        settings = m.data || {};
+        $('listedBtn').title = settings.account ? `Lit les annonces de ${settings.account} sur le site de trade PoE2 (onglets publics)` : 'Ouvre le panneau Coffres sur pathofexile.com une fois pour détecter ton compte';
+        break;
+      case 'listed2':
+        try {
+          listed = JSON.parse(m.data);
+          store.set('poe2Listed', listed);
+          if (listed.league !== league && leagues.some(l => l.id === listed.league)) status(`Ventes lues pour ${listed.league}, différente de la ligue affichée.`);
+          renderAll();
+        } catch (e) { console.warn('[Coffres] ventes reçues illisibles', e); }
+        break;
+      case 'status':
+        if (m.data.error || m.data.done) { $('listedBtn').disabled = !bridge; $('listedBtn').classList.remove('spin'); }
+        status(m.data.msg, !!m.data.error, !m.data.error && !m.data.done && typeof m.data.p === 'number');
+        break;
+    }
+  });
+  let hellos = 0;
+  const hello = setInterval(() => { if (bridge || ++hellos > 20) return clearInterval(hello); cmd('hello'); }, 500);
+  cmd('hello');
+
+  renderAll();
+  loadLeagues();
+  if (ONLINE) setInterval(() => { if (leagues.length) loadPrices(); }, 15 * 60000);
+  window.__poe2 = { parseItemText, lineFor };
+})();
+</script>
+</body>
+</html>

@@ -24,16 +24,21 @@ jobs:
         run: node tools/build-userscript.mjs --check
       - name: Tests poe.ninja
         run: node tools/test-ninja.mjs
+      - name: Tests données PoE2
+        run: node tools/test-poe2.mjs
       - name: Protocole page ↔ script documenté
         run: node tools/test-protocol.mjs
       - name: Installer Playwright et Chromium
         run: npm install --no-audit --no-fund && npx playwright install --with-deps chromium
-      - name: Test de la page
+      - name: Test de la page PoE1
         run: node tools/test-page.mjs
+      - name: Test de la page PoE2
+        if: success() || failure()
+        run: node tools/test-page2.mjs
       - name: Capture en cas d'échec
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: capture-echec
-          path: /tmp/coffres-test-echec.png
+          path: /tmp/coffres*-test-echec.png
           if-no-files-found: ignore

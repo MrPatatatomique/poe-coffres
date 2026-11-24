@@ -1,0 +1,707 @@
+{
+ "exchange": {
+  "Currency": {
+   "core": {
+    "items": [
+     {
+      "id": "divine",
+      "name": "Divine Orb",
+      "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lNb2RWYWx1ZXMiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/2986e220b3/CurrencyModValues.png",
+      "category": "Currency",
+      "detailsId": "divine-orb"
+     },
+     {
+      "id": "exalted",
+      "name": "Exalted Orb",
+      "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb1JhcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/ad7c366789/CurrencyAddModToRare.png",
+      "category": "Currency",
+      "detailsId": "exalted-orb"
+     },
+     {
+      "id": "chaos",
+      "name": "Chaos Orb",
+      "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxSYXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c0ca392a78/CurrencyRerollRare.png",
+      "category": "Currency",
+      "detailsId": "chaos-orb"
+     }
+    ],
+    "rates": {
+     "exalted": 471.8,
+     "chaos": 15.58
+    },
+    "primary": "divine",
+    "secondary": "chaos"
+   },
+   "lines": [
+    {
+     "id": "alch",
+     "primaryValue": 0.01369,
+     "volumePrimaryValue": 43.83,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 73.07,
+     "sparkline": {
+      "totalChange": 48.95,
+      "data": [
+       -3.75,
+       -3.4,
+       -7.67,
+       39.81,
+       19.22,
+       29.14,
+       48.95
+      ]
+     }
+    },
+    {
+     "id": "exalted",
+     "primaryValue": 0.00212,
+     "volumePrimaryValue": 217.8,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 471.8,
+     "sparkline": {
+      "totalChange": 5.44,
+      "data": [
+       2.06,
+       -1.61,
+       0.48,
+       11.21,
+       8.34,
+       10.74,
+       5.44
+      ]
+     }
+    },
+    {
+     "id": "chaos",
+     "primaryValue": 0.06417,
+     "volumePrimaryValue": 10874,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 15.58,
+     "sparkline": {
+      "totalChange": -31.23,
+      "data": [
+       1.99,
+       -5.74,
+       -6.73,
+       -6.92,
+       -11.19,
+       -19.85,
+       -31.23
+      ]
+     }
+    },
+    {
+     "id": "divine",
+     "primaryValue": 1,
+     "volumePrimaryValue": 10874,
+     "maxVolumeCurrency": "chaos",
+     "maxVolumeRate": 0.06417,
+     "sparkline": {
+      "totalChange": 45.41,
+      "data": [
+       -1.95,
+       6.22,
+       7.23,
+       7.43,
+       12.69,
+       24.78,
+       45.41
+      ]
+     }
+    },
+    {
+     "id": "annul",
+     "primaryValue": 0.2201,
+     "volumePrimaryValue": 1072,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 4.54,
+     "sparkline": {
+      "totalChange": -31.49,
+      "data": [
+       4.42,
+       -5.78,
+       -17.8,
+       -17.33,
+       -21.19,
+       -25.49,
+       -31.49
+      ]
+     }
+    },
+    {
+     "id": "aug",
+     "primaryValue": 0.002147,
+     "volumePrimaryValue": 6.83,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 465.9,
+     "sparkline": {
+      "totalChange": 2.71,
+      "data": [
+       0.36,
+       -8.75,
+       -2.57,
+       -2.72,
+       -15.47,
+       -15.66,
+       2.71
+      ]
+     }
+    },
+    {
+     "id": "regal",
+     "primaryValue": 0.008187,
+     "volumePrimaryValue": 10.5,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 122.1,
+     "sparkline": {
+      "totalChange": -37.72,
+      "data": [
+       -40.92,
+       -33.24,
+       -34.15,
+       -30.16,
+       -33.66,
+       -53.41,
+       -37.72
+      ]
+     }
+    },
+    {
+     "id": "transmute",
+     "primaryValue": 0.002286,
+     "volumePrimaryValue": 1,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 437.5,
+     "sparkline": {
+      "totalChange": -52.12,
+      "data": [
+       2.58,
+       -12.38,
+       -29.63,
+       -31.57,
+       -9.15,
+       -37.71,
+       -52.12
+      ]
+     }
+    },
+    {
+     "id": "vaal",
+     "primaryValue": 0.01588,
+     "volumePrimaryValue": 414.3,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 62.99,
+     "sparkline": {
+      "totalChange": -27.46,
+      "data": [
+       -15.89,
+       -25.02,
+       -23.43,
+       -15.85,
+       -17.66,
+       -21.86,
+       -27.46
+      ]
+     }
+    },
+    {
+     "id": "wisdom",
+     "primaryValue": 2.58e-05,
+     "volumePrimaryValue": 0.09892,
+     "maxVolumeCurrency": "exalted",
+     "maxVolumeRate": 82.16,
+     "sparkline": {
+      "totalChange": -41.01,
+      "data": [
+       46.75,
+       125,
+       51.04,
+       45.99,
+       33.78,
+       6.16,
+       -41.01
+      ]
+     }
+    }
+   ],
+   "items": [
+    {
+     "id": "alch",
+     "name": "Orb of Alchemy",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlVG9SYXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/9b80b44821/CurrencyUpgradeToRare.png",
+     "category": "Currency",
+     "detailsId": "orb-of-alchemy"
+    },
+    {
+     "id": "exalted",
+     "name": "Exalted Orb",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb1JhcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/ad7c366789/CurrencyAddModToRare.png",
+     "category": "Currency",
+     "detailsId": "exalted-orb"
+    },
+    {
+     "id": "chaos",
+     "name": "Chaos Orb",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lSZXJvbGxSYXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c0ca392a78/CurrencyRerollRare.png",
+     "category": "Currency",
+     "detailsId": "chaos-orb"
+    },
+    {
+     "id": "divine",
+     "name": "Divine Orb",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lNb2RWYWx1ZXMiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/2986e220b3/CurrencyModValues.png",
+     "category": "Currency",
+     "detailsId": "divine-orb"
+    },
+    {
+     "id": "annul",
+     "name": "Orb of Annulment",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQW5udWxsT3JiIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/2daba8ccca/AnnullOrb.png",
+     "category": "Currency",
+     "detailsId": "orb-of-annulment"
+    },
+    {
+     "id": "aug",
+     "name": "Orb of Augmentation",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lBZGRNb2RUb01hZ2ljIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/c8ad0ddc84/CurrencyAddModToMagic.png",
+     "category": "Currency",
+     "detailsId": "orb-of-augmentation"
+    },
+    {
+     "id": "regal",
+     "name": "Regal Orb",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlTWFnaWNUb1JhcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/e8fb148e80/CurrencyUpgradeMagicToRare.png",
+     "category": "Currency",
+     "detailsId": "regal-orb"
+    },
+    {
+     "id": "transmute",
+     "name": "Orb of Transmutation",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lVcGdyYWRlVG9NYWdpYyIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/2f8e1ff9f8/CurrencyUpgradeToMagic.png",
+     "category": "Currency",
+     "detailsId": "orb-of-transmutation"
+    },
+    {
+     "id": "vaal",
+     "name": "Vaal Orb",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lWYWFsIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/72bc84396c/CurrencyVaal.png",
+     "category": "Currency",
+     "detailsId": "vaal-orb"
+    },
+    {
+     "id": "wisdom",
+     "name": "Scroll of Wisdom",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQ3VycmVuY3lJZGVudGlmaWNhdGlvbiIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/884f7bc58b/CurrencyIdentification.png",
+     "category": "Currency",
+     "detailsId": "scroll-of-wisdom"
+    }
+   ]
+  },
+  "Essences": {
+   "lines": [
+    {
+     "id": "essence-of-battle",
+     "primaryValue": 0.1283,
+     "volumePrimaryValue": 0.02139,
+     "maxVolumeCurrency": "chaos",
+     "maxVolumeRate": 0.5,
+     "sparkline": {
+      "totalChange": 0,
+      "data": [
+       null,
+       0,
+       null,
+       null,
+       null,
+       null,
+       0
+      ]
+     }
+    },
+    {
+     "id": "essence-of-delirium",
+     "primaryValue": 2.63,
+     "volumePrimaryValue": 56.17,
+     "maxVolumeCurrency": "divine",
+     "maxVolumeRate": 0.3798,
+     "sparkline": {
+      "totalChange": 0.86,
+      "data": [
+       2.01,
+       17.62,
+       7.24,
+       9.52,
+       47.76,
+       1.9,
+       0.86
+      ]
+     }
+    }
+   ],
+   "items": [
+    {
+     "id": "essence-of-battle",
+     "name": "Essence of Battle",
+     "image": "/gen/image/x/Essence.png",
+     "category": "Essences",
+     "detailsId": "essence-of-battle"
+    },
+    {
+     "id": "essence-of-delirium",
+     "name": "Essence of Delirium",
+     "image": "/gen/image/x/Essence.png",
+     "category": "Essences",
+     "detailsId": "essence-of-delirium"
+    }
+   ]
+  },
+  "UncutGems": {
+   "lines": [
+    {
+     "id": "uncut-skill-gem-12",
+     "primaryValue": 0.0323,
+     "volumePrimaryValue": 0.1346,
+     "maxVolumeCurrency": "exalted",
+     "maxVolumeRate": 0.06562,
+     "sparkline": {
+      "totalChange": 149,
+      "data": [
+       3.14,
+       -38.71,
+       27.88,
+       172,
+       196.2,
+       45.79,
+       149
+      ]
+     }
+    },
+    {
+     "id": "uncut-skill-gem-14",
+     "primaryValue": 0.002088,
+     "volumePrimaryValue": 0.02367,
+     "maxVolumeCurrency": "exalted",
+     "maxVolumeRate": 1.01,
+     "sparkline": {
+      "totalChange": -44.36,
+      "data": [
+       33.48,
+       162.2,
+       54.23,
+       -23.14,
+       -52.73,
+       -15,
+       -44.36
+      ]
+     }
+    },
+    {
+     "id": "uncut-skill-gem-15",
+     "primaryValue": 0.001542,
+     "volumePrimaryValue": 0.01978,
+     "maxVolumeCurrency": "exalted",
+     "maxVolumeRate": 1.38,
+     "sparkline": {
+      "totalChange": -91.77,
+      "data": [
+       -43.71,
+       -31.67,
+       -20.41,
+       -13.79,
+       -55.09,
+       13.06,
+       -91.77
+      ]
+     }
+    }
+   ],
+   "items": [
+    {
+     "id": "uncut-skill-gem-12",
+     "name": "Uncut Skill Gem (Level 12)",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9VbmN1dFNraWxsR2VtIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/97f0ceba15/UncutSkillGem.png",
+     "category": "UncutGems",
+     "detailsId": "uncut-skill-gem-level-12"
+    },
+    {
+     "id": "uncut-skill-gem-14",
+     "name": "Uncut Skill Gem (Level 14)",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9VbmN1dFNraWxsR2VtIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/97f0ceba15/UncutSkillGem.png",
+     "category": "UncutGems",
+     "detailsId": "uncut-skill-gem-level-14"
+    },
+    {
+     "id": "uncut-skill-gem-15",
+     "name": "Uncut Skill Gem (Level 15)",
+     "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9VbmN1dFNraWxsR2VtIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/97f0ceba15/UncutSkillGem.png",
+     "category": "UncutGems",
+     "detailsId": "uncut-skill-gem-level-15"
+    }
+   ]
+  }
+ },
+ "items": {
+  "UniqueAccessories": {
+   "lines": [
+    {
+     "id": 360,
+     "itemId": "The Gnashing Sash Wide Belt",
+     "detailsId": "the-gnashing-sash-wide-belt",
+     "name": "The Gnashing Sash",
+     "baseType": "Wide Belt",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9HbmFzaGluZ1Nhc2giLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/c996ea805c/GnashingSash.png",
+     "levelRequired": 60,
+     "category": "Belt",
+     "primaryValue": 3790,
+     "listingCount": 5,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": 0,
+      "data": [
+       null,
+       0,
+       0,
+       null,
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    {
+     "id": 527,
+     "itemId": "Mageblood Utility Belt",
+     "detailsId": "mageblood-utility-belt",
+     "name": "Mageblood",
+     "baseType": "Utility Belt",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9NYWdlYmxvb2QiLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/79ac3ce7d3/Mageblood.png",
+     "levelRequired": 55,
+     "category": "Belt",
+     "primaryValue": 125,
+     "listingCount": 6558,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -3.85,
+      "data": [
+       null,
+       0,
+       -12.38,
+       null,
+       -15.38,
+       -15.38,
+       -3.85
+      ]
+     }
+    },
+    {
+     "id": 356,
+     "itemId": "Bursting Decay Unset Ring",
+     "detailsId": "bursting-decay-unset-ring",
+     "name": "Bursting Decay",
+     "baseType": "Unset Ring",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVW5pcXVlcy9CdXJzdGluZ0RlY2F5IiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/2781601a75/BurstingDecay.png",
+     "levelRequired": 60,
+     "category": "Ring",
+     "primaryValue": 98,
+     "listingCount": 17,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -13.27,
+      "data": [
+       null,
+       0,
+       -11.5,
+       null,
+       -11.5,
+       -1.95,
+       -13.27
+      ]
+     }
+    },
+    {
+     "id": 549,
+     "itemId": "Eshtera's Path Ring",
+     "detailsId": "eshteras-path-ring",
+     "name": "Eshtera's Path",
+     "baseType": "Ring",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVW5pcXVlcy9SaW1ldmVpbFNlYWwiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/d80ec95524/RimeveilSeal.png",
+     "levelRequired": 40,
+     "category": "Ring",
+     "primaryValue": 64.6,
+     "listingCount": 29,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -7.05,
+      "data": [
+       null,
+       0,
+       0,
+       null,
+       0.72,
+       -0.72,
+       -7.05
+      ]
+     }
+    },
+    {
+     "id": 9999,
+     "itemId": "Mageblood Utility Belt",
+     "detailsId": "mageblood-utility-belt",
+     "name": "Mageblood",
+     "baseType": "Utility Belt",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9NYWdlYmxvb2QiLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/79ac3ce7d3/Mageblood.png",
+     "levelRequired": 55,
+     "category": "Belt",
+     "primaryValue": 150,
+     "listingCount": 12,
+     "corrupted": true,
+     "sparkLine": {
+      "totalChange": -3.85,
+      "data": [
+       null,
+       0,
+       -12.38,
+       null,
+       -15.38,
+       -15.38,
+       -3.85
+      ]
+     }
+    },
+    {
+     "id": 9998,
+     "itemId": "Mageblood Utility Belt",
+     "detailsId": "mageblood-utility-belt",
+     "name": "Mageblood",
+     "baseType": "Utility Belt",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9NYWdlYmxvb2QiLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/79ac3ce7d3/Mageblood.png",
+     "levelRequired": 55,
+     "category": "Belt",
+     "primaryValue": 90,
+     "listingCount": 3,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -3.85,
+      "data": [
+       null,
+       0,
+       -12.38,
+       null,
+       -15.38,
+       -15.38,
+       -3.85
+      ]
+     }
+    }
+   ]
+  },
+  "PrecursorTablets": {
+   "lines": [
+    {
+     "id": 735,
+     "itemId": "Abyss Tablet Abyss Tablet Rare",
+     "detailsId": "abyss-tablet-abyss-tablet-rare",
+     "name": "Abyss Tablet",
+     "baseType": "Abyss Tablet",
+     "variant": "Rare",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRBYnlzcyIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/478e9f6ae2/PrecursorTabletAbyss.png",
+     "levelRequired": 0,
+     "category": "Tablet",
+     "primaryValue": 0.7456,
+     "listingCount": 10000,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -1.83,
+      "data": [
+       null,
+       0,
+       -16.57,
+       null,
+       0.04,
+       -3.4,
+       -1.83
+      ]
+     }
+    },
+    {
+     "id": 752,
+     "itemId": "Temple Tablet Temple Tablet Rare",
+     "detailsId": "temple-tablet-temple-tablet-rare",
+     "name": "Temple Tablet",
+     "baseType": "Temple Tablet",
+     "variant": "Rare",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRJbmN1cnNpb24iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/9beb68ac5d/PrecursorTabletIncursion.png",
+     "levelRequired": 0,
+     "category": "Tablet",
+     "primaryValue": 0.5985,
+     "listingCount": 10000,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -13.31,
+      "data": [
+       null,
+       0,
+       -43.33,
+       null,
+       4.55,
+       6.26,
+       -13.31
+      ]
+     }
+    },
+    {
+     "id": 751,
+     "itemId": "Temple Tablet Temple Tablet Magic",
+     "detailsId": "temple-tablet-temple-tablet-magic",
+     "name": "Temple Tablet",
+     "baseType": "Temple Tablet",
+     "variant": "Magic",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRJbmN1cnNpb24iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/9beb68ac5d/PrecursorTabletIncursion.png",
+     "levelRequired": 0,
+     "category": "Tablet",
+     "primaryValue": 0.513,
+     "listingCount": 7786,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": -0.93,
+      "data": [
+       null,
+       0,
+       -32.7,
+       null,
+       4.81,
+       15.82,
+       -0.93
+      ]
+     }
+    },
+    {
+     "id": 742,
+     "itemId": "Irradiated Tablet Irradiated Tablet Normal",
+     "detailsId": "irradiated-tablet-irradiated-tablet-normal",
+     "name": "Irradiated Tablet",
+     "baseType": "Irradiated Tablet",
+     "variant": "Normal",
+     "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRHZW5lcmljIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/4fbc73f060/PrecursorTabletGeneric.png",
+     "levelRequired": 0,
+     "category": "Tablet",
+     "primaryValue": 0.4942,
+     "listingCount": 3336,
+     "corrupted": false,
+     "sparkLine": {
+      "totalChange": 186.3,
+      "data": [
+       null,
+       0,
+       -35.76,
+       null,
+       -47.6,
+       -36.25,
+       186.3
+      ]
+     }
+    }
+   ]
+  }
+ }
+}

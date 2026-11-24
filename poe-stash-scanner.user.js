@@ -6,12 +6,14 @@
 // @supportURL   https://github.com/MrPatatatomique/poe-coffres/issues
 // @updateURL    https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
 // @downloadURL  https://mrpatatatomique.github.io/poe-coffres/poe-stash-scanner.user.js
-// @version      2.8.1
-// @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus)
+// @version      2.9.0
+// @description  Scanne les coffres PoE1, garde le dernier scan et alimente la page coffres-poe1.html (prix poe.ninja inclus) ; lit tes objets en vente PoE2 pour coffres-poe2.html
 // @match        https://www.pathofexile.com/*
 // @match        file:///*coffres-poe1*.html*
 // @match        *://*/*coffres-poe1*.html*
-// @include      /^https?:\/\/(localhost|127\.0\.0\.1|[\d.]+)(:\d+)?\/.*coffres-poe1[^/]*\.html.*$/
+// @match        file:///*coffres-poe2*.html*
+// @match        *://*/*coffres-poe2*.html*
+// @include      /^https?:\/\/(localhost|127\.0\.0\.1|[\d.]+)(:\d+)?\/.*coffres-poe[12][^/]*\.html.*$/
 // @grant        GM_xmlhttpRequest
 // @grant        GM_getValue
 // @grant        GM_setValue
@@ -149,10 +151,12 @@
 
   // ---------- Relais : la page confie scans et imports à un onglet pathofexile.com ----------
   // gggRequest {id, kind, data, at} -> l'onglet GGG accuse réception puis publie sa progression dans gggStatus {id, msg, p, error, done, at}
+  const RELAY_LABEL = { scan: 'Scan', chars: 'Personnages', listed2: 'Ventes PoE2' };
   async function relayToGGG(kind, data, report) {
     const id = Math.random().toString(36).slice(2, 10);
+    const label = RELAY_LABEL[kind] || kind;
     GM_setValue('gggRequest', { id, kind, data, at: Date.now() });
-    report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : demande transmise à l'onglet pathofexile.com…` });
+    report({ msg: `${label} : demande transmise à l'onglet pathofexile.com…` });
     let lastAt = Date.now(), acked = false, lastMsg = '';
     while (true) {
       await sleep(1000);
@@ -163,10 +167,10 @@
         if (st.done || st.error) return !st.error;
       }
       if (!acked && Date.now() - lastAt > 8000) {
-        report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : aucun onglet pathofexile.com n'a pris la demande. Ouvre pathofexile.com (connecté) dans ce navigateur, recharge-le si le script vient d'être mis à jour, puis réessaie.`, error: true });
+        report({ msg: `${label} : aucun onglet pathofexile.com n'a pris la demande. Ouvre pathofexile.com (connecté) dans ce navigateur, recharge-le si le script vient d'être mis à jour, puis réessaie.`, error: true });
         return false;
       }
-      if (acked && Date.now() - lastAt > 180000) { report({ msg: `${kind === 'scan' ? 'Scan' : 'Personnages'} : l'onglet pathofexile.com ne donne plus de nouvelles depuis 3 min.`, error: true }); return false; }
+      if (acked && Date.now() - lastAt > 180000) { report({ msg: `${label} : l'onglet pathofexile.com ne donne plus de nouvelles depuis 3 min.`, error: true }); return false; }
     }
   }
 
@@ -533,6 +537,29 @@
     return rec;
   }
 
+  // ---------- PoE2 : objets mis en vente (pas d'API de coffres PoE2 chez GGG) ----------
+  // Recherche du site de trade PoE2 filtrée sur le compte : seuls les objets des onglets publics en vente apparaissent.
+  const TRADE2 = 'https://www.pathofexile.com/api/trade2';
+  async function runListed2(report = () => {}, league = '') {
+    const account = getSettings().account;
+    if (!account) throw new Error('compte inconnu : ouvre le panneau Coffres sur pathofexile.com une fois pour qu\'il le détecte.');
+    if (!league) throw new Error('ligue PoE2 manquante.');
+    report({ msg: `Ventes PoE2 : recherche des annonces de ${account} (${league})…` });
+    const body = JSON.stringify({ query: { status: { option: 'any' }, filters: { trade_filters: { filters: { account: { input: account } } } } }, sort: { indexed: 'desc' } });
+    const search = await tradeReq('search', `${TRADE2}/search/poe2/${encodeURIComponent(league)}`, 'POST', body, report);
+    const ids = search.result || [];
+    const results = [];
+    for (let i = 0; i < ids.length; i += 10) {
+      report({ msg: `Ventes PoE2 : annonces ${Math.min(i + 10, ids.length)}/${ids.length}…`, p: ids.length ? i / ids.length : 1 });
+      const j = await tradeReq('fetch', `${TRADE2}/fetch/${ids.slice(i, i + 10).join(',')}?query=${search.id}&realm=poe2`, 'GET', null, report);
+      for (const r of j.result || []) if (r && r.item) results.push({ id: r.id, listing: { price: r.listing?.price || null, stash: r.listing?.stash || null, indexed: r.listing?.indexed || null }, item: r.item });
+    }
+    const out = { format: 'poe2-listed', at: new Date().toISOString(), account, league, total: search.total || ids.length, results };
+    GM_setValue('lastListed2', JSON.stringify(out));
+    report({ msg: `Ventes PoE2 : ${results.length} objet${results.length > 1 ? 's' : ''} en vente${out.total > results.length ? ` (sur ${out.total}, le trade n'en renvoie que 100)` : ''}.`, p: 1, done: true });
+    return out;
+  }
+
   // ---------- Rescan automatique (le premier contexte disponible s'en charge) ----------
   async function autoTick(report) {
     const mins = Number(getSettings().autoMinutes) || 0;
@@ -546,7 +573,37 @@
     if (getSettings().withChars) { try { await runChars(() => {}); } catch (e) { logErr('personnages au rescan auto', e); } }
   }
 
-  if (ON_GGG) gggPanel(); else viewerBridge();
+  const PAGE2 = /coffres-poe2/i.test(location.pathname);
+  if (ON_GGG) gggPanel(); else if (PAGE2) viewerBridge2(); else viewerBridge();
+
+  // =====================================================================
+  // Pont avec la page coffres-poe2.html (prix publiés par le dépôt ; le script ne fournit que les ventes)
+  // =====================================================================
+  function viewerBridge2() {
+    const send = (type, data) => window.postMessage(JSON.stringify({ src: 'poe-us', type, data }), '*');
+    const report = d => send('status', d);
+    const pushListed = () => { const s = GM_getValue('lastListed2', null); if (s) send('listed2', s); };
+    let greeted = false;
+    const greet = () => {
+      if (greeted) return;
+      greeted = true;
+      send('ready', { version: GM_info.script.version, inst: INSTANCE, scans: false });
+      send('settings', getSettings());
+      pushListed();
+    };
+    window.addEventListener('message', async ev => {
+      if (ev.source !== window || typeof ev.data !== 'string') return;
+      let m; try { m = JSON.parse(ev.data); } catch { return; }
+      if (!m || m.src !== 'poe-viewer') return;
+      try {
+        if (m.cmd === 'hello') greet();
+        else if (m.cmd === 'listed2') { if (await relayToGGG('listed2', { league: (m.data && m.data.league) || '' }, report)) pushListed(); }
+        else if (m.cmd === 'settings') { setSettings(m.data || {}); send('settings', getSettings()); }
+      } catch (e) { report({ msg: e.message, error: true }); }
+    });
+    GM_addValueChangeListener('lastListed2', (k, o, n, remote) => { if (remote && n) send('listed2', n); });
+    greet();
+  }
 
   // =====================================================================
   // Pont avec la page coffres-poe1.html
@@ -864,7 +921,8 @@
         GM_setValue('gggLock', { id: n.id, until: Date.now() + 60000 });
         GM_setValue('gggStatus', { id: n.id, msg: d.msg || '', p: d.p, error: !!d.error, done: false, at: Date.now() });
       };
-      relay({ msg: n.kind === 'scan' ? 'Scan pris en charge par l\'onglet pathofexile.com…' : 'Personnages : pris en charge par l\'onglet pathofexile.com…' });
+      const label = RELAY_LABEL[n.kind] || n.kind;
+      relay({ msg: `${label} : pris en charge par l'onglet pathofexile.com…` });
       let ok = true, last = '';
       try {
         if (n.kind === 'scan') {
@@ -872,12 +930,15 @@
           const scan = await runScan(relay);
           last = `Scan terminé : ${scan.items.length} objets.`;
           if (getSettings().withChars) { await runChars(relay); last += ' Personnages importés.'; }
+        } else if (n.kind === 'listed2') {
+          const out = await runListed2(relay, (n.data && n.data.league) || '');
+          last = `Ventes PoE2 : ${out.results.length} objet${out.results.length > 1 ? 's' : ''} en vente.`;
         } else {
           $('chars').disabled = true;
           const out = await runChars(relay, (n.data && n.data.league) || '');
           last = `Personnages : ${out.chars.length} importé${out.chars.length > 1 ? 's' : ''}.`;
         }
-      } catch (e) { ok = false; last = `${n.kind === 'scan' ? 'Scan' : 'Personnages'} : ${e.message}`; }
+      } catch (e) { ok = false; last = `${label} : ${e.message}`; }
       $('scan').disabled = $('load').disabled = $('chars').disabled = false;
       report({ msg: last, error: !ok, p: 1 });
       GM_setValue('gggStatus', { id: n.id, msg: last, p: 1, error: !ok, done: ok, at: Date.now() });
