@@ -101,6 +101,8 @@ export async function updatePoe2(dir) {
     console.log(`PoE2 ${lg.id} : ${fresh} lignes${p.stale.length ? ` (${p.stale.length} catégories reprises)` : ''}, historique ${st.series} séries / ${st.points} points, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   // une ligue absente de poe.ninja garde ses fichiers : la page la propose encore tant qu'ils existent
-  await writeFile(join(dir, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: leagues.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })) }));
+  // seules les ligues qui ont des prix publiés sont proposées par la page (Hardcore PoE2 n'a souvent rien sur poe.ninja)
+  const listed = leagues.filter(l => existsSync(join(dir, 'prices', `${slug(l.id)}.json`)));
+  await writeFile(join(dir, 'leagues.json'), JSON.stringify({ at: Date.now(), leagues: listed.map(l => ({ id: l.id, name: l.name, file: slug(l.id) })) }));
   console.log(`PoE2 mods du trade : ${await updateTradeStats2(dir)}`);
 }

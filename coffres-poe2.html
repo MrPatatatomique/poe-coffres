@@ -489,7 +489,8 @@
   const rcls = r => ({ Normal: 0, Magic: 1, Rare: 2, Unique: 3, Gem: 4, Currency: 5 })[r] ?? 5;
   const lineRarity = l => (l.sec === 'items' ? (l.type === 'PrecursorTablets' ? ({ Normal: 'Normal', Magic: 'Magic', Rare: 'Rare' })[l.var] || 'Normal' : 'Unique') : /Gems$/.test(l.type) ? 'Gem' : 'Currency');
   const lineIcon = l => iconUrl(l.type === 'PrecursorTablets' ? l.base : l.name);
-  const change7 = l => (Array.isArray(l.sp) ? [...l.sp].reverse().find(v => typeof v === 'number') : null);
+  // variation sur 7 j (courbe poe.ninja) ; rien pour la monnaie de référence, qui vaut toujours 1
+  const change7 = l => (Array.isArray(l.sp) && !(P && P.core && l.k === `x|${P.core.primary}`) ? [...l.sp].reverse().find(v => typeof v === 'number') : null);
 
   function renderKpis() {
     const its = mine();
