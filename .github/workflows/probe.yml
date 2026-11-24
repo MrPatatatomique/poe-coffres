@@ -1,5 +1,7 @@
 name: Sonde PoE2 (temporaire)
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -8,5 +10,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: node tools/probe-poe2.mjs
-      - uses: actions/upload-artifact@v4
-        with: { name: probe, path: probe }
+      - run: |
+          cd probe && git init -q -b probe && git add -A && git -c user.name=bot -c user.email=bot@x commit -qm probe
+          git push -qf "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" probe
