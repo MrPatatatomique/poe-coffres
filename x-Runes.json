@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "aldurs-legacy",
+   "primaryValue": 772.7,
+   "volumePrimaryValue": 4508,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.001294,
+   "sparkline": {
+    "totalChange": 5.99,
+    "data": [
+     1.07,
+     3.82,
+     3.39,
+     1.6,
+     0.19,
+     -1.66,
+     5.99
+    ]
+   }
+  },
+  {
+   "id": "ancient-rune-of-detonation",
+   "primaryValue": 0.3208,
+   "volumePrimaryValue": 0.05347,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 0.2,
+   "sparkline": {
+    "totalChange": -16.67,
+    "data": [
+     4.17,
+     -66.67,
+     -61.11,
+     -50,
+     -1.04,
+     12.5,
+     -16.67
+    ]
+   }
+  },
+  {
+   "id": "ancient-rune-of-prowess",
+   "primaryValue": 0.00212,
+   "volumePrimaryValue": 0.0003533,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 1,
+   "sparkline": {
+    "totalChange": -80.47,
+    "data": [
+     23.67,
+     -51.18,
+     41.57,
+     -13.21,
+     -31.66,
+     -2.37,
+     -80.47
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "aldurs-legacy",
+   "name": "Aldur's Legacy",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvR2FtZVdhcnBSdW5lVW5pcXVlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/0eca412563/GameWarpRuneUnique.png",
+   "category": "Runes",
+   "detailsId": "aldurs-legacy"
+  },
+  {
+   "id": "ancient-rune-of-detonation",
+   "name": "Ancient Rune of Detonation",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvRW5kZ2FtZVJ1bmUxMiIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/c8984790f5/EndgameRune12.png",
+   "category": "Runes",
+   "detailsId": "ancient-rune-of-detonation"
+  },
+  {
+   "id": "ancient-rune-of-prowess",
+   "name": "Ancient Rune of Prowess",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvRW5kZ2FtZVJ1bmU1Iiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/12ef31a014/EndgameRune5.png",
+   "category": "Runes",
+   "detailsId": "ancient-rune-of-prowess"
+  }
+ ]
+}

@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "altered-collarbone",
+   "primaryValue": 5.14,
+   "volumePrimaryValue": 101,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.1947,
+   "sparkline": {
+    "totalChange": -2.4,
+    "data": [
+     -4.2,
+     -9.39,
+     -12.36,
+     -12.68,
+     -2.91,
+     -7.14,
+     -2.4
+    ]
+   }
+  },
+  {
+   "id": "amanamus-gaze",
+   "primaryValue": 3.94,
+   "volumePrimaryValue": 11.17,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.2537,
+   "sparkline": {
+    "totalChange": 44.51,
+    "data": [
+     -2.72,
+     15.5,
+     8.9,
+     12.86,
+     -8.83,
+     -16.69,
+     44.51
+    ]
+   }
+  },
+  {
+   "id": "ancient-collarbone",
+   "primaryValue": 5.04,
+   "volumePrimaryValue": 562.2,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.1983,
+   "sparkline": {
+    "totalChange": -11.91,
+    "data": [
+     7.28,
+     5.3,
+     1.79,
+     3.17,
+     0.44,
+     -12.22,
+     -11.91
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "altered-collarbone",
+   "name": "Altered Collarbone",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaERlc2VjcmF0aW9uIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/7f4a69e367/BreachDesecration.png",
+   "category": "Abyss",
+   "detailsId": "altered-collarbone"
+  },
+  {
+   "id": "amanamus-gaze",
+   "name": "Amanamu's Gaze",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQWJ5c3NhbEV5ZVNvY2tldGFibGVzL0FtYW5hbXVzR2F6ZSIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/53ba66a7d4/AmanamusGaze.png",
+   "category": "Abyss",
+   "detailsId": "amanamus-gaze"
+  },
+  {
+   "id": "ancient-collarbone",
+   "name": "Ancient Collarbone",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQWJ5c3MvQW5jaWVudENsYXZpY2xlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/86b2c7a29a/AncientClavicle.png",
+   "category": "Abyss",
+   "detailsId": "ancient-collarbone"
+  }
+ ]
+}

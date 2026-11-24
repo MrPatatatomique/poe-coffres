@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "adaptive-alloy",
+   "primaryValue": 0.3208,
+   "volumePrimaryValue": 0.4813,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 0.2,
+   "sparkline": {
+    "totalChange": 66.67,
+    "data": [
+     67.52,
+     72.29,
+     39.95,
+     42.14,
+     42.62,
+     76.52,
+     66.67
+    ]
+   }
+  },
+  {
+   "id": "celestial-alloy",
+   "primaryValue": 1.53,
+   "volumePrimaryValue": 24.67,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.6554,
+   "sparkline": {
+    "totalChange": -25.27,
+    "data": [
+     -8.43,
+     14.73,
+     -16.58,
+     27.71,
+     3.15,
+     2.08,
+     -25.27
+    ]
+   }
+  },
+  {
+   "id": "expansive-alloy",
+   "primaryValue": 0.4565,
+   "volumePrimaryValue": 3.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 2.19,
+   "sparkline": {
+    "totalChange": 36.96,
+    "data": [
+     21.24,
+     91.31,
+     23.44,
+     138.8,
+     -8.71,
+     -14.93,
+     36.96
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "adaptive-alloy",
+   "name": "Adaptive Alloy",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvQ2hpcHBlZFZlcmlzaXVtIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/5795b74448/ChippedVerisium.png",
+   "category": "Verisium",
+   "detailsId": "adaptive-alloy"
+  },
+  {
+   "id": "celestial-alloy",
+   "name": "Celestial Alloy",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvQWxsb3k0Iiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/df21374115/Alloy4.png",
+   "category": "Verisium",
+   "detailsId": "celestial-alloy"
+  },
+  {
+   "id": "expansive-alloy",
+   "name": "Expansive Alloy",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvU3RhbmRhcmRWZXJpc2l1bSIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/4ee9afb77c/StandardVerisium.png",
+   "category": "Verisium",
+   "detailsId": "expansive-alloy"
+  }
+ ]
+}

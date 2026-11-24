@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "ancient-concentrated-liquid-isolation",
+   "primaryValue": 1,
+   "volumePrimaryValue": 2,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 1,
+   "sparkline": {
+    "totalChange": 33.33,
+    "data": [
+     -17.78,
+     24.44,
+     5.56,
+     6.67,
+     73.04,
+     66.67,
+     33.33
+    ]
+   }
+  },
+  {
+   "id": "ancient-diluted-liquid-greed",
+   "primaryValue": 0.0004239,
+   "volumePrimaryValue": 0.0007065,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 5,
+   "sparkline": {
+    "totalChange": -22.35,
+    "data": [
+     -2.94,
+     -29.75,
+     -22.6,
+     -35.29,
+     -22.35,
+     -22.35,
+     -22.35
+    ]
+   }
+  },
+  {
+   "id": "ancient-diluted-liquid-ire",
+   "primaryValue": 0.001019,
+   "volumePrimaryValue": 0.01069,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 63,
+   "sparkline": {
+    "totalChange": 4.76,
+    "data": [
+     null,
+     null,
+     0,
+     null,
+     0,
+     2.38,
+     4.76
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "ancient-concentrated-liquid-isolation",
+   "name": "Ancient Concentrated Liquid Isolation",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGlzdGlsbGVkRW1vdGlvbnMvVGltZWxvc3RDb25jZW50cmF0ZWREaXN0aWxsZWRJc29sYXRpb24iLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/fa4fd8531b/TimelostConcentratedDistilledIsolation.png",
+   "category": "Delirium",
+   "detailsId": "ancient-concentrated-liquid-isolation"
+  },
+  {
+   "id": "ancient-diluted-liquid-greed",
+   "name": "Ancient Diluted Liquid Greed",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGlzdGlsbGVkRW1vdGlvbnMvVGltZWxvc3REaWx1dGVkRGlzdGlsbGVkR3JlZWQiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/8ef165042d/TimelostDilutedDistilledGreed.png",
+   "category": "Delirium",
+   "detailsId": "ancient-diluted-liquid-greed"
+  },
+  {
+   "id": "ancient-diluted-liquid-ire",
+   "name": "Ancient Diluted Liquid Ire",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRGlzdGlsbGVkRW1vdGlvbnMvVGltZWxvc3REaWx1dGVkRGlzdGlsbGVkSXJlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/37c3144cb7/TimelostDilutedDistilledIre.png",
+   "category": "Delirium",
+   "detailsId": "ancient-diluted-liquid-ire"
+  }
+ ]
+}

@@ -1,0 +1,205 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 411,
+   "itemId": "The Grand Project Irradiated Tablet",
+   "detailsId": "the-grand-project-irradiated-tablet",
+   "name": "The Grand Project",
+   "baseType": "Irradiated Tablet",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRHZW5lcmljVW5pcXVlMSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/acf337f58c/PrecursorTabletGenericUnique1.png",
+   "flavourText": "\"I see a pattern in these towers. Whoever the Precursors were, they sought to master\r\nthis world, to shape it as they saw fit. My people had the same ambition...\"",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 6.14,
+   "listingCount": 2598,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -20.61,
+    "data": [
+     null,
+     0,
+     -10.89,
+     null,
+     -7.77,
+     -15.33,
+     -20.61
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Adds [ContainsIrradiated|Irradiated] to a Map \n1 use remaining",
+     "optional": false,
+     "statIds": [
+      "tower_add_irradiated_to_X_maps"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Can only be applied to [PrecursorTower|Precursor Tower Maps]\nCompleting the Tower makes all nearby Maps accessible",
+     "optional": false,
+     "statIds": [
+      "local_tablet_make_maps_in_radius_available"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 412,
+   "itemId": "Visions of Paradise Irradiated Tablet",
+   "detailsId": "visions-of-paradise-irradiated-tablet",
+   "name": "Visions of Paradise",
+   "baseType": "Irradiated Tablet",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRHZW5lcmljVW5pcXVlMyIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6fffa18e78/PrecursorTabletGenericUnique3.png",
+   "flavourText": "\"If they had ever completed the tower network,\r\nit could have changed the face of the world...\"",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 1.23,
+   "listingCount": 4922,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 4.9,
+    "data": [
+     null,
+     0,
+     -78.48,
+     null,
+     -22.52,
+     -21.87,
+     4.9
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Adds [ContainsIrradiated|Irradiated] to a Map \n1 use remaining",
+     "optional": false,
+     "statIds": [
+      "tower_add_irradiated_to_X_maps"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "If Map was not previously [IrradiatedNonAtlas|Irradiated], completing Map adds [IrradiatedNonAtlas|Irradiation] instead",
+     "optional": false,
+     "statIds": [
+      "map_add_irradiation_instead_of_completing"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 408,
+   "itemId": "Unforeseen Consequences Abyss Tablet",
+   "detailsId": "unforeseen-consequences-abyss-tablet",
+   "name": "Unforeseen Consequences",
+   "baseType": "Abyss Tablet",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRBYnlzc1VuaXF1ZTEiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/a5c2d8a638/PrecursorTabletAbyssUnique1.png",
+   "flavourText": "The Well was naught.\r\nThe Precursors dug too deep.\r\nThe Well always had been.",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.5985,
+   "listingCount": 3908,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -27.76,
+    "data": [
+     null,
+     0,
+     -33.46,
+     null,
+     3.3,
+     -26.95,
+     -27.76
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Adds [ContainsAbyss|Abysses] to a Map \n1 use remaining",
+     "optional": false,
+     "statIds": [
+      "tower_add_abyss_to_X_maps"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Map is overrun by the [ContainsAbyss|Abyssal]",
+     "optional": false,
+     "statIds": [
+      "map_abyss_overrun_no_monsters"
+     ]
+    },
+    {
+     "text": "Map contains (14-18) additional [ContainsAbyss|Abysses]",
+     "optional": false,
+     "statIds": [
+      "map_abyss_overrun_extra_pits"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 406,
+   "itemId": "Freedom of Faith Ritual Tablet",
+   "detailsId": "freedom-of-faith-ritual-tablet",
+   "name": "Freedom of Faith",
+   "baseType": "Ritual Tablet",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRSaXR1YWxVbmlxdWUxIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/b2b710c500/PrecursorTabletRitualUnique1.png",
+   "flavourText": "When darkness comes, we pray for light.\r\nWhen darkness is all that there is,\r\nwe pray for death.",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.342,
+   "listingCount": 5336,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 32.1,
+    "data": [
+     null,
+     0,
+     -26.58,
+     null,
+     -31.13,
+     76.39,
+     32.1
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Adds [ContainsRitual|Ritual Altars] to a Map \n(2-5) uses remaining",
+     "optional": true,
+     "statIds": [
+      "tower_add_ritual_to_X_maps"
+     ]
+    },
+    {
+     "text": "Adds [ContainsRitual|Ritual Altars] to a Map \n1 use remaining",
+     "optional": true,
+     "statIds": [
+      "tower_add_ritual_to_X_maps"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Favours at [ContainsRitual|Ritual Altars] in Area costs (10-15)% increased Tribute",
+     "optional": false,
+     "statIds": [
+      "map_ritual_offered_and_defer_rewards_tribute_cost_+%"
+     ]
+    },
+    {
+     "text": "Can Reroll Favours at [ContainsRitual|Ritual Altars] in your Maps twice as many times",
+     "optional": false,
+     "statIds": [
+      "map_ritual_unlimited_reward_rerolls"
+     ]
+    }
+   ]
+  }
+ ]
+}

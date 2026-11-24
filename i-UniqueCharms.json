@@ -1,0 +1,308 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 366,
+   "itemId": "Rite of Passage Golden Charm",
+   "detailsId": "rite-of-passage-golden-charm",
+   "name": "Rite of Passage",
+   "baseType": "Golden Charm",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL1VuaXF1ZXMvR29sZGVuVW5pcXVlQ2hhcm0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/f76038bf1c/GoldenUniqueCharm.png",
+   "flavourText": "To become a warrior and a hunter, each young\r\nAzmeri must prove themselves before the Spirit.",
+   "levelRequired": 50,
+   "category": "Charm",
+   "primaryValue": 6,
+   "listingCount": 1853,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 0,
+    "data": [
+     null,
+     0,
+     0,
+     null,
+     0,
+     16.67,
+     0
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Used when you kill a [Rarity|Rare] or [Rarity|Unique] enemy",
+     "optional": false,
+     "statIds": [
+      "local_flask_use_on_killing_rare_or_unique_enemy"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheCatPossessedPlayer|Spirit Of The Cat] for 13 seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheStagPossessedPlayer|Spirit Of The Stag] for 15 seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheBearPossessedPlayer|Spirit Of The Bear] for (10-18) seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheOwlPossessedPlayer|Spirit Of The Owl] for 10 seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheSerpentPossessedPlayer|Spirit Of The Serpent] for (10-19) seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfThePrimatePossessedPlayer|Spirit Of The Primate] for (10-18) seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheBoarPossessedPlayer|Spirit Of The Boar] for (10-20) seconds on use",
+     "optional": true
+    },
+    {
+     "text": "[PlayerPossessed|Possessed] by [SpiritOfTheOxPossessedPlayer|Spirit Of The Ox] for (10-19) seconds on use",
+     "optional": true
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Lasts 1 Second",
+     "optional": true
+    },
+    {
+     "text": "Lasts 1.1 Seconds",
+     "optional": true
+    },
+    {
+     "text": "Consumes 80 of 80 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 50",
+     "optional": false
+    }
+   ],
+   "utilityModifiers": [
+    {
+     "text": "15% increased [ItemRarity|Rarity of Items] found",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 370,
+   "itemId": "The Fall of the Axe Silver Charm",
+   "detailsId": "the-fall-of-the-axe-silver-charm",
+   "name": "The Fall of the Axe",
+   "baseType": "Silver Charm",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL1VuaXF1ZXMvU2lsdmVyVW5pcXVlQ2hhcm0iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/b1ede8589d/SilverUniqueCharm.png",
+   "flavourText": "\"When the headsman's blade swings,\r\nyour last moments stretch to eternity.\"\r\n- Vorm, the Twice-Pardoned",
+   "levelRequired": 10,
+   "category": "Charm",
+   "primaryValue": 1,
+   "listingCount": 303,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 122.9,
+    "data": [
+     null,
+     0,
+     -5.2,
+     null,
+     24.16,
+     80.03,
+     122.9
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Used when you are affected by a [Slow]",
+     "optional": false,
+     "statIds": [
+      "local_flask_use_on_affected_by_slow"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Grants [Onslaught] during effect",
+     "optional": false,
+     "statIds": [
+      "charm_gain_onslaught_during_effect"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Lasts (3-3.2) Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 20 of 40 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 10",
+     "optional": false
+    }
+   ],
+   "utilityModifiers": [
+    {
+     "text": "Your speed is unaffected by [Slow|Slows]",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 372,
+   "itemId": "For Utopia Stone Charm",
+   "detailsId": "for-utopia-stone-charm",
+   "name": "For Utopia",
+   "baseType": "Stone Charm",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL1VuaXF1ZXMvU3RvbmVVbmlxdWVDaGFybSIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6624d23611/StoneUniqueCharm.png",
+   "flavourText": "\"It may be centuries hence, but I still hold utmost faith.\r\nThe Saviour will rise, and mankind will be free.\"",
+   "levelRequired": 8,
+   "category": "Charm",
+   "primaryValue": 0.342,
+   "listingCount": 361,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -21.04,
+    "data": [
+     null,
+     0,
+     -16.25,
+     null,
+     -17.67,
+     5.86,
+     -21.04
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Used when you become [Stun|Stunned]",
+     "optional": false,
+     "statIds": [
+      "local_flask_use_on_stunned"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Defend with 200% of [Armour|Armour] during effect",
+     "optional": false,
+     "statIds": [
+      "charm_defend_with_double_armour_during_effect"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Lasts (3-3.2) Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 20 of 40 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 8",
+     "optional": false
+    }
+   ],
+   "utilityModifiers": [
+    {
+     "text": "Cannot be [Stun|Stunned]",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 373,
+   "itemId": "Nascent Hope Thawing Charm",
+   "detailsId": "nascent-hope-thawing-charm",
+   "name": "Nascent Hope",
+   "baseType": "Thawing Charm",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ2hhcm1zL1VuaXF1ZXMvVGhhd2luZ1VuaXF1ZUNoYXJtIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/310b095659/ThawingUniqueCharm.png",
+   "flavourText": "\"Even in the face of the Winter of the World,\r\nlife found a way. The Spirit always provides.\"",
+   "levelRequired": 12,
+   "category": "Charm",
+   "primaryValue": 0.1487,
+   "listingCount": 2099,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 79.65,
+    "data": [
+     null,
+     0,
+     -6.58,
+     null,
+     7.67,
+     105,
+     79.65
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Used when you become [Frozen]",
+     "optional": false,
+     "statIds": [
+      "local_flask_use_on_affected_by_freeze"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "(20-25)% Chance to gain a [Charges|Charge] when you kill an enemy",
+     "optional": false,
+     "statIds": [
+      "local_%_chance_to_gain_flask_charge_on_kill"
+     ]
+    },
+    {
+     "text": "[ESRecharge|Energy Shield Recharge] starts on use",
+     "optional": false,
+     "statIds": [
+      "charm_energy_shield_recharge_starts_when_used"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Lasts (3-3.3) Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 40 of 40 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 12",
+     "optional": false
+    }
+   ],
+   "utilityModifiers": [
+    {
+     "text": "Grants Immunity to [Freeze|Freeze]",
+     "optional": false
+    }
+   ]
+  }
+ ]
+}

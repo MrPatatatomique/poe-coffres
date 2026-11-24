@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "an-audience-with-the-king",
+   "primaryValue": 0.008447,
+   "volumePrimaryValue": 1.51,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 0.2509,
+   "sparkline": {
+    "totalChange": -80.44,
+    "data": [
+     -43.09,
+     -58.46,
+     -76.34,
+     -67.37,
+     -86.56,
+     -81.06,
+     -80.44
+    ]
+   }
+  },
+  {
+   "id": "omen-of-abyssal-echoes",
+   "primaryValue": 0.06066,
+   "volumePrimaryValue": 64,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 16.48,
+   "sparkline": {
+    "totalChange": -34.48,
+    "data": [
+     26.46,
+     3.14,
+     -14.54,
+     -9.38,
+     -10.93,
+     -21.31,
+     -34.48
+    ]
+   }
+  },
+  {
+   "id": "omen-of-answered-prayers",
+   "primaryValue": 2.79,
+   "volumePrimaryValue": 21.83,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.3588,
+   "sparkline": {
+    "totalChange": 45.21,
+    "data": [
+     22.13,
+     21.2,
+     5.18,
+     1.34,
+     8.64,
+     11.15,
+     45.21
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "an-audience-with-the-king",
+   "name": "An Audience with the King",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL1Zvb2Rvb0tpbmdFZmZpZ3kiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/0b02c113cc/VoodooKingEffigy.png",
+   "category": "Ritual",
+   "detailsId": "an-audience-with-the-king"
+  },
+  {
+   "id": "omen-of-abyssal-echoes",
+   "name": "Omen of Abyssal Echoes",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvT21lbnMvT21lbk9uQWJ5c3NSZXJvbGxPcHRpb25zIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/9690f99016/OmenOnAbyssRerollOptions.png",
+   "category": "Ritual",
+   "detailsId": "omen-of-abyssal-echoes"
+  },
+  {
+   "id": "omen-of-answered-prayers",
+   "name": "Omen of Answered Prayers",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvT21lbnMvVm9vZG9vT21lbnM0Qmx1ZSIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/ba21c85554/VoodooOmens4Blue.png",
+   "category": "Ritual",
+   "detailsId": "omen-of-answered-prayers"
+  }
+ ]
+}

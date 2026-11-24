@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "carved-majesty",
+   "primaryValue": 440,
+   "volumePrimaryValue": 806.7,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.002273,
+   "sparkline": {
+    "totalChange": -1.78,
+    "data": [
+     3.78,
+     4.54,
+     -2.08,
+     -3.3,
+     10.12,
+     23.78,
+     -1.78
+    ]
+   }
+  },
+  {
+   "id": "carved-mischief",
+   "primaryValue": 1.5,
+   "volumePrimaryValue": 0.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.6667,
+   "sparkline": {
+    "totalChange": 50,
+    "data": [
+     0,
+     0,
+     50,
+     100,
+     125,
+     75,
+     50
+    ]
+   }
+  },
+  {
+   "id": "carved-tenacity",
+   "primaryValue": 1,
+   "volumePrimaryValue": 1.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 1,
+   "sparkline": {
+    "totalChange": 0,
+    "data": [
+     0,
+     -4.17,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "carved-majesty",
+   "name": "Carved Majesty",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL1JpdHVhbE1hamVzdGljQmVhc3RzIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/db3cfd505d/RitualMajesticBeasts.png",
+   "category": "Expedition",
+   "detailsId": "carved-majesty"
+  },
+  {
+   "id": "carved-mischief",
+   "name": "Carved Mischief",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL1JpdHVhbE1pc2NoaWV2b3VzQ3JlYXR1cmVzIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/de172a5b3c/RitualMischievousCreatures.png",
+   "category": "Expedition",
+   "detailsId": "carved-mischief"
+  },
+  {
+   "id": "carved-tenacity",
+   "name": "Carved Tenacity",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL1JpdHVhbFRlbmFjaW91c0JlYXN0cyIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/af56b6ff5d/RitualTenaciousBeasts.png",
+   "category": "Expedition",
+   "detailsId": "carved-tenacity"
+  }
+ ]
+}

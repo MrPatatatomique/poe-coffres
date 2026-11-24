@@ -1,0 +1,279 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 753,
+   "itemId": "Winter's Bite Glass Shank",
+   "detailsId": "winters-bite-glass-shank",
+   "name": "Winter's Bite",
+   "baseType": "Glass Shank",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9EYWdnZXJzL1VuaXF1ZXMvTmV2ZXJtZWx0IiwidyI6MSwiaCI6Mywic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/a5a4d70a8e/Nevermelt.png",
+   "flavourText": "Nothing stabs colder than pure hatred.",
+   "levelRequired": 0,
+   "category": "[Dagger]",
+   "primaryValue": 39879000,
+   "listingCount": 1,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -3.18,
+    "data": [
+     null,
+     0,
+     -0.48,
+     null,
+     -4.49,
+     -4.74,
+     -3.18
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "No [Physical] Damage",
+     "optional": false,
+     "statIds": [
+      "local_physical_damage_+%",
+      "local_weapon_no_physical_damage"
+     ]
+    },
+    {
+     "text": "Adds (8-10) to (15-18) [Cold|Cold] Damage",
+     "optional": false,
+     "statIds": [
+      "local_minimum_added_cold_damage",
+      "local_maximum_added_cold_damage"
+     ]
+    },
+    {
+     "text": "[Freeze|Freezes] Enemies that are on Full Life",
+     "optional": false,
+     "statIds": [
+      "local_always_freeze_on_full_life"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[Cold|Cold] Damage: (8-10)-(15-18)",
+     "optional": false
+    },
+    {
+     "text": "[Critical|Critical Hit] Chance: 15%",
+     "optional": false
+    },
+    {
+     "text": "Attacks per Second: 1.55",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 730,
+   "itemId": "Runeseeker's Call Runic Fork",
+   "detailsId": "runeseekers-call-runic-fork",
+   "name": "Runeseeker's Call",
+   "baseType": "Runic Fork",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9XYW5kcy9VbmlxdWVzL1J1bmljRGl2aW5lciIsInciOjIsImgiOjMsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/df89e6455f/RunicDiviner.png",
+   "flavourText": "Smithed from ancient metal \r\nwrought from the very stars.\r\nIt is a means to call upon them, \r\nfor one capable of wielding it.",
+   "levelRequired": 90,
+   "category": "[Wand]",
+   "primaryValue": 5697,
+   "listingCount": 85,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -3.18,
+    "data": [
+     null,
+     0,
+     -0.48,
+     null,
+     -4.49,
+     -4.74,
+     -3.18
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Only [Rune|Runes] can be Socketed in this item",
+     "optional": false,
+     "statIds": [
+      "local_can_only_socket_runes"
+     ]
+    },
+    {
+     "text": "200% increased effect of Socketed [Rune|Runes]",
+     "optional": false,
+     "statIds": [
+      "local_rune_effect_+%"
+     ]
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 65",
+     "optional": false
+    },
+    {
+     "text": "[Intelligence|Int]: 114",
+     "optional": false
+    }
+   ],
+   "grantedSkillModifiers": [
+    {
+     "text": "Level (17-20) The Stars Answer",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 732,
+   "itemId": "Bluetongue Shortsword",
+   "detailsId": "bluetongue-shortsword",
+   "name": "Bluetongue",
+   "baseType": "Shortsword",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3dvcmRzL1VuaXF1ZXMvQmx1ZXRvbmd1ZSIsInciOjIsImgiOjMsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/3fdac0787b/Bluetongue.png",
+   "flavourText": "War inevitably takes an untold toll on the soul.",
+   "levelRequired": 0,
+   "category": "[Sword|One Hand Sword]",
+   "primaryValue": 2000,
+   "listingCount": 1,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 29.03,
+    "data": [
+     null,
+     0,
+     29.03,
+     null,
+     29.03,
+     29.03,
+     29.03
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Adds (4-6) to (7-10) [Physical|Physical] Damage",
+     "optional": false,
+     "statIds": [
+      "local_minimum_added_physical_damage",
+      "local_maximum_added_physical_damage"
+     ]
+    },
+    {
+     "text": "10% increased [Attack] Speed",
+     "optional": false,
+     "statIds": [
+      "local_attack_speed_+%"
+     ]
+    },
+    {
+     "text": "Lose 3 Mana per enemy killed",
+     "optional": false,
+     "statIds": [
+      "base_mana_gained_on_enemy_death"
+     ]
+    },
+    {
+     "text": "100% increased [Attack|Attack] Damage while not on [LowMana|Low Mana]",
+     "optional": false,
+     "statIds": [
+      "attack_damage_+%_while_not_on_low_mana"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[Physical] Damage: (10-12)-(16-19)",
+     "optional": false
+    },
+    {
+     "text": "[Critical|Critical Hit] Chance: 5%",
+     "optional": false
+    },
+    {
+     "text": "Attacks per Second: 1.71",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 727,
+   "itemId": "Redbeak Shortsword",
+   "detailsId": "redbeak-shortsword",
+   "name": "Redbeak",
+   "baseType": "Shortsword",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvV2VhcG9ucy9PbmVIYW5kV2VhcG9ucy9PbmVIYW5kU3dvcmRzL1VuaXF1ZXMvUmVkYmVhayIsInciOjIsImgiOjMsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/33c430b8b4/Redbeak.png",
+   "flavourText": "As battle calms, blood turns to rust.",
+   "levelRequired": 0,
+   "category": "[Sword|One Hand Sword]",
+   "primaryValue": 1680,
+   "listingCount": 4,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -41.19,
+    "data": [
+     null,
+     0,
+     -0.2,
+     null,
+     -1.85,
+     -11.79,
+     -41.19
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Adds (4-6) to (7-10) [Physical|Physical] Damage",
+     "optional": false,
+     "statIds": [
+      "local_minimum_added_physical_damage",
+      "local_maximum_added_physical_damage"
+     ]
+    },
+    {
+     "text": "10% increased [Attack] Speed",
+     "optional": false,
+     "statIds": [
+      "local_attack_speed_+%"
+     ]
+    },
+    {
+     "text": "Gain 3 Life per enemy killed",
+     "optional": false,
+     "statIds": [
+      "base_life_gained_on_enemy_death"
+     ]
+    },
+    {
+     "text": "100% increased [Attack|Attack] Damage while on [LowLife|Low Life]",
+     "optional": false,
+     "statIds": [
+      "attack_damage_+%_when_on_low_life"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[Physical] Damage: (10-12)-(16-19)",
+     "optional": false
+    },
+    {
+     "text": "[Critical|Critical Hit] Chance: 5%",
+     "optional": false
+    },
+    {
+     "text": "Attacks per Second: 1.71",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 50",
+     "optional": true
+    }
+   ]
+  }
+ ]
+}

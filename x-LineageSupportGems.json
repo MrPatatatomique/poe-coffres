@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "ahns-citadel",
+   "primaryValue": 0.5476,
+   "volumePrimaryValue": 1.37,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 0.1172,
+   "sparkline": {
+    "totalChange": -27.89,
+    "data": [
+     -0.46,
+     24.47,
+     30.33,
+     33.12,
+     7.21,
+     -5.42,
+     -27.89
+    ]
+   }
+  },
+  {
+   "id": "ailiths-chimes",
+   "primaryValue": 2.75,
+   "volumePrimaryValue": 14.67,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.3636,
+   "sparkline": {
+    "totalChange": 22.64,
+    "data": [
+     56.76,
+     42.91,
+     64.26,
+     135.7,
+     60.24,
+     34.17,
+     22.64
+    ]
+   }
+  },
+  {
+   "id": "amanamus-tithe",
+   "primaryValue": 7.14,
+   "volumePrimaryValue": 58.33,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.14,
+   "sparkline": {
+    "totalChange": -21.14,
+    "data": [
+     7.62,
+     18.62,
+     9.58,
+     10.93,
+     17.93,
+     42.18,
+     -21.14
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "ahns-citadel",
+   "name": "Ahn's Citadel",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL0xpbmVhZ2VBaG5DaGlzZWwiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/5e34f72a34/LineageAhnChisel.png",
+   "category": "LineageSupportGems",
+   "detailsId": "ahns-citadel"
+  },
+  {
+   "id": "ailiths-chimes",
+   "name": "Ailith's Chimes",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL01vbmFzdGljIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/795375ce2d/Monastic.png",
+   "category": "LineageSupportGems",
+   "detailsId": "ailiths-chimes"
+  },
+  {
+   "id": "amanamus-tithe",
+   "name": "Amanamu's Tithe",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvR2Vtcy9OZXcvTmV3U3VwcG9ydC9MaW5lYWdlL0xpbmVhZ2VBbWFuYW11Iiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/715766340e/LineageAmanamu.png",
+   "category": "LineageSupportGems",
+   "detailsId": "amanamus-tithe"
+  }
+ ]
+}

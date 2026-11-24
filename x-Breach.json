@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "adaptive-catalyst",
+   "primaryValue": 0.08222,
+   "volumePrimaryValue": 34.83,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 12.16,
+   "sparkline": {
+    "totalChange": -35.69,
+    "data": [
+     -57.69,
+     -70.14,
+     -73.21,
+     -75.05,
+     -74.92,
+     -68.32,
+     -35.69
+    ]
+   }
+  },
+  {
+   "id": "breach-splinter",
+   "primaryValue": 0.009921,
+   "volumePrimaryValue": 62.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 100.8,
+   "sparkline": {
+    "totalChange": -13.14,
+    "data": [
+     -1.12,
+     -8.11,
+     -11.32,
+     -6.74,
+     -3.45,
+     -12.17,
+     -13.14
+    ]
+   }
+  },
+  {
+   "id": "breachstone",
+   "primaryValue": 3.49,
+   "volumePrimaryValue": 118.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.2869,
+   "sparkline": {
+    "totalChange": -20.31,
+    "data": [
+     -1.94,
+     -15.41,
+     -14.52,
+     -14.41,
+     -17.15,
+     -14.34,
+     -20.31
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "adaptive-catalyst",
+   "name": "Adaptive Catalyst",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaENhdGFseXN0QXR0cmlidXRlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/015f6c9ac8/BreachCatalystAttribute.png",
+   "category": "Breach",
+   "detailsId": "adaptive-catalyst"
+  },
+  {
+   "id": "breach-splinter",
+   "name": "Breach Splinter",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaHN0b25lU3BsaW50ZXIiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/4abb17ea8e/BreachstoneSplinter.png",
+   "category": "Breach",
+   "detailsId": "breach-splinter"
+  },
+  {
+   "id": "breachstone",
+   "name": "Breachstone",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvQnJlYWNoL0JyZWFjaHN0b25lIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/d60587d724/Breachstone.png",
+   "category": "Breach",
+   "detailsId": "breachstone"
+  }
+ ]
+}

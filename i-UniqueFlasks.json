@@ -1,0 +1,285 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 375,
+   "itemId": "Olroth's Resolve Ultimate Life Flask",
+   "detailsId": "olroths-resolve-ultimate-life-flask",
+   "name": "Olroth's Resolve",
+   "baseType": "Ultimate Life Flask",
+   "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVW5pcXVlcy9PbHJvdGhzUmVzb2x2ZSIsInciOjEsImgiOjIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIiLCJsZXZlbCI6MX1d/8c4fbaeb37/OlrothsResolve.png",
+   "flavourText": "Olroth the Gallant,\r\ntireless and true,\r\nhe fights for me,\r\nhe fights for you!",
+   "levelRequired": 60,
+   "category": "[Flask]",
+   "primaryValue": 25,
+   "listingCount": 110,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 4.17,
+    "data": [
+     null,
+     0,
+     3.75,
+     null,
+     -19.38,
+     -16.67,
+     4.17
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "(100-150)% increased Charges per use",
+     "optional": false,
+     "statIds": [
+      "local_charges_used_+%",
+      "local_flask_consume_charges_used_+%_when_used"
+     ]
+    },
+    {
+     "text": "Regenerate (2.5-5)% of maximum [Ward|Runic Ward] per second during Effect",
+     "optional": false,
+     "statIds": [
+      "local_flask_ward_regeneration_per_minute_%_during_flask_effect"
+     ]
+    },
+    {
+     "text": "Gain [Guard] equal to Current [Ward|Runic Ward] for 10 seconds when Effect ends",
+     "optional": false,
+     "statIds": [
+      "local_unique_flask_gain_%_of_current_ward_as_guard_when_flask_effect_ends",
+      "local_unique_flask_ward_gained_as_guard_duration_ms_when_flask_effect_ends"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Recovers (920-1104) Life over 3 Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes (20-25) of 75 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 60",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 365,
+   "itemId": "Lavianga's Spirits Gargantuan Mana Flask",
+   "detailsId": "laviangas-spirits-gargantuan-mana-flask",
+   "name": "Lavianga's Spirits",
+   "baseType": "Gargantuan Mana Flask",
+   "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVW5pcXVlcy9MYXZpYW5nYXNTcGlyaXQiLCJ3IjoxLCJoIjoyLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIiwibGV2ZWwiOjF9XQ/ef79cd6b0d/LaviangasSpirit.png",
+   "flavourText": "\"How do I cope with what I witnessed on Wraeclast?\r\nThank the Ancestors! My cup, it overflows.\"\r\n- Lavianga, former advisor to Kaom",
+   "levelRequired": 49,
+   "category": "[Flask]",
+   "primaryValue": 0.1487,
+   "listingCount": 2612,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -21.56,
+    "data": [
+     null,
+     0,
+     -11.17,
+     null,
+     -7.03,
+     -10.48,
+     -21.56
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "This Flask cannot be Used but applies its Effect constantly",
+     "optional": false,
+     "statIds": [
+      "local_flask_always_drinking"
+     ]
+    },
+    {
+     "text": "(70-80)% reduced Amount Recovered",
+     "optional": false,
+     "statIds": [
+      "local_flask_amount_to_recover_+%"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Recovers (37-57) Mana every 2 Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 10 of 75 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 49",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 376,
+   "itemId": "Melting Maelstrom Ultimate Mana Flask",
+   "detailsId": "melting-maelstrom-ultimate-mana-flask",
+   "name": "Melting Maelstrom",
+   "baseType": "Ultimate Mana Flask",
+   "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVW5pcXVlcy9NZWx0aW5nTWFlbHN0cm9tIiwidyI6MSwiaCI6Miwic2NhbGUiOjEsInJlYWxtIjoicG9lMiIsImxldmVsIjoxfV0/3ffec91606/MeltingMaelstrom.png",
+   "flavourText": "What is life, but a dreamlike spiral of panic?",
+   "levelRequired": 60,
+   "category": "[Flask]",
+   "primaryValue": 0.07435,
+   "listingCount": 863,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -21.56,
+    "data": [
+     null,
+     0,
+     -11.17,
+     null,
+     -7.03,
+     -10.48,
+     -21.56
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Effect is not removed when Unreserved Mana is Filled",
+     "optional": false,
+     "statIds": [
+      "local_flask_effect_not_removed_at_full_mana"
+     ]
+    },
+    {
+     "text": "(200-249)% increased Duration",
+     "optional": false,
+     "statIds": [
+      "local_flask_duration_+%",
+      "local_flask_consume_flask_duration_+%_when_used"
+     ]
+    },
+    {
+     "text": "Every 3 seconds during Effect, deal 100% of Mana spent in those seconds as [Chaos|Chaos Damage] to Enemies within 3 metres",
+     "optional": false,
+     "statIds": [
+      "local_unique_flask_nova_with_chaos_damage_equal_to_%_mana_spent_during_flask_effect"
+     ]
+    },
+    {
+     "text": "Deals 25% of current Mana as [Chaos|Chaos Damage] to you when Effect ends",
+     "optional": false,
+     "statIds": [
+      "local_unique_flask_take_chaos_damage_equal_to_current_mana_%_when_flask_effect_ends"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Recovers (310-372) Mana over (9-10.5) Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 10 of 75 Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 60",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 528,
+   "itemId": "Uhtred's Chalice Transcendent Mana Flask",
+   "detailsId": "uhtreds-chalice-transcendent-mana-flask",
+   "name": "Uhtred's Chalice",
+   "baseType": "Transcendent Mana Flask",
+   "icon": "https://web.poecdn.com/gen/image/WzksMTQseyJmIjoiMkRJdGVtcy9GbGFza3MvVW5pcXVlcy9VaHRyZWRzTGVnYWN5IiwidyI6MSwiaCI6Miwic2NhbGUiOjEsInJlYWxtIjoicG9lMiIsImxldmVsIjoxfV0/870f4285f3/UhtredsLegacy.png",
+   "flavourText": "Uhtred drank. Verisium burned through his veins.\r\nHe gazed at death's face. With all his strength,\r\nhe turned instead to the stars, and witnessed Truth.",
+   "levelRequired": 50,
+   "category": "[Flask]",
+   "primaryValue": 0.07435,
+   "listingCount": 2432,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -21.56,
+    "data": [
+     null,
+     0,
+     -11.17,
+     null,
+     -7.03,
+     -10.48,
+     -21.56
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "(200-297)% increased Amount Recovered",
+     "optional": false,
+     "statIds": [
+      "local_flask_amount_to_recover_+%"
+     ]
+    },
+    {
+     "text": "70% reduced Recovery rate",
+     "optional": false,
+     "statIds": [
+      "local_flask_recovery_speed_+%"
+     ]
+    },
+    {
+     "text": "(50-60)% reduced Charges",
+     "optional": false,
+     "statIds": [
+      "local_max_charges_+%"
+     ]
+    },
+    {
+     "text": "Lose 5% Life per second while you have no [Ward|Runic Ward] during Effect",
+     "optional": false,
+     "statIds": [
+      "local_unique_flask_life_loss_%_per_minute_while_you_have_no_runic_ward_during_flask_effect"
+     ]
+    },
+    {
+     "text": "Mana Recovery from [Flask|Flasks] can [Overflow] maximum Mana during Effect",
+     "optional": false,
+     "statIds": [
+      "local_unique_flask_mana_flask_recovery_can_overcap_mana_during_flask_effect"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "Recovers (855-1187) Mana over 11.7 Seconds",
+     "optional": false
+    },
+    {
+     "text": "Consumes 10 of (30-37) Charges on use",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 50",
+     "optional": false
+    }
+   ]
+  }
+ ]
+}

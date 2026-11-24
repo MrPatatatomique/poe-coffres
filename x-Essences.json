@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "essence-of-battle",
+   "primaryValue": 0.1283,
+   "volumePrimaryValue": 0.02139,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 0.5,
+   "sparkline": {
+    "totalChange": 0,
+    "data": [
+     null,
+     0,
+     null,
+     null,
+     null,
+     null,
+     0
+    ]
+   }
+  },
+  {
+   "id": "essence-of-delirium",
+   "primaryValue": 2.63,
+   "volumePrimaryValue": 56.17,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.3798,
+   "sparkline": {
+    "totalChange": 0.86,
+    "data": [
+     2.01,
+     17.62,
+     7.24,
+     9.52,
+     47.76,
+     1.9,
+     0.86
+    ]
+   }
+  },
+  {
+   "id": "essence-of-sorcery",
+   "primaryValue": 0.3208,
+   "volumePrimaryValue": 0.1604,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 0.2,
+   "sparkline": {
+    "totalChange": 0,
+    "data": [
+     0,
+     0,
+     -5,
+     -10,
+     0,
+     null,
+     0
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "essence-of-battle",
+   "name": "Essence of Battle",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXNzZW5jZS9BdHRhY2tFc3NlbmNlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/3cece29e19/AttackEssence.png",
+   "category": "Essences",
+   "detailsId": "essence-of-battle"
+  },
+  {
+   "id": "essence-of-delirium",
+   "name": "Essence of Delirium",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXNzZW5jZS9Db3JydXB0ZWRFc3NlbmNlRGVsaXJpdW0iLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/d67329e6ed/CorruptedEssenceDelirium.png",
+   "category": "Essences",
+   "detailsId": "essence-of-delirium"
+  },
+  {
+   "id": "essence-of-sorcery",
+   "name": "Essence of Sorcery",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXNzZW5jZS9DYXN0ZXJFc3NlbmNlIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/6bb099115a/CasterEssence.png",
+   "category": "Essences",
+   "detailsId": "essence-of-sorcery"
+  }
+ ]
+}

@@ -1,0 +1,359 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 232,
+   "itemId": "Temporalis Silk Robe",
+   "detailsId": "temporalis-silk-robe",
+   "name": "Temporalis",
+   "baseType": "Silk Robe",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9VbmlxdWVzL1BpbGdyaW1zSW1hZ2UiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/69db95b9aa/PilgrimsImage.png",
+   "flavourText": "The final element the tale-women\r\nmastered was Time itself.",
+   "levelRequired": 64,
+   "category": "Body Armour",
+   "primaryValue": 6440,
+   "listingCount": 15,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 9.04,
+    "data": [
+     null,
+     0,
+     1.26,
+     4.95,
+     null,
+     10.05,
+     9.04
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "+(100-150) to maximum [EnergyShield|Energy Shield]",
+     "optional": false,
+     "statIds": [
+      "local_energy_shield"
+     ]
+    },
+    {
+     "text": "+(10-20)% to all [ElementalDamage|Elemental] [Resistances]",
+     "optional": false,
+     "statIds": [
+      "base_resist_all_elements_%"
+     ]
+    },
+    {
+     "text": "(5-30)% of Damage taken [Recoup|Recouped] as Life",
+     "optional": false,
+     "statIds": [
+      "damage_taken_goes_to_life_over_4_seconds_%"
+     ]
+    },
+    {
+     "text": "(5-30)% of Damage taken [Recoup|Recouped] as Mana",
+     "optional": false,
+     "statIds": [
+      "damage_taken_goes_to_mana_%"
+     ]
+    },
+    {
+     "text": "Skills have -(2-1) seconds to Cooldown",
+     "optional": false,
+     "statIds": [
+      "unique_cooldown_modifier_ms"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[EnergyShield|Energy Shield]: (164-300)",
+     "optional": false
+    },
+    {
+     "text": "[Ward|Runic Ward]: 30",
+     "optional": true
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 64",
+     "optional": false
+    },
+    {
+     "text": "[Intelligence|Int]: 37",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 728,
+   "itemId": "Temporalis Runemastered Silk Robe",
+   "detailsId": "temporalis-runemastered-silk-robe",
+   "name": "Temporalis",
+   "baseType": "Runemastered Silk Robe",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9VbmlxdWVzL1BpbGdyaW1zSW1hZ2UiLCJ3IjoyLCJoIjozLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/69db95b9aa/PilgrimsImage.png",
+   "flavourText": "The final element the tale-women\r\nmastered was Time itself.",
+   "levelRequired": 64,
+   "category": "Body Armour",
+   "primaryValue": 5500,
+   "listingCount": 11,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -14.73,
+    "data": [
+     null,
+     0,
+     4.18,
+     -2.79,
+     null,
+     -8.29,
+     -14.73
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "+(100-150) to maximum [EnergyShield|Energy Shield]",
+     "optional": false,
+     "statIds": [
+      "local_energy_shield"
+     ]
+    },
+    {
+     "text": "+(10-20)% to all [ElementalDamage|Elemental] [Resistances]",
+     "optional": false,
+     "statIds": [
+      "base_resist_all_elements_%"
+     ]
+    },
+    {
+     "text": "(5-30)% of Damage taken [Recoup|Recouped] as Life",
+     "optional": false,
+     "statIds": [
+      "damage_taken_goes_to_life_over_4_seconds_%"
+     ]
+    },
+    {
+     "text": "(5-30)% of Damage taken [Recoup|Recouped] as Mana",
+     "optional": false,
+     "statIds": [
+      "damage_taken_goes_to_mana_%"
+     ]
+    },
+    {
+     "text": "Skills have -(2-1.9) seconds to Cooldown",
+     "optional": false,
+     "statIds": [
+      "unique_cooldown_modifier_ms"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[EnergyShield|Energy Shield]: (127-248)",
+     "optional": false
+    },
+    {
+     "text": "[Ward|Runic Ward]: (110-170)",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 64",
+     "optional": false
+    },
+    {
+     "text": "[Intelligence|Int]: 61",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 731,
+   "itemId": "Skin of the Loyal Runeforged Garment",
+   "detailsId": "skin-of-the-loyal-runeforged-garment",
+   "name": "Skin of the Loyal",
+   "baseType": "Runeforged Garment",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9Cb2R5QXJtb3Vycy9VbmlxdWVzL1NraW5PZlRoZUxveWFsIiwidyI6MiwiaCI6Mywic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/710deb59df/SkinOfTheLoyal.png",
+   "flavourText": "We happily give our limbs.\r\nA net woven to keep safe the bones of the Lords.",
+   "levelRequired": 30,
+   "category": "Body Armour",
+   "primaryValue": 55,
+   "listingCount": 2,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 52.78,
+    "data": [
+     null,
+     0,
+     52.78,
+     52.78,
+     null,
+     52.78,
+     52.78
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "+(5-40)% to all [ElementalDamage|Elemental] [Resistances]",
+     "optional": false,
+     "statIds": [
+      "base_resist_all_elements_%"
+     ]
+    },
+    {
+     "text": "[AilmentThreshold|Elemental Ailment Threshold] is increased by [UncappedResist|Uncapped] [Resistances|Chaos Resistance]",
+     "optional": false,
+     "statIds": [
+      "ailment_threshold_increased_by_uncapped_chaos_resistance"
+     ]
+    },
+    {
+     "text": "[Armour] is increased by [UncappedResist|Uncapped] [Resistances|Fire Resistance]",
+     "optional": false,
+     "statIds": [
+      "armour_increased_by_uncapped_fire_resistance"
+     ]
+    },
+    {
+     "text": "[EnergyShield|Energy Shield] is increased by [UncappedResist|Uncapped] [Resistances|Cold Resistance]",
+     "optional": false,
+     "statIds": [
+      "energy_shield_increased_by_uncapped_cold_resistance"
+     ]
+    },
+    {
+     "text": "[Evasion] Rating is increased by [UncappedResist|Uncapped] [Resistances|Lightning Resistance]",
+     "optional": false,
+     "statIds": [
+      "evasion_rating_increased_by_uncapped_lightning_resistance"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[Armour]: 30",
+     "optional": true
+    },
+    {
+     "text": "[Ward|Runic Ward]: (100-140)",
+     "optional": false
+    },
+    {
+     "text": "[Evasion|Evasion Rating]: 30",
+     "optional": true
+    },
+    {
+     "text": "[EnergyShield|Energy Shield]: 10",
+     "optional": true
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: (15-50)",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "id": 192,
+   "itemId": "Death Articulated Ornate Gauntlets",
+   "detailsId": "death-articulated-ornate-gauntlets",
+   "name": "Death Articulated",
+   "baseType": "Ornate Gauntlets",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQXJtb3Vycy9HbG92ZXMvVW5pcXVlcy9EZWF0aEFydGljdWxhdGVkIiwidyI6MiwiaCI6Miwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/98e9511278/DeathArticulated.png",
+   "flavourText": "\"The mind at the center of the swarm... K'Tash does\r\nthe thinking... but it has only one thought... hate.\"\r\n- Rantings of a Templar prisoner, page ninety-four",
+   "levelRequired": 65,
+   "category": "Gloves",
+   "primaryValue": 40.8,
+   "listingCount": 13,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 39.25,
+    "data": [
+     null,
+     0,
+     2.39,
+     55.29,
+     null,
+     70.65,
+     39.25
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "(100-150)% increased [Armour|Armour] and [Evasion|Evasion]",
+     "optional": false,
+     "statIds": [
+      "local_armour_and_evasion_+%"
+     ]
+    },
+    {
+     "text": "(5-10)% increased [Attack] Speed",
+     "optional": false,
+     "statIds": [
+      "attack_speed_+%"
+     ]
+    },
+    {
+     "text": "+(17-23)% to [Resistances|Chaos Resistance]",
+     "optional": false,
+     "statIds": [
+      "base_chaos_damage_resistance_%"
+     ]
+    },
+    {
+     "text": "[LifeLoss|Lose] 5% of maximum Life per second",
+     "optional": false,
+     "statIds": [
+      "life_degeneration_%_per_minute_not_in_grace"
+     ]
+    },
+    {
+     "text": "Regenerate 5 [Rage] per second",
+     "optional": false,
+     "statIds": [
+      "base_rage_regeneration_per_minute"
+     ]
+    },
+    {
+     "text": "No Inherent loss of [Rage]",
+     "optional": false,
+     "statIds": [
+      "no_inherent_rage_loss"
+     ]
+    }
+   ],
+   "propertyModifiers": [
+    {
+     "text": "[Armour]: (178-225)",
+     "optional": false
+    },
+    {
+     "text": "[Evasion|Evasion Rating]: (162-205)",
+     "optional": false
+    },
+    {
+     "text": "[Ward|Runic Ward]: 25",
+     "optional": true
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 65",
+     "optional": false
+    },
+    {
+     "text": "[Strength|Str]: 44",
+     "optional": false
+    },
+    {
+     "text": "[Dexterity|Dex]: 44",
+     "optional": false
+    }
+   ]
+  }
+ ]
+}

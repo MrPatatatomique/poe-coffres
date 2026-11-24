@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "breachlord-sac",
+   "primaryValue": 20.88,
+   "volumePrimaryValue": 720.5,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.04788,
+   "sparkline": {
+    "totalChange": 9.23,
+    "data": [
+     11.25,
+     9.79,
+     19.7,
+     18.13,
+     16.08,
+     11.51,
+     9.23
+    ]
+   }
+  },
+  {
+   "id": "call-of-the-shadows",
+   "primaryValue": 0.3957,
+   "volumePrimaryValue": 386.2,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 2.53,
+   "sparkline": {
+    "totalChange": -6.88,
+    "data": [
+     0.43,
+     -1.03,
+     -13.52,
+     -12.51,
+     -9.59,
+     -21.91,
+     -6.88
+    ]
+   }
+  },
+  {
+   "id": "ancient-crisis-fragment",
+   "primaryValue": 2.41,
+   "volumePrimaryValue": 373.8,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.4142,
+   "sparkline": {
+    "totalChange": 16.49,
+    "data": [
+     -0.53,
+     -5.21,
+     -0.98,
+     4.7,
+     -0.72,
+     3.71,
+     16.49
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "breachlord-sac",
+   "name": "Breachlord Sac",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVlc3RJdGVtcy9CcmVhY2hsb3JkU2FjIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/07670f51fe/BreachlordSac.png",
+   "category": "Fragments",
+   "detailsId": "breachlord-sac"
+  },
+  {
+   "id": "call-of-the-shadows",
+   "name": "Call of the Shadows",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUml0dWFsL1JpdHVhbEVmZmlneVBpZWNlcyIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6fb287c8f4/RitualEffigyPieces.png",
+   "category": "Ritual",
+   "detailsId": "call-of-the-shadows"
+  },
+  {
+   "id": "ancient-crisis-fragment",
+   "name": "Ancient Crisis Fragment",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUXVlc3RJdGVtcy9QaW5uYWNsZUtleTEiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/ef329c74d1/PinnacleKey1.png",
+   "category": "Fragments",
+   "detailsId": "ancient-crisis-fragment"
+  }
+ ]
+}

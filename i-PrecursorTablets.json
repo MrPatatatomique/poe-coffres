@@ -1,0 +1,112 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 735,
+   "itemId": "Abyss Tablet Abyss Tablet Rare",
+   "detailsId": "abyss-tablet-abyss-tablet-rare",
+   "name": "Abyss Tablet",
+   "baseType": "Abyss Tablet",
+   "variant": "Rare",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRBYnlzcyIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/478e9f6ae2/PrecursorTabletAbyss.png",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.7456,
+   "listingCount": 10000,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -1.83,
+    "data": [
+     null,
+     0,
+     -16.57,
+     null,
+     0.04,
+     -3.4,
+     -1.83
+    ]
+   }
+  },
+  {
+   "id": 752,
+   "itemId": "Temple Tablet Temple Tablet Rare",
+   "detailsId": "temple-tablet-temple-tablet-rare",
+   "name": "Temple Tablet",
+   "baseType": "Temple Tablet",
+   "variant": "Rare",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRJbmN1cnNpb24iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/9beb68ac5d/PrecursorTabletIncursion.png",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.5985,
+   "listingCount": 10000,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -13.31,
+    "data": [
+     null,
+     0,
+     -43.33,
+     null,
+     4.55,
+     6.26,
+     -13.31
+    ]
+   }
+  },
+  {
+   "id": 751,
+   "itemId": "Temple Tablet Temple Tablet Magic",
+   "detailsId": "temple-tablet-temple-tablet-magic",
+   "name": "Temple Tablet",
+   "baseType": "Temple Tablet",
+   "variant": "Magic",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRJbmN1cnNpb24iLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/9beb68ac5d/PrecursorTabletIncursion.png",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.513,
+   "listingCount": 7786,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -0.93,
+    "data": [
+     null,
+     0,
+     -32.7,
+     null,
+     4.81,
+     15.82,
+     -0.93
+    ]
+   }
+  },
+  {
+   "id": 742,
+   "itemId": "Irradiated Tablet Irradiated Tablet Normal",
+   "detailsId": "irradiated-tablet-irradiated-tablet-normal",
+   "name": "Irradiated Tablet",
+   "baseType": "Irradiated Tablet",
+   "variant": "Normal",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvUHJlY3Vyc29yVGFibGV0cy9QcmVjdXJzb3JUYWJsZXRHZW5lcmljIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/4fbc73f060/PrecursorTabletGeneric.png",
+   "levelRequired": 0,
+   "category": "Tablet",
+   "primaryValue": 0.4942,
+   "listingCount": 3336,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 186.3,
+    "data": [
+     null,
+     0,
+     -35.76,
+     null,
+     -47.6,
+     -36.25,
+     186.3
+    ]
+   }
+  }
+ ]
+}

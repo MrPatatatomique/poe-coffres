@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "atmohuas-soul-core-of-retreat",
+   "primaryValue": 0.0305,
+   "volumePrimaryValue": 0.1169,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 0.06949,
+   "sparkline": {
+    "totalChange": -61.62,
+    "data": [
+     47.29,
+     185.1,
+     84.84,
+     114.9,
+     93.2,
+     239.8,
+     -61.62
+    ]
+   }
+  },
+  {
+   "id": "atziris-soul-core-of-alacrity",
+   "primaryValue": 1.57,
+   "volumePrimaryValue": 1.83,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.6364,
+   "sparkline": {
+    "totalChange": -45.34,
+    "data": [
+     6.09,
+     -46.17,
+     -2.61,
+     10.87,
+     -42.17,
+     -37.39,
+     -45.34
+    ]
+   }
+  },
+  {
+   "id": "atziris-soul-core-of-devotion",
+   "primaryValue": 5.39,
+   "volumePrimaryValue": 20.67,
+   "maxVolumeCurrency": "divine",
+   "maxVolumeRate": 0.1855,
+   "sparkline": {
+    "totalChange": 4.88,
+    "data": [
+     -0.37,
+     0.58,
+     -1.94,
+     -1.05,
+     -2.7,
+     0.76,
+     4.88
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "atmohuas-soul-core-of-retreat",
+   "name": "Atmohua's Soul Core of Retreat",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU291bENvcmVzL05ld1NvdWxDb3JlRW5lcmd5U2hpZWxkIiwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/10e16bc3ea/NewSoulCoreEnergyShield.png",
+   "category": "Vaal",
+   "detailsId": "atmohuas-soul-core-of-retreat"
+  },
+  {
+   "id": "atziris-soul-core-of-alacrity",
+   "name": "Atziri's Soul Core of Alacrity",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU291bENvcmVzL1NvdWxDb3JlU3BlY2lhbEdsb3ZlcyIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/bfd1353fac/SoulCoreSpecialGloves.png",
+   "category": "Vaal",
+   "detailsId": "atziris-soul-core-of-alacrity"
+  },
+  {
+   "id": "atziris-soul-core-of-devotion",
+   "name": "Atziri's Soul Core of Devotion",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvU291bENvcmVzL1NvdWxDb3JlU3BlY2lhbEhlbG1ldCIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/8794f35eaf/SoulCoreSpecialHelmet.png",
+   "category": "Vaal",
+   "detailsId": "atziris-soul-core-of-devotion"
+  }
+ ]
+}

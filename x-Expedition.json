@@ -1,0 +1,88 @@
+{
+ "core": {
+  "primary": "divine",
+  "secondary": "chaos"
+ },
+ "lines": [
+  {
+   "id": "blazing-flux",
+   "primaryValue": 0.04843,
+   "volumePrimaryValue": 0.4278,
+   "maxVolumeCurrency": "chaos",
+   "maxVolumeRate": 1.32,
+   "sparkline": {
+    "totalChange": -77.99,
+    "data": [
+     -23.46,
+     -41.98,
+     -39.78,
+     -48.45,
+     -41.53,
+     -30.67,
+     -77.99
+    ]
+   }
+  },
+  {
+   "id": "chilling-flux",
+   "primaryValue": 0.05049,
+   "volumePrimaryValue": 0.5553,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 0.04198,
+   "sparkline": {
+    "totalChange": -63.33,
+    "data": [
+     -38.74,
+     -13.39,
+     -40.41,
+     -42.1,
+     -45.92,
+     -50.3,
+     -63.33
+    ]
+   }
+  },
+  {
+   "id": "crackling-flux",
+   "primaryValue": 0.02143,
+   "volumePrimaryValue": 0.2893,
+   "maxVolumeCurrency": "exalted",
+   "maxVolumeRate": 0.0989,
+   "sparkline": {
+    "totalChange": -79.44,
+    "data": [
+     -41.51,
+     -36.75,
+     -42.37,
+     -24.24,
+     -74.01,
+     -70.4,
+     -79.44
+    ]
+   }
+  }
+ ],
+ "items": [
+  {
+   "id": "blazing-flux",
+   "name": "Blazing Flux",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvQXJjYW5lRmx1eEZpcmUiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/5894d96668/ArcaneFluxFire.png",
+   "category": "Expedition",
+   "detailsId": "blazing-flux"
+  },
+  {
+   "id": "chilling-flux",
+   "name": "Chilling Flux",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvQXJjYW5lRmx1eENvbGQiLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/8be4ea67ff/ArcaneFluxCold.png",
+   "category": "Expedition",
+   "detailsId": "chilling-flux"
+  },
+  {
+   "id": "crackling-flux",
+   "name": "Crackling Flux",
+   "image": "/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQ3VycmVuY3kvRXhwZWRpdGlvbjIvQXJjYW5lRmx1eExpZ2h0bmluZyIsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/6f9758e0a3/ArcaneFluxLightning.png",
+   "category": "Expedition",
+   "detailsId": "crackling-flux"
+  }
+ ]
+}

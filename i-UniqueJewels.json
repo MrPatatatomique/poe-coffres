@@ -1,0 +1,295 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 699,
+   "itemId": "Voices Sapphire",
+   "detailsId": "voices-sapphire",
+   "name": "Voices",
+   "baseType": "Sapphire",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL1VuaXF1ZXMvVm9pY2VzIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/f989334af4/Voices.png",
+   "flavourText": "Only a madman would ignore a god's instructions.",
+   "levelRequired": 0,
+   "category": "[Jewel]",
+   "limitedTo": 1,
+   "primaryValue": 5695,
+   "listingCount": 67,
+   "corrupted": true,
+   "sparkLine": {
+    "totalChange": 313.6,
+    "data": [
+     null,
+     0,
+     293.2,
+     null,
+     308.4,
+     307,
+     313.6
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Allocates (2-4) [SinisterJewelSockets|Sinister] [Jewel] sockets",
+     "optional": false,
+     "statIds": [
+      "unique_jewel_grants_x_voices_jewel_sockets"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 379,
+   "itemId": "Grand Spectrum Emerald",
+   "detailsId": "grand-spectrum-emerald",
+   "name": "Grand Spectrum",
+   "baseType": "Emerald",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL1VuaXF1ZXMvR3JhbmRTcGVjdHJ1bV9FbWVyYWxkIiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/687a109210/GrandSpectrum_Emerald.png",
+   "flavourText": "An indomitable force of control.",
+   "levelRequired": 0,
+   "category": "[Jewel]",
+   "limitedTo": 3,
+   "primaryValue": 37.1,
+   "listingCount": 28,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 97.34,
+    "data": [
+     null,
+     0,
+     -5.32,
+     null,
+     5.85,
+     76.6,
+     97.34
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "2% increased [Spirit|Spirit] per socketed Grand Spectrum",
+     "optional": false,
+     "statIds": [
+      "spirit_+%_per_stackable_unique_jewel"
+     ]
+    }
+   ]
+  },
+  {
+   "id": 404,
+   "itemId": "The Adorned Diamond",
+   "detailsId": "the-adorned-diamond",
+   "name": "The Adorned",
+   "baseType": "Diamond",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL1RyaWFsbWFzdGVySmV3ZWwiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/fa6b8d5683/TrialmasterJewel.png",
+   "flavourText": "At their height, the Vaal glittered under the sun.\r\nA decade, a century, an aeon of prosperity...\r\nnow nothing more than a passing wonder.",
+   "levelRequired": 0,
+   "category": "[Jewel]",
+   "limitedTo": 1,
+   "primaryValue": 10,
+   "listingCount": 2642,
+   "corrupted": true,
+   "sparkLine": {
+    "totalChange": 0,
+    "data": [
+     null,
+     0,
+     0,
+     null,
+     0,
+     0,
+     0
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "(1-29)% increased [Fire] Damage",
+     "optional": true
+    },
+    {
+     "text": "(1-29)% reduced [Fire] Damage",
+     "optional": true
+    },
+    {
+     "text": "(3-28)% increased [Evasion|Evasion Rating]",
+     "optional": true
+    },
+    {
+     "text": "(1-99)% increased Effect of [Jewel] Socket Passive Skills\ncontaining [Corrupted] [ItemRarity|Magic] [Jewel|Jewels]",
+     "optional": true
+    },
+    {
+     "text": "(1-28)% reduced [Chaos] Damage",
+     "optional": true
+    },
+    {
+     "text": "9% increased Effect of [Jewel] Socket Passive Skills\ncontaining [Corrupted] [ItemRarity|Rare] [Jewel|Jewels]",
+     "optional": true
+    },
+    {
+     "text": "(1-25)% increased [Lightning] Damage",
+     "optional": true
+    },
+    {
+     "text": "+(-27-30) to maximum [EnergyShield|Energy Shield]",
+     "optional": true
+    },
+    {
+     "text": "(1-30)% increased [Armour]",
+     "optional": true
+    },
+    {
+     "text": "(3-25)% increased [Chaos] Damage",
+     "optional": true
+    },
+    {
+     "text": "(1-30)% increased [Cold] Damage",
+     "optional": true
+    },
+    {
+     "text": "(1-27)% increased Global [Physical] Damage",
+     "optional": true
+    },
+    {
+     "text": "(2-30)% reduced [Cold] Damage",
+     "optional": true
+    },
+    {
+     "text": "(5-30)% reduced [Evasion|Evasion Rating]",
+     "optional": true
+    },
+    {
+     "text": "(1-29)% reduced [Lightning] Damage",
+     "optional": true
+    },
+    {
+     "text": "[Minion|Minions] deal (1-27)% increased Damage",
+     "optional": true
+    },
+    {
+     "text": "[Minion|Minions] deal (2-29)% reduced Damage",
+     "optional": true
+    },
+    {
+     "text": "(2-30)% reduced Global [Physical] Damage",
+     "optional": true
+    },
+    {
+     "text": "(4-30)% reduced [Armour]",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "id": 382,
+   "itemId": "Against the Darkness Time-Lost Diamond",
+   "detailsId": "against-the-darkness-time-lost-diamond",
+   "name": "Against the Darkness",
+   "baseType": "Time-Lost Diamond",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvSmV3ZWxzL1NhbmN0dW1KZXdlbCIsInciOjEsImgiOjEsInNjYWxlIjoxLCJyZWFsbSI6InBvZTIifV0/95cd807e91/SanctumJewel.png",
+   "flavourText": "After the fires, in the depths of the Winter of the World, all life in the Vastiri banded together. Whether serpent, hyena, human, or golem, hated enemies clasped hand to claw, built refuge, and fought side by side against the Abyssals. Thus, the Third Pact was born.",
+   "levelRequired": 0,
+   "category": "[Jewel]",
+   "limitedTo": 1,
+   "radius": "Small",
+   "primaryValue": 9,
+   "listingCount": 1258,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 12.5,
+    "data": [
+     null,
+     0,
+     23.75,
+     null,
+     0,
+     0,
+     12.5
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "Notable Passive Skills in Radius also grant [Gain] (2-4)% of Damage as Extra [Fire] Damage",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +8 to maximum Mana",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +(2-3)% to [Resistances|Chaos Resistance]",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +(2-4)% to [Resistances|Cold Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant (2-3)% increased [Dexterity]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant (2-3)% increased [Intelligence]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant (2-3)% increased [Strength]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant +1% to [MaximumResistances|Maximum Fire Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant +1% to [MaximumResistances|Maximum Lightning Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant [Gain] (2-4)% of Damage as Extra [Cold] Damage",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +8 to maximum Life",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant [Gain] (2-4)% of Damage as Extra [Chaos] Damage",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant (4-6)% reduced [Freeze|Freeze] Duration on you",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant (4-6)% reduced [Ignite|Ignite] Duration on you",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant (4-6)% reduced [Shock|Shock] duration on you",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +(2-4)% to [Resistances|Fire Resistance]",
+     "optional": true
+    },
+    {
+     "text": "[SmallPassive|Small Passive] Skills in Radius also grant +(2-4)% to [Resistances|Lightning Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant +1% to [MaximumResistances|Maximum Chaos Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant +1% to [MaximumResistances|Maximum Cold Resistance]",
+     "optional": true
+    },
+    {
+     "text": "Notable Passive Skills in Radius also grant [Gain] (2-4)% of Damage as Extra [Lightning] Damage",
+     "optional": true
+    }
+   ]
+  }
+ ]
+}

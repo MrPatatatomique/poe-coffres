@@ -1,0 +1,343 @@
+{
+ "keys": [
+  "core",
+  "lines"
+ ],
+ "lines": [
+  {
+   "id": 360,
+   "itemId": "The Gnashing Sash Wide Belt",
+   "detailsId": "the-gnashing-sash-wide-belt",
+   "name": "The Gnashing Sash",
+   "baseType": "Wide Belt",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9HbmFzaGluZ1Nhc2giLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/c996ea805c/GnashingSash.png",
+   "flavourText": "\"Ghorr knows only hunger, only ravenous feasting.\r\nIt will consume all that lives, and more!\"\r\n- Rantings of a Templar prisoner, page fourteen",
+   "levelRequired": 60,
+   "category": "Belt",
+   "primaryValue": 3790,
+   "listingCount": 5,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": 0,
+    "data": [
+     null,
+     0,
+     0,
+     null,
+     0,
+     0,
+     0
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Has (2-3) [Charm] Slots",
+     "optional": true,
+     "statIds": [
+      "local_charm_slots"
+     ]
+    },
+    {
+     "text": "Has 1 [Charm] Slot",
+     "optional": true,
+     "statIds": [
+      "local_charm_slots"
+     ]
+    },
+    {
+     "text": "(20-30)% increased [Flask|Flask] Charges gained",
+     "optional": false,
+     "statIds": [
+      "flask_charges_gained_+%"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "(15-35)% increased [Flask] Life Recovery rate",
+     "optional": false,
+     "statIds": [
+      "flask_life_recovery_rate_+%"
+     ]
+    },
+    {
+     "text": "+(17-23)% to [Resistances|Chaos Resistance]",
+     "optional": false,
+     "statIds": [
+      "base_chaos_damage_resistance_%"
+     ]
+    },
+    {
+     "text": "[LifeLoss|Lose] 5% of maximum Life per second",
+     "optional": false,
+     "statIds": [
+      "life_degeneration_%_per_minute_not_in_grace"
+     ]
+    },
+    {
+     "text": "Life Recovery from [Flask|Flasks] can [Overflow|Overflow] Maximum Life",
+     "optional": false,
+     "statIds": [
+      "life_flask_recovery_can_overcap_life"
+     ]
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 60",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 527,
+   "itemId": "Mageblood Utility Belt",
+   "detailsId": "mageblood-utility-belt",
+   "name": "Mageblood",
+   "baseType": "Utility Belt",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvQmVsdHMvVW5pcXVlcy9NYWdlYmxvb2QiLCJ3IjoyLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/79ac3ce7d3/Mageblood.png",
+   "flavourText": "Rivers of power coursed through their veins.\r\nNow, that power is yours, for good or ill.",
+   "levelRequired": 55,
+   "category": "Belt",
+   "primaryValue": 125,
+   "listingCount": 6558,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -3.85,
+    "data": [
+     null,
+     0,
+     -12.38,
+     null,
+     -15.38,
+     -15.38,
+     -3.85
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Has 1 [Charm] Slot",
+     "optional": true,
+     "statIds": [
+      "local_charm_slots"
+     ]
+    },
+    {
+     "text": "Has (2-3) [Charm] Slots",
+     "optional": true,
+     "statIds": [
+      "local_charm_slots"
+     ]
+    },
+    {
+     "text": "20% of [Flask|Flask] Recovery applied Instantly",
+     "optional": false,
+     "statIds": [
+      "flask_recovery_amount_%_to_recover_instantly"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "Legacy of [LegacyOfBismuth|Bismuth]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfGranite|Granite]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfQuicksilver|Quicksilver]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfAmethyst|Amethyst]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfSilver|Silver]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfDiamond|Diamond]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfStibnite|Stibnite]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfGold|Gold]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfJade|Jade]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfRuby|Ruby]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfSapphire|Sapphire]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfTopaz|Topaz]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfBasalt|Basalt]",
+     "optional": true
+    },
+    {
+     "text": "Legacy of [LegacyOfSulphur|Sulphur]",
+     "optional": true
+    },
+    {
+     "text": "All [MagesLegacy|Mage's Legacies] have (25-50)% increased effect per duplicate [MagesLegacy|Mage's Legacy] you have",
+     "optional": false
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 55",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 356,
+   "itemId": "Bursting Decay Unset Ring",
+   "detailsId": "bursting-decay-unset-ring",
+   "name": "Bursting Decay",
+   "baseType": "Unset Ring",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVW5pcXVlcy9CdXJzdGluZ0RlY2F5IiwidyI6MSwiaCI6MSwic2NhbGUiOjEsInJlYWxtIjoicG9lMiJ9XQ/2781601a75/BurstingDecay.png",
+   "flavourText": "\"All Beidat desires is a foothold, a grip on your flesh,\r\non the world... he will offer you anything to get it...\"\r\n- Rantings of a Templar prisoner, page thirty",
+   "levelRequired": 60,
+   "category": "Ring",
+   "primaryValue": 98,
+   "listingCount": 17,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -13.27,
+    "data": [
+     null,
+     0,
+     -11.5,
+     null,
+     -11.5,
+     -1.95,
+     -13.27
+    ]
+   },
+   "implicitModifiers": [
+    {
+     "text": "Grants 1 additional Skill Slot",
+     "optional": false,
+     "statIds": [
+      "local_item_additional_skill_slots"
+     ]
+    }
+   ],
+   "explicitModifiers": [
+    {
+     "text": "(15-25)% increased [ItemRarity|Rarity of Items] found",
+     "optional": false,
+     "statIds": [
+      "base_item_found_rarity_+%"
+     ]
+    },
+    {
+     "text": "+(17-27)% to [Resistances|Chaos Resistance]",
+     "optional": false,
+     "statIds": [
+      "base_chaos_damage_resistance_%"
+     ]
+    },
+    {
+     "text": "[LifeLoss|Lose] 5% of maximum Life per second",
+     "optional": false,
+     "statIds": [
+      "life_degeneration_%_per_minute_not_in_grace"
+     ]
+    },
+    {
+     "text": "[Attack|Attacks] have added [Physical] damage equal to 3% of maximum Life",
+     "optional": false,
+     "statIds": [
+      "attack_added_physical_damage_%_of_maximum_life"
+     ]
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 60",
+     "optional": false
+    }
+   ]
+  },
+  {
+   "id": 549,
+   "itemId": "Eshtera's Path Ring",
+   "detailsId": "eshteras-path-ring",
+   "name": "Eshtera's Path",
+   "baseType": "Ring",
+   "icon": "https://web.poecdn.com/gen/image/WzI1LDE0LHsiZiI6IjJESXRlbXMvUmluZ3MvVW5pcXVlcy9SaW1ldmVpbFNlYWwiLCJ3IjoxLCJoIjoxLCJzY2FsZSI6MSwicmVhbG0iOiJwb2UyIn1d/d80ec95524/RimeveilSeal.png",
+   "flavourText": "During the Winter of the World, her akhara began\r\nshepherding jingakh across the harsh Vastiri. Sekhema\r\nEshtera planted the seeds of Maraketh diplomacy.",
+   "levelRequired": 40,
+   "category": "Ring",
+   "primaryValue": 64.6,
+   "listingCount": 29,
+   "corrupted": false,
+   "sparkLine": {
+    "totalChange": -7.05,
+    "data": [
+     null,
+     0,
+     0,
+     null,
+     0.72,
+     -0.72,
+     -7.05
+    ]
+   },
+   "explicitModifiers": [
+    {
+     "text": "You can only Socket Sapphire Jewels in this item",
+     "optional": false,
+     "statIds": [
+      "local_can_only_socket_sapphire_gems"
+     ]
+    },
+    {
+     "text": "(10-20)% increased [ItemRarity|Rarity of Items] found",
+     "optional": false,
+     "statIds": [
+      "base_item_found_rarity_+%"
+     ]
+    },
+    {
+     "text": "+(10-24) to all [Attributes|Attributes]",
+     "optional": false,
+     "statIds": [
+      "additional_all_attributes"
+     ]
+    },
+    {
+     "text": "+(5-10)% to [Fire] and [Cold] [Resistances] per [Equipped|Equipped Item] with a [Lightning] [Resistances|Resistance] Modifier",
+     "optional": false,
+     "statIds": [
+      "fire_and_cold_resist_+_per_equipped_item_with_a_lightning_resistance_mod"
+     ]
+    }
+   ],
+   "requirementModifiers": [
+    {
+     "text": "Level: 40",
+     "optional": false
+    }
+   ]
+  }
+ ]
+}
